@@ -1,0 +1,8 @@
+.env
+__pycache__/
+*.pyc
+venv/
+.DS_Store
+node_modules/
+*.log
+chroma_db/

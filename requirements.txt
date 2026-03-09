@@ -1,0 +1,10 @@
+crawl4ai
+requests
+pandas
+chromadb
+sentence-transformers
+python-dotenv
+groq
+fastapi
+uvicorn
+langchain
