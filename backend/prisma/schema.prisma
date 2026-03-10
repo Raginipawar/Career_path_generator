@@ -1,0 +1,85 @@
+// prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  profiles Profile[]
+  roadmaps Roadmap[]
+
+  @@index([email])
+  @@map("users")
+}
+
+model Profile {
+  id         String   @id @default(uuid())
+  userId     String
+  skills     String[] // Array of skill strings
+  domain     String
+  experience String   // "0-2", "2-5", "5-10", "10+"
+  lifeStage  String   // "student", "early", "mid", "senior", "transition"
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  roadmaps Roadmap[]
+
+  @@index([userId])
+  @@map("profiles")
+}
+
+model Roadmap {
+  id          String   @id @default(uuid())
+  userId      String
+  profileId   String
+  roadmapData Json     // Full LLM output stored as JSON
+  auditScores Json     // PASSIONIT/PRUTL scores
+  probability Float?   // Transition probability score
+  createdAt   DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([profileId])
+  @@map("roadmaps")
+}
+
+model CareerCluster {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String
+  domains     String[]
+  demandScore Float    // 0-100
+  growthTrend String   // "rising", "stable", "declining"
+  avgSalary   Int?     // in INR/annum
+  topSkills   String[]
+  createdAt   DateTime @default(now())
+
+  @@map("career_clusters")
+}
+
+model AuditResult {
+  id        String   @id @default(uuid())
+  roadmapId String
+  dimension String   // e.g. "Passion", "Skills", "Income"
+  score     Float    // 0-10
+  risk      String   // "low", "medium", "high"
+  explanation String
+  createdAt DateTime @default(now())
+
+  @@index([roadmapId])
+  @@map("audit_results")
+}
