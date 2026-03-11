@@ -101,6 +101,42 @@ export interface RagResponse {
 
 // ─── Main caller ──────────────────────────────────────────────────────────────
 
+// Add to ragClient.ts
+function prismaToRagProfile(p: any): RagProfile {
+  return {
+    user_id: p.userId ?? p.id,
+    full_name: p.fullName,
+    age: p.age,
+    gender: p.gender,
+    location_city: p.locationCity,
+    location_state: p.locationState,
+    highest_degree: p.highestDegree,
+    field_of_study: p.fieldOfStudy,
+    institution_tier: p.institutionTier,
+    current_role: p.currentRole,
+    current_industry: p.currentIndustry,
+    years_of_experience: p.yearsOfExperience,
+    employment_status: p.employmentStatus,
+    current_salary_lpa: p.currentSalaryLpa,
+    technical_skills: p.technicalSkills,
+    soft_skills: p.softSkills,
+    certifications: p.certifications,
+    interest_domains: p.interestDomains,
+    career_goal: p.careerGoal,
+    preferred_work_style: p.preferredWorkStyle,
+    willing_to_relocate: p.willingToRelocate,
+    target_timeline_years: p.targetTimelineYears,
+    life_stage: p.lifeStage,
+    burnout_level: p.burnoutLevel,
+    stress_tolerance: p.stressTolerance,
+    has_dependents: p.hasDependents,
+    recent_life_event: p.recentLifeEvent,
+    work_life_priority: p.workLifePriority,
+    leadership_score: p.leadershipScore,
+    alignment_category: p.alignmentCategory,
+  };
+}
+
 export async function callRagGenerate(ragProfile: RagProfile): Promise<RagResponse> {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
