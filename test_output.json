@@ -1,0 +1,334 @@
+{
+  "profile": {
+    "user_id": "demo_001",
+    "full_name": "Vikram Sharma",
+    "age": 35,
+    "gender": "Male",
+    "location_city": "Bangalore",
+    "location_state": "Karnataka",
+    "highest_degree": "B.Tech",
+    "field_of_study": "Computer Science",
+    "institution_tier": "Tier 1",
+    "current_role": "Senior Software Engineer",
+    "current_industry": "IT",
+    "years_of_experience": 11.0,
+    "employment_status": "Employed Full-Time",
+    "current_salary_lpa": 28.5,
+    "technical_skills": [
+      "Python",
+      "Java",
+      "SQL",
+      "AWS",
+      "Docker",
+      "REST APIs",
+      "Git"
+    ],
+    "soft_skills": [
+      "Team Leadership",
+      "Mentoring",
+      "Communication",
+      "Problem Solving"
+    ],
+    "certifications": [
+      "AWS SAA"
+    ],
+    "interest_domains": [
+      "EdTech"
+    ],
+    "career_goal": "Transition to teaching and education",
+    "preferred_work_style": "Hybrid",
+    "willing_to_relocate": false,
+    "target_timeline_years": 3,
+    "life_stage": "Mid Career",
+    "burnout_level": 8,
+    "stress_tolerance": 4,
+    "has_dependents": true,
+    "recent_life_event": "New Parent",
+    "work_life_priority": "Work-Life Balance",
+    "leadership_score": 7.5,
+    "alignment_category": "Moderate",
+    "created_at": "2026-03-08T00:00:00Z",
+    "updated_at": "2026-03-08T00:00:00Z"
+  },
+  "retrieved_docs": [
+    "doc_010",
+    "doc_013",
+    "doc_087",
+    "doc_014",
+    "doc_011"
+  ],
+  "roadmap": {
+    "current_role": "Senior Software Engineer",
+    "target_role": "Technical Educator/Curriculum Lead in EdTech",
+    "success_probability": 80,
+    "total_transition_months": 36,
+    "explanation": "Given Vikram's 11 years of experience in software engineering, his interest in EdTech, and his current burnout level, transitioning to a Technical Educator or Curriculum Developer role in EdTech is a suitable career move. This path aligns with his career goal, offers better work-life balance, and has a realistic growth trajectory. The transition will require developing pedagogical expertise, understanding learning outcomes measurement, and managing educator teams, but his technical background and leadership skills provide a solid foundation.",
+    "roadmap_nodes": [
+      {
+        "node_id": "node_1",
+        "role_title": "Senior Software Engineer",
+        "node_order": 1,
+        "timeline_months": 0,
+        "required_skills": [
+          "Python",
+          "Java",
+          "SQL",
+          "AWS",
+          "Docker",
+          "REST APIs",
+          "Git"
+        ],
+        "skill_gap": [],
+        "salary_estimate_lpa": 28.5,
+        "risk_level": "Low",
+        "description": "Current role, utilizing technical skills and experience."
+      },
+      {
+        "node_id": "node_2",
+        "role_title": "Part-time Technical Educator",
+        "node_order": 2,
+        "timeline_months": 6,
+        "required_skills": [
+          "Pedagogy",
+          "Content Creation",
+          "LMS Platforms"
+        ],
+        "skill_gap": [
+          "Pedagogy",
+          "Content Creation",
+          "LMS Platforms"
+        ],
+        "salary_estimate_lpa": 10,
+        "risk_level": "Medium",
+        "description": "Start part-time as a Technical Educator to gain experience in EdTech, build a portfolio, and develop necessary skills."
+      },
+      {
+        "node_id": "node_3",
+        "role_title": "Full-time Technical Educator/Curriculum Developer",
+        "node_order": 3,
+        "timeline_months": 18,
+        "required_skills": [
+          "Instructional Design",
+          "Video Production",
+          "Data Analysis"
+        ],
+        "skill_gap": [
+          "Instructional Design",
+          "Video Production",
+          "Data Analysis"
+        ],
+        "salary_estimate_lpa": 12,
+        "risk_level": "Medium",
+        "description": "Transition to a full-time role in EdTech, focusing on curriculum development and technical education."
+      },
+      {
+        "node_id": "node_4",
+        "role_title": "Senior Educator/Curriculum Lead",
+        "node_order": 4,
+        "timeline_months": 36,
+        "required_skills": [
+          "Team Management",
+          "Learning Outcomes Measurement",
+          "AI-powered Learning Systems"
+        ],
+        "skill_gap": [
+          "Team Management",
+          "Learning Outcomes Measurement",
+          "AI-powered Learning Systems"
+        ],
+        "salary_estimate_lpa": 18,
+        "risk_level": "Low",
+        "description": "Advance to a senior role, leading educator teams and contributing to the development of EdTech platforms."
+      }
+    ],
+    "roadmap_edges": [
+      {
+        "source": "node_1",
+        "target": "node_2",
+        "label": "6 months of part-time tutoring or content creation"
+      },
+      {
+        "source": "node_2",
+        "target": "node_3",
+        "label": "Portfolio development and application to EdTech companies"
+      },
+      {
+        "source": "node_3",
+        "target": "node_4",
+        "label": "2 years of experience and skill development in EdTech"
+      }
+    ],
+    "emotional_forecast": [
+      {
+        "phase": "Burnout Recovery Phase",
+        "timeline": "Months 1-6",
+        "stress_level": "High",
+        "description": "Initial transition period, focusing on recovery from burnout and adjusting to part-time EdTech role."
+      },
+      {
+        "phase": "Skill Building Phase",
+        "timeline": "Months 7-18",
+        "stress_level": "Medium",
+        "description": "Developing necessary skills for full-time EdTech role, managing part-time and full-time responsibilities."
+      },
+      {
+        "phase": "Growth and Stability Phase",
+        "timeline": "Months 19-36",
+        "stress_level": "Low",
+        "description": "Established in EdTech, focusing on career growth, work-life balance, and contributing to the development of EdTech platforms."
+      }
+    ],
+    "alternative_paths": [
+      {
+        "path_name": "EdTech Leadership",
+        "roles": [
+          "Technical Educator",
+          "Curriculum Lead",
+          "Head of Academics"
+        ],
+        "total_months": 48,
+        "success_probability": 70
+      },
+      {
+        "path_name": "Academic Research",
+        "roles": [
+          "Research Assistant",
+          "Lecturer",
+          "Professor"
+        ],
+        "total_months": 60,
+        "success_probability": 60
+      }
+    ]
+  },
+  "audit_scores": [
+    {
+      "dimension": "Purpose",
+      "framework": "PASSIONIT",
+      "score": 9,
+      "risk_level": "Low",
+      "explanation": "The recommended career path aligns with Vikram's stated goal of transitioning to teaching and education, demonstrating a clear understanding of his career aspirations.",
+      "recommendation": "Continue to monitor and adjust the recommendation based on Vikram's progress and feedback.",
+      "flagged_biases": []
+    },
+    {
+      "dimension": "Accountability",
+      "framework": "PASSIONIT",
+      "score": 8,
+      "risk_level": "Low",
+      "explanation": "The recommendation is based on Vikram's experience, interest in EdTech, and burnout level, providing a clear rationale for the suggested career path.",
+      "recommendation": "Provide more detailed information about the data sources and algorithms used to generate the recommendation.",
+      "flagged_biases": []
+    },
+    {
+      "dimension": "Safety",
+      "framework": "PASSIONIT",
+      "score": 7,
+      "risk_level": "Medium",
+      "explanation": "While the recommended path offers better work-life balance, the transition may still pose some emotional risk due to the significant career change, especially considering Vikram's high burnout level and new parental responsibilities.",
+      "recommendation": "Consider incorporating stress management and burnout prevention strategies into the career transition plan.",
+      "flagged_biases": []
+    },
+    {
+      "dimension": "Sustainability",
+      "framework": "PASSIONIT",
+      "score": 8,
+      "risk_level": "Low",
+      "explanation": "The recommended career path has a realistic growth trajectory, and the EdTech industry is expected to continue growing, making it a sustainable long-term option for Vikram.",
+      "recommendation": "Regularly review and update the recommendation to ensure it remains relevant and aligned with industry trends.",
+      "flagged_biases": []
+    },
+    {
+      "dimension": "Inclusivity",
+      "framework": "PASSIONIT",
+      "score": 9,
+      "risk_level": "Low",
+      "explanation": "The recommendation does not appear to be influenced by Vikram's gender, location, or institution tier, demonstrating inclusivity.",
+      "recommendation": "Continue to monitor the recommendation for any potential biases or discriminatory factors.",
+      "flagged_biases": [
+        "Gender-neutral language verified"
+      ]
+    },
+    {
+      "dimension": "Objectivity",
+      "framework": "PASSIONIT",
+      "score": 8,
+      "risk_level": "Low",
+      "explanation": "The recommendation is based on Vikram's skills, experience, and market data, rather than assumptions or personal biases.",
+      "recommendation": "Ensure that the data used to generate the recommendation is accurate, up-to-date, and relevant to the EdTech industry.",
+      "flagged_biases": []
+    },
+    {
+      "dimension": "Non-bias",
+      "framework": "PASSIONIT",
+      "score": 9,
+      "risk_level": "Low",
+      "explanation": "No apparent demographic, geographic, or institutional biases were detected in the recommendation.",
+      "recommendation": "Regularly review the recommendation for any potential biases or discriminatory factors.",
+      "flagged_biases": []
+    },
+    {
+      "dimension": "Integrity",
+      "framework": "PASSIONIT",
+      "score": 8,
+      "risk_level": "Low",
+      "explanation": "The data used to generate the recommendation appears to be accurate and current, but it is essential to ensure that the data sources are reliable and trustworthy.",
+      "recommendation": "Verify the accuracy and reliability of the data sources used to generate the recommendation.",
+      "flagged_biases": []
+    },
+    {
+      "dimension": "Transparency",
+      "framework": "PASSIONIT",
+      "score": 7,
+      "risk_level": "Medium",
+      "explanation": "While the recommendation provides a clear explanation, it could be improved by providing more detailed information about the algorithms and data sources used to generate the recommendation.",
+      "recommendation": "Increase transparency by providing more detailed information about the recommendation process and data sources.",
+      "flagged_biases": []
+    },
+    {
+      "dimension": "Privacy",
+      "framework": "PRUTL",
+      "score": 9,
+      "risk_level": "Low",
+      "explanation": "The system appears to handle Vikram's personal data appropriately, and no sensitive information is shared without consent.",
+      "recommendation": "Continue to ensure that the system handles personal data in accordance with relevant privacy regulations and guidelines.",
+      "flagged_biases": []
+    },
+    {
+      "dimension": "Reliability",
+      "framework": "PRUTL",
+      "score": 8,
+      "risk_level": "Low",
+      "explanation": "The recommendation is based on a clear and consistent methodology, but it is essential to ensure that the data sources and algorithms used are reliable and trustworthy.",
+      "recommendation": "Regularly review and update the recommendation to ensure it remains reliable and consistent.",
+      "flagged_biases": []
+    },
+    {
+      "dimension": "Usability",
+      "framework": "PRUTL",
+      "score": 8,
+      "risk_level": "Low",
+      "explanation": "The recommendation is presented in a clear and actionable format, making it easy for Vikram to understand and follow.",
+      "recommendation": "Consider providing additional resources or support to help Vikram navigate the career transition process.",
+      "flagged_biases": []
+    },
+    {
+      "dimension": "Trustworthiness",
+      "framework": "PRUTL",
+      "score": 8,
+      "risk_level": "Low",
+      "explanation": "The recommendation appears to be trustworthy, as it is based on a clear and consistent methodology and takes into account Vikram's career goals and priorities.",
+      "recommendation": "Ensure that the recommendation is regularly reviewed and updated to maintain trustworthiness.",
+      "flagged_biases": []
+    },
+    {
+      "dimension": "Legality",
+      "framework": "PRUTL",
+      "score": 9,
+      "risk_level": "Low",
+      "explanation": "The recommendation complies with employment laws and ethical standards, and no discriminatory factors were detected.",
+      "recommendation": "Continue to ensure that the recommendation complies with relevant laws and regulations.",
+      "flagged_biases": []
+    }
+  ]
+}
