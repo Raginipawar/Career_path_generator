@@ -190,4 +190,62 @@ def generate_audit(
 
     # Fallback: return empty audit if LLM fails
     print("WARNING: Ethical audit generation failed. Returning empty scores.")
-    return []
+
+    # ──────────────────────────────────────────────
+# Fallback: pre-generated demo response
+# ──────────────────────────────────────────────
+
+DEMO_FALLBACK = {
+    "current_role": "Senior Software Engineer",
+    "target_role": "Technical Educator / EdTech Curriculum Lead",
+    "success_probability": 78,
+    "total_transition_months": 36,
+    "explanation": "Based on 11 years of engineering experience, strong mentoring skills, and stated interest in EdTech, a transition to technical education is highly viable. The burnout level and new parent status suggest a gradual part-time transition.",
+    "roadmap_nodes": [
+        {"node_id": "node_1", "role_title": "Senior Software Engineer", "node_order": 1, "timeline_months": 0, "required_skills": ["Python", "Java", "AWS"], "skill_gap": [], "salary_estimate_lpa": 28.5, "risk_level": "Low", "description": "Current role — use this phase for burnout recovery and part-time teaching."},
+        {"node_id": "node_2", "role_title": "Part-time Technical Trainer", "node_order": 2, "timeline_months": 6, "required_skills": ["Curriculum Design", "Public Speaking"], "skill_gap": ["Curriculum Design", "Instructional Design"], "salary_estimate_lpa": 12.0, "risk_level": "Medium", "description": "Start teaching on weekends at bootcamps or platforms like Scaler/Coding Ninjas while still employed."},
+        {"node_id": "node_3", "role_title": "Full-time Technical Educator", "node_order": 3, "timeline_months": 18, "required_skills": ["LMS Platforms", "Content Creation", "Assessment Design"], "skill_gap": ["LMS Platforms"], "salary_estimate_lpa": 15.0, "risk_level": "Medium", "description": "Transition to full-time teaching role at an EdTech company or university."},
+        {"node_id": "node_4", "role_title": "EdTech Curriculum Lead", "node_order": 4, "timeline_months": 36, "required_skills": ["Team Leadership", "Program Management"], "skill_gap": ["Program Management"], "salary_estimate_lpa": 20.0, "risk_level": "Low", "description": "Lead curriculum design for a department or EdTech platform."},
+    ],
+    "roadmap_edges": [
+        {"source": "node_1", "target": "node_2", "label": "6 months: build teaching portfolio + complete instructional design course"},
+        {"source": "node_2", "target": "node_3", "label": "12 months: gain classroom experience + build reputation"},
+        {"source": "node_3", "target": "node_4", "label": "18 months: demonstrate leadership in curriculum projects"},
+    ],
+    "emotional_forecast": [
+        {"phase": "Burnout Recovery", "timeline": "Months 1-6", "stress_level": "High", "description": "Identity shift from engineer to educator. Financial anxiety about salary drop. Support from family is critical."},
+        {"phase": "Skill Building", "timeline": "Months 7-18", "stress_level": "Medium", "description": "Growing confidence as a teacher. New parent routine stabilizing."},
+        {"phase": "Growth Phase", "timeline": "Months 19-36", "stress_level": "Low", "description": "Established in new career. Better work-life balance achieved."},
+    ],
+    "alternative_paths": [
+        {"path_name": "Developer Advocate Route", "roles": ["Senior Engineer", "Developer Advocate", "Head of DevRel"], "total_months": 24, "success_probability": 72},
+        {"path_name": "Engineering Manager Route", "roles": ["Senior Engineer", "Tech Lead", "Engineering Manager"], "total_months": 30, "success_probability": 68},
+    ],
+}
+
+DEMO_AUDIT_FALLBACK = [
+    {"dimension": "Purpose", "framework": "PASSIONIT", "score": 9, "risk_level": "Low", "explanation": "Path aligns with stated goal of transitioning to teaching.", "recommendation": "Continue validating interest through part-time teaching.", "flagged_biases": []},
+    {"dimension": "Accountability", "framework": "PASSIONIT", "score": 8, "risk_level": "Low", "explanation": "Recommendation traced to skills, experience, and market data.", "recommendation": "Document data sources used.", "flagged_biases": []},
+    {"dimension": "Safety", "framework": "PASSIONIT", "score": 7, "risk_level": "Medium", "explanation": "Salary drop from 28.5 to 12 LPA in phase 2 is significant.", "recommendation": "Highlight financial planning steps.", "flagged_biases": ["Salary risk not prominently warned"]},
+    {"dimension": "Sustainability", "framework": "PASSIONIT", "score": 8, "risk_level": "Low", "explanation": "EdTech is a growing industry in India with stable demand.", "recommendation": "Monitor industry trends quarterly.", "flagged_biases": []},
+    {"dimension": "Inclusivity", "framework": "PASSIONIT", "score": 9, "risk_level": "Low", "explanation": "Recommendation works regardless of gender or location.", "recommendation": "Verify with diverse profile types.", "flagged_biases": []},
+    {"dimension": "Objectivity", "framework": "PASSIONIT", "score": 8, "risk_level": "Low", "explanation": "Based on skills and market data, not assumptions.", "recommendation": "Add quantitative skill-match scoring.", "flagged_biases": []},
+    {"dimension": "Non-bias", "framework": "PASSIONIT", "score": 9, "risk_level": "Low", "explanation": "No demographic biases detected.", "recommendation": "Continue fairness audits.", "flagged_biases": ["Gender-neutral language verified"]},
+    {"dimension": "Integrity", "framework": "PASSIONIT", "score": 8, "risk_level": "Low", "explanation": "Data sources are current and accurate.", "recommendation": "Update market data quarterly.", "flagged_biases": []},
+    {"dimension": "Transparency", "framework": "PASSIONIT", "score": 7, "risk_level": "Medium", "explanation": "Explanation provided but could include more detail.", "recommendation": "Add downloadable detailed roadmap.", "flagged_biases": []},
+    {"dimension": "Privacy", "framework": "PRUTL", "score": 9, "risk_level": "Low", "explanation": "Personal data handled appropriately.", "recommendation": "Document data retention policy.", "flagged_biases": []},
+    {"dimension": "Reliability", "framework": "PRUTL", "score": 8, "risk_level": "Low", "explanation": "Consistent results across similar profiles.", "recommendation": "Add reproducibility testing.", "flagged_biases": []},
+    {"dimension": "Usability", "framework": "PRUTL", "score": 8, "risk_level": "Low", "explanation": "Output is actionable and clear.", "recommendation": "Add timeline visualization.", "flagged_biases": []},
+    {"dimension": "Trustworthiness", "framework": "PRUTL", "score": 8, "risk_level": "Low", "explanation": "A career counselor would largely agree.", "recommendation": "Validate with domain experts.", "flagged_biases": []},
+    {"dimension": "Legality", "framework": "PRUTL", "score": 9, "risk_level": "Low", "explanation": "Compliant with employment laws.", "recommendation": "No action needed.", "flagged_biases": []},
+]
+
+
+def get_fallback_roadmap() -> dict:
+    """Return pre-generated demo roadmap when Groq is unavailable."""
+    return DEMO_FALLBACK.copy()
+
+
+def get_fallback_audit() -> list[dict]:
+    """Return pre-generated demo audit when Groq is unavailable."""
+    return [s.copy() for s in DEMO_AUDIT_FALLBACK]
