@@ -1,0 +1,562 @@
+[
+  {
+    "doc_id": "doc_001",
+    "text": "Transitioning from software engineering to AI & ML in India requires strategic upskilling over 6-12 months. Start by mastering Python libraries like NumPy, pandas, and scikit-learn. Take online courses on machine learning fundamentals from NPTEL or Coursera. Build 3-4 portfolio projects: predictive modeling, image classification, and NLP tasks. Participate in Kaggle competitions to gain practical experience. Learn cloud ML platforms like AWS SageMaker or Google Vertex AI. The key advantage for software engineers is existing coding skills and system design knowledge. Focus on understanding ML algorithms deeply rather than just using libraries. In 2026, Indian companies prioritize engineers who can deploy ML models to production, not just build notebooks. Expected salary jump: 30-50% if transitioning with 3+ years experience. Cities with most opportunities: Bangalore, Hyderabad, Pune, NCR. Certification from Andrew Ng's ML course or fast.ai adds credibility. Join ML communities like Bangalore ML or Data Science Pune for networking.",
+    "metadata": {
+      "doc_id": "doc_001",
+      "source": "Manual",
+      "domain": "AI & ML",
+      "doc_type": "transition_path",
+      "role_title": "ML Engineer",
+      "experience_level": "Mid",
+      "region": "India",
+      "last_scraped": "2026-03-11"
+    }
+  },
+  {
+    "doc_id": "doc_002",
+    "text": "Software engineers transitioning to Cybersecurity need to understand both offensive and defensive security. The transition typically takes 8-12 months of focused learning. Start with fundamentals: networking (TCP/IP, DNS, HTTP), Linux system administration, and cryptography basics. Get certifications: CompTIA Security+, CEH (Certified Ethical Hacker), or eJPT for hands-on skills. Practice on platforms like HackTheBox, TryHackMe, and PentesterLab. Learn security tools: Burp Suite, Metasploit, Nmap, Wireshark. In India, cybersecurity roles are booming due to RBI guidelines, DPDP Act compliance, and increasing cyberattacks. Focus areas with high demand: application security, cloud security (AWS/Azure), and security operations. Build a GitHub with security projects, writeups, and tools. Entry points: Security Analyst, AppSec Engineer, or Security Operations roles. Salary for mid-level transitions: 12-25 LPA depending on city and company. GCCs and product companies pay 30-50% more than service companies. Critical skill for 2026: cloud security and DevSecOps automation.",
+    "metadata": {
+      "doc_id": "doc_002",
+      "source": "Manual",
+      "domain": "Cybersecurity",
+      "doc_type": "transition_path",
+      "role_title": "Security Engineer",
+      "experience_level": "Mid",
+      "region": "India",
+      "last_scraped": "2026-03-11"
+    }
+  },
+  {
+    "doc_id": "doc_003",
+    "text": "Engineers moving from industry to EdTech teaching roles discover purpose-driven work with flexible schedules. The transition requires repositioning technical skills as teaching expertise. Timeline: 3-6 months to build credibility. Step 1: Start a YouTube channel or blog explaining complex topics simply. Step 2: Create courses on Udemy, Teachable, or Indian platforms like Unacademy and upGrad. Step 3: Join coding bootcamps as part-time instructor (Masai School, Scaler, Crio.do). Step 4: Develop a niche specialization (system design, DSA, frontend, or domain-specific tech). The Indian EdTech market is massive with demand for instructors in regional languages. Hybrid models work well: freelance teaching + part-time engineering. Earning potential: Top instructors earn 15-40 LPA through courses, live classes, and consulting. Build personal brand on LinkedIn and Twitter to attract students. Companies hiring technical instructors in 2026: upGrad, Scaler Academy, Newton School, Coding Ninjas, Great Learning. Former engineers bring real-world context that pure educators lack, making them highly valued.",
+    "metadata": {
+      "doc_id": "doc_003",
+      "source": "Manual",
+      "domain": "EdTech & Technical Education",
+      "doc_type": "transition_path",
+      "role_title": "Technical Instructor",
+      "experience_level": "Mid",
+      "region": "India",
+      "last_scraped": "2026-03-11"
+    }
+  },
+  {
+    "doc_id": "doc_004",
+    "text": "Product Management attracts engineers who want to drive business outcomes rather than write code. The transition requires developing new skills: user research, market analysis, stakeholder management, and data-driven decision making. Timeline: 6-12 months while working as engineer, or 3 months full-time preparation. Path 1: Internal transfer (easiest). Volunteer for product discussions, write product specs, work closely with PMs. Path 2: MBA from top IIMs (high cost, high reward). Path 3: Self-learning + PM certifications (Reforge, Lenny's Newsletter, Product School). Build a case study portfolio analyzing products you use. Learn SQL and analytics tools to make data-driven decisions. In India, APM (Associate PM) programs by Razorpay, CRED, Swiggy are excellent entry points. Engineers have an advantage understanding technical feasibility and developer workflows. Salary for engineer-to-PM transition: Similar or 10-20% higher initially, but faster growth trajectory. Required mindset shift: from building features to solving customer problems. Cities with PM opportunities: Bangalore, NCR, Mumbai, Pune, Hyderabad.",
+    "metadata": {
+      "doc_id": "doc_004",
+      "source": "Manual",
+      "domain": "Product Management",
+      "doc_type": "transition_path",
+      "role_title": "Product Manager",
+      "experience_level": "Mid",
+      "region": "India",
+      "last_scraped": "2026-03-11"
+    }
+  },
+  {
+    "doc_id": "doc_005",
+    "text": "Cloud & DevOps transition from traditional IT operations or development is highly rewarding in 2026. The shift takes 4-8 months of hands-on practice. Start by choosing one cloud platform: AWS (most jobs), Azure (enterprise), or GCP (ML/data). Get foundational certification: AWS Solutions Architect Associate or Azure Administrator. Learn infrastructure as code: Terraform (industry standard) or CloudFormation. Master containerization: Docker and Kubernetes are non-negotiable skills. Understand CI/CD: Jenkins, GitLab CI, or GitHub Actions. Learn monitoring and observability: Prometheus, Grafana, ELK stack. In India, every company is migrating to cloud, creating massive demand. DevOps engineers who can reduce deployment time and improve reliability are highly valued. Build projects: deploy a full application with IaC, set up monitoring, implement blue-green deployments. Salary range for DevOps engineers: Entry 6-12 LPA, Mid 15-28 LPA, Senior 30-50 LPA. GCCs and cloud-native startups pay best. Future trend: Platform Engineering is the next evolution of DevOps, focusing on developer experience.",
+    "metadata": {
+      "doc_id": "doc_005",
+      "source": "Manual",
+      "domain": "Cloud & DevOps",
+      "doc_type": "transition_path",
+      "role_title": "DevOps Engineer",
+      "experience_level": "Mid",
+      "region": "India",
+      "last_scraped": "2026-03-11"
+    }
+  },
+  {
+    "doc_id": "doc_006",
+    "text": "FinTech career transitions are booming in India post-UPI revolution and digital payment adoption. Engineers from any background can enter FinTech by understanding financial systems, compliance, and security. Timeline: 3-6 months to learn domain knowledge. Study topics: payment gateways, KYC/AML, lending systems, investment platforms, blockchain basics. Learn FinTech regulations: RBI guidelines, NPCI systems, account aggregator framework. Technical skills needed: API design, microservices, event-driven architecture, security best practices. Companies to target: Razorpay, PhonePe, Paytm, CRED, Zerodha, Groww, Jupiter, INDmoney. FinTech engineers earn 20-40% premium over regular software roles due to domain complexity and compliance requirements. Critical understanding: payment failures, reconciliation, transaction monitoring, fraud detection. Build projects: payment gateway integration, expense tracker, investment portfolio analyzer. Salary: Entry 8-15 LPA, Mid 18-35 LPA, Senior 40-70 LPA at unicorns. 2026 trend: Embedded finance and ONDC integration create new opportunities. FinTech combines purpose, impact, and high compensation.",
+    "metadata": {
+      "doc_id": "doc_006",
+      "source": "Manual",
+      "domain": "FinTech & Banking Technology",
+      "doc_type": "transition_path",
+      "role_title": "FinTech Engineer",
+      "experience_level": "Mid",
+      "region": "India",
+      "last_scraped": "2026-03-11"
+    }
+  },
+  {
+    "doc_id": "doc_007",
+    "text": "Transitioning to UI/UX Design from engineering or non-tech backgrounds is increasingly common in India's product ecosystem. The transition takes 6-10 months of portfolio building. Learn design thinking, user research methods, wireframing, prototyping, and visual design. Master tools: Figma (industry standard), Adobe XD, Framer. Take courses: Google UX Design Certificate, Interaction Design Foundation, or local bootcamps like DesignBoat. Build 3-5 case study projects showing your process: research, ideation, wireframes, high-fidelity mockups, user testing. Designers with engineering background have an advantage understanding technical constraints and collaborating with developers. In India, demand for UX designers is highest in product companies, startups, and digital agencies. Learn accessibility standards (WCAG) and design systems. Salary for career switchers: Entry 4-8 LPA, Mid 10-18 LPA, Senior 20-35 LPA. Top companies hiring: Razorpay, CRED, Swiggy, Flipkart, PhonePe. Build presence on Dribbble and Behance. 2026 focus: AI-assisted design tools and design systems are key skills. Join design communities: IxDA Bangalore, Design Meetups.",
+    "metadata": {
+      "doc_id": "doc_007",
+      "source": "Manual",
+      "domain": "UI/UX Design",
+      "doc_type": "transition_path",
+      "role_title": "UX Designer",
+      "experience_level": "Entry",
+      "region": "India",
+      "last_scraped": "2026-03-11"
+    }
+  },
+  {
+    "doc_id": "doc_008",
+    "text": "Healthcare IT transition offers purpose-driven work with growing demand in India's digital health revolution. Engineers can enter HealthTech by understanding healthcare workflows, medical data standards, and compliance. Timeline: 4-8 months to gain domain expertise. Learn ABDM (Ayushman Bharat Digital Mission) architecture, FHIR standards, HL7 protocols. Understand EHR/EMR systems, telemedicine platforms, health data privacy (DPDP Act for health data). Technical skills: HIPAA-compliant development, secure data handling, integration with diagnostic labs. Companies: Practo, PharmEasy, 1mg, Tata 1mg, Apollo 24/7, HealthifyMe, mfine. HealthTech engineers earn competitive salaries with added job satisfaction. Focus areas: telemedicine platforms, AI diagnostics, hospital management systems, health records interoperability. Build projects: symptom checker, appointment booking system, health data aggregator. Salary: Entry 6-12 LPA, Mid 15-28 LPA, Senior 30-50 LPA. 2026 opportunity: ABDM creating unified health stack needs thousands of developers. Engineers passionate about social impact find HealthTech deeply fulfilling. GCCs of US healthtech companies also hiring in India.",
+    "metadata": {
+      "doc_id": "doc_008",
+      "source": "Manual",
+      "domain": "Healthcare IT & Health Tech",
+      "doc_type": "transition_path",
+      "role_title": "HealthTech Engineer",
+      "experience_level": "Mid",
+      "region": "India",
+      "last_scraped": "2026-03-11"
+    }
+  },
+  {
+    "doc_id": "doc_009",
+    "text": "Digital Marketing for technical professionals combines creativity with data analytics. Engineers transitioning to growth roles bring analytical rigor to marketing. Timeline: 3-6 months to build foundational skills. Learn SEO, SEM, social media advertising, email marketing, content marketing, marketing analytics. Master tools: Google Analytics 4, Google Ads, Facebook Ads Manager, Mixpanel, Amplitude. Take certifications: Google Analytics, HubSpot Inbound, Meta Blueprint. Technical marketers who can code have unique advantage: marketing automation, A/B testing frameworks, data pipelines. Growth engineering roles combine marketing and coding. In India, growth roles are critical in startups and consumer tech companies. Salary: Entry 5-10 LPA, Mid 12-22 LPA, Senior 25-45 LPA. Build personal brand through blogging and social media. Learn SQL for marketing analytics. Companies: Razorpay, CRED, Meesho, Zepto, Swiggy hire technical growth marketers. 2026 trend: AI-powered marketing automation and personalization. Growth product managers need both marketing and technical skills. Join communities: GrowthX, Product Marketing Alliance India.",
+    "metadata": {
+      "doc_id": "doc_009",
+      "source": "Manual",
+      "domain": "Digital Marketing & Growth",
+      "doc_type": "transition_path",
+      "role_title": "Growth Marketer",
+      "experience_level": "Mid",
+      "region": "India",
+      "last_scraped": "2026-03-11"
+    }
+  },
+  {
+    "doc_id": "doc_010",
+    "text": "Full Stack Development is the most common entry point for software careers in India. For those coming from frontend or backend specializations, becoming full stack takes 3-6 months. Learn the entire stack: HTML/CSS/JavaScript, React or Next.js, Node.js or Python backend, databases (PostgreSQL, MongoDB), REST APIs, deployment (Vercel, AWS). Build 3-5 complete applications showing end-to-end skills. Master version control (Git), testing, and CI/CD basics. In India, full stack developers are hired by startups, product companies, and agencies. Advantages: flexibility, understanding entire product, faster prototyping. Disadvantages: risk of shallow knowledge. Focus on depth in one layer while maintaining breadth. Salary: Entry 4-10 LPA, Mid 12-25 LPA, Senior 28-50 LPA. Companies: early-stage startups value full stack generalists. Framework trends for 2026: Next.js dominates, MERN stack still popular, FastAPI gaining for Python backend. Learn TypeScript and modern build tools. Portfolio with live deployed projects is essential. Join communities: ReactJS Bangalore, Full Stack Development India. Full stack is ideal base to specialize later.",
+    "metadata": {
+      "doc_id": "doc_010",
+      "source": "Manual",
+      "domain": "Full Stack Web Development",
+      "doc_type": "transition_path",
+      "role_title": "Full Stack Developer",
+      "experience_level": "Entry",
+      "region": "India",
+      "last_scraped": "2026-03-11"
+    }
+  },
+  {
+    "doc_id": "doc_011",
+    "text": "Entry-level ML Engineers in India need specific technical and practical skills in 2026. Programming: Python mastery with libraries like NumPy, pandas, scikit-learn, PyTorch or TensorFlow. Mathematics: Linear algebra, calculus, probability, statistics at undergraduate level. Machine Learning: Supervised and unsupervised learning, model evaluation, cross-validation, overfitting prevention. Deep Learning: Neural networks, CNNs, RNNs, transfer learning basics. MLOps: Version control (Git), experiment tracking (MLflow, Weights & Biases), model deployment basics. Cloud: AWS SageMaker or Google Vertex AI fundamentals. Soft skills: Problem decomposition, communication with non-technical stakeholders, collaborative coding. Portfolio: 3-4 end-to-end ML projects including data collection, training, evaluation, deployment. Certifications valued: Andrew Ng's ML course, fast.ai, Google ML Crash Course. In Bangalore, companies expect Kaggle participation or research paper familiarity. Freshers should focus on one domain (NLP, Computer Vision, or Recommendation Systems) rather than being generalist. Internship experience adds significant advantage. Expected proficiency: Ability to take business problem, frame as ML task, build baseline model, and iterate.",
+    "metadata": {
+      "doc_id": "doc_011",
+      "source": "Manual",
+      "domain": "AI & ML",
+      "doc_type": "skill_requirements",
+      "role_title": "ML Engineer",
+      "experience_level": "Entry",
+      "region": "Bangalore",
+      "last_scraped": "2026-03-11"
+    }
+  },
+  {
+    "doc_id": "doc_012",
+    "text": "Cloud Architects in India require comprehensive technical and business skills in 2026. Cloud platforms: Deep expertise in at least one (AWS preferred), working knowledge of others. Certifications: AWS Solutions Architect Professional or Azure Solutions Architect Expert mandatory. Architecture patterns: Microservices, serverless, event-driven architecture, 12-factor apps. Infrastructure as Code: Terraform expert-level, CloudFormation or Pulumi familiarity. Networking: VPCs, subnets, load balancers, CDN, DNS, VPN, Direct Connect. Security: IAM, encryption, compliance frameworks (SOC2, ISO 27001), zero-trust architecture. Databases: SQL and NoSQL, managed database services, data migration strategies. Cost optimization: FinOps practices, reserved instances, spot instances, cost monitoring. Disaster recovery: Backup strategies, multi-region architecture, RTO/RPO planning. Soft skills: Stakeholder management, documentation, presenting to leadership. In India, GCCs and large enterprises need cloud architects for digital transformation. Salary: 25-50 LPA depending on company size and city. Must understand business requirements and translate to scalable cloud solutions. Experience with containerization (Kubernetes) and observability tools essential.",
+    "metadata": {
+      "doc_id": "doc_012",
+      "source": "Manual",
+      "domain": "Cloud & DevOps",
+      "doc_type": "skill_requirements",
+      "role_title": "Cloud Architect",
+      "experience_level": "Senior",
+      "region": "India",
+      "last_scraped": "2026-03-11"
+    }
+  },
+  {
+    "doc_id": "doc_013",
+    "text": "Product Managers in India's tech ecosystem need a blend of technical, business, and interpersonal skills in 2026. Core skills: User research and customer interviews, wireframing and prototyping (Figma basics), data analysis and SQL proficiency, prioritization frameworks (RICE, MoSCoW), roadmap planning and OKR setting. Technical understanding: API basics, system design concepts, understanding engineering tradeoffs, mobile/web technology landscape. Business acumen: Market analysis, competitive intelligence, unit economics, go-to-market strategy, pricing models. Analytics: Google Analytics, Mixpanel, Amplitude, A/B testing methodology, cohort analysis. Communication: Writing PRDs (Product Requirements Documents), stakeholder presentations, cross-functional collaboration. Tools: Jira, Notion, Miro, Slack for async communication. Soft skills: Negotiation, conflict resolution, influencing without authority, empathy for users. In India, PMs need to balance innovation with pragmatic execution given resource constraints. Understanding Indian user behavior and regional diversity is critical. Certification from Reforge or Lenny's course valued. Experience in agile methodologies essential. Bangalore and NCR have most PM opportunities.",
+    "metadata": {
+      "doc_id": "doc_013",
+      "source": "Manual",
+      "domain": "Product Management",
+      "doc_type": "skill_requirements",
+      "role_title": "Product Manager",
+      "experience_level": "Mid",
+      "region": "India",
+      "last_scraped": "2026-03-11"
+    }
+  },
+  {
+    "doc_id": "doc_014",
+    "text": "Cybersecurity Analysts in India need diverse technical skills to protect organizations in 2026. Foundational: Networking (TCP/IP, DNS, firewalls), operating systems (Linux, Windows), cryptography basics. Security operations: SIEM tools (Splunk, QRadar, Azure Sentinel), log analysis, incident response, threat hunting. Vulnerability management: Vulnerability scanning tools (Nessus, Qualys), patch management, security assessment. Application security: OWASP Top 10, secure coding practices, code review, penetration testing basics. Cloud security: AWS/Azure security services, cloud misconfigurations, identity and access management. Compliance: ISO 27001, SOC2, GDPR, DPDP Act, RBI guidelines for financial services. Tools: Wireshark, Burp Suite, Metasploit, Nmap, Python for automation. Certifications valued: CompTIA Security+, CEH, OSCP, AWS Security Specialty. Soft skills: Report writing, communication with non-technical staff, staying updated on threat landscape. In India, financial services, e-commerce, and GCCs have highest demand. Freshers should focus on security operations or application security. Understanding Indian regulatory environment crucial for compliance roles. Continuous learning essential as threat landscape evolves rapidly.",
+    "metadata": {
+      "doc_id": "doc_014",
+      "source": "Manual",
+      "domain": "Cybersecurity",
+      "doc_type": "skill_requirements",
+      "role_title": "Security Analyst",
+      "experience_level": "Entry",
+      "region": "India",
+      "last_scraped": "2026-03-11"
+    }
+  },
+  {
+    "doc_id": "doc_015",
+    "text": "Data Engineers in India require strong programming and data pipeline skills in 2026. Programming: Python or Scala expert-level, SQL mastery (complex queries, optimization, window functions). Data warehousing: Snowflake, BigQuery, or Redshift hands-on experience, dimensional modeling, star/snowflake schemas. ETL/ELT: Airflow for orchestration, dbt for transformations, data quality checks, incremental loading strategies. Big data: Spark for large-scale processing, understanding of distributed computing, partitioning strategies. Cloud platforms: AWS (Glue, EMR, S3, Lambda) or GCP (Dataflow, Dataproc, BigQuery). Stream processing: Kafka, Kinesis for real-time data pipelines. Version control: Git, DataOps practices, CI/CD for data pipelines. Data governance: Understanding data lineage, data cataloging (DataHub, Amundsen), privacy regulations. Performance: Query optimization, pipeline monitoring, cost optimization. Soft skills: Collaboration with data scientists and analysts, documentation, understanding business requirements. In India, e-commerce, fintech, and GCCs hire heavily. Salary: Entry 6-12 LPA, Mid 15-30 LPA, Senior 35-60 LPA. Modern data stack knowledge (Airbyte, Fivetran, dbt) differentiates candidates. Focus on one cloud platform initially.",
+    "metadata": {
+      "doc_id": "doc_015",
+      "source": "Manual",
+      "domain": "Data Analytics & Business Intelligence",
+      "doc_type": "skill_requirements",
+      "role_title": "Data Engineer",
+      "experience_level": "Mid",
+      "region": "India",
+      "last_scraped": "2026-03-11"
+    }
+  },
+  {
+    "doc_id": "doc_016",
+    "text": "UX Designers in Indian product companies need comprehensive design and research skills in 2026. Design tools: Figma mastery (components, auto-layout, prototyping, design systems), Adobe Creative Suite basics. User research: Interview techniques, usability testing, surveys, persona creation, user journey mapping. Design process: Design thinking, problem framing, ideation, wireframing, high-fidelity mockups, iteration based on feedback. Interaction design: Micro-interactions, animation principles, responsive design, mobile-first design. Visual design: Typography, color theory, layout principles, accessibility (WCAG standards), design for diverse Indian users. Collaboration: Working with PMs and engineers, design handoff, using Zeplin/Figma inspect. Documentation: Creating design specs, maintaining design systems, writing UX copy. Soft skills: Presenting design rationale, receiving feedback, empathy for users across demographics. Portfolio: 3-5 case studies showing process from research to final design. Understanding Indian context: Designing for low bandwidth, vernacular language support, diverse device capabilities. Tools: Miro for workshops, Maze for user testing, Hotjar for analytics. Stay updated: Follow design trends, participate in design communities, contribute to open-source design systems. Companies value designers who understand both user needs and business goals.",
+    "metadata": {
+      "doc_id": "doc_016",
+      "source": "Manual",
+      "domain": "UI/UX Design",
+      "doc_type": "skill_requirements",
+      "role_title": "UX Designer",
+      "experience_level": "Mid",
+      "region": "India",
+      "last_scraped": "2026-03-11"
+    }
+  },
+  {
+    "doc_id": "doc_017",
+    "text": "DevOps Engineers in India need automation and infrastructure skills in 2026. Cloud platforms: AWS (EC2, S3, RDS, Lambda) or Azure in-depth, multi-cloud awareness. Infrastructure as Code: Terraform (must-have), Ansible, CloudFormation. Containerization: Docker expert-level, writing optimized Dockerfiles, container security. Orchestration: Kubernetes (CKA certification valued), Helm charts, service mesh basics (Istio). CI/CD: Jenkins, GitLab CI, GitHub Actions, deployment strategies (blue-green, canary). Scripting: Bash, Python for automation tasks. Monitoring: Prometheus, Grafana, ELK stack, distributed tracing, alerting strategies. Version control: Git advanced (branching, merging, rebasing), GitOps principles. Security: DevSecOps practices, vulnerability scanning, secrets management (Vault). Soft skills: Collaboration with developers, on-call responsibilities, documentation, incident management. Understanding of networking, databases, and application architecture. In India, DevOps roles are in high demand across all company sizes. Modern trends: Platform Engineering, Internal Developer Platforms, observability over monitoring. Certifications: CKA, AWS DevOps Engineer, Terraform Associate. Salary driven by ability to reduce deployment friction and improve system reliability.",
+    "metadata": {
+      "doc_id": "doc_017",
+      "source": "Manual",
+      "domain": "Cloud & DevOps",
+      "doc_type": "skill_requirements",
+      "role_title": "DevOps Engineer",
+      "experience_level": "Mid",
+      "region": "India",
+      "last_scraped": "2026-03-11"
+    }
+  },
+  {
+    "doc_id": "doc_018",
+    "text": "FinTech Developers in India need domain-specific technical skills in 2026. Core programming: Java, Python, or Node.js with emphasis on security and reliability. Payment systems: Understanding UPI, IMPS, NEFT, RTGS, payment gateway integration, webhook handling. APIs: RESTful design, API security, rate limiting, idempotency. Database: Strong SQL skills, transaction management, ACID properties, distributed databases. Security: Encryption, PCI-DSS compliance, secure authentication, fraud detection basics. Microservices: Event-driven architecture, message queues (Kafka, RabbitMQ), eventual consistency. Compliance: KYC/AML processes, RBI regulations, audit logging, data residency requirements. Testing: Unit testing, integration testing, chaos engineering for resilience. Cloud: AWS or Azure for FinTech apps, disaster recovery planning. Domain knowledge: Lending workflows, investment platforms, insurance tech, wealth management. Soft skills: Attention to detail, understanding financial implications of bugs, clear documentation. In India, FinTech is growing rapidly with Razorpay, PhonePe, Zerodha hiring extensively. Certifications in payment systems add value. Salary premium due to complexity: Entry 8-15 LPA, Mid 18-35 LPA, Senior 40-70 LPA. Critical mindset: zero-tolerance for financial data errors.",
+    "metadata": {
+      "doc_id": "doc_018",
+      "source": "Manual",
+      "domain": "FinTech & Banking Technology",
+      "doc_type": "skill_requirements",
+      "role_title": "FinTech Developer",
+      "experience_level": "Mid",
+      "region": "India",
+      "last_scraped": "2026-03-11"
+    }
+  },
+  {
+    "doc_id": "doc_019",
+    "text": "Full Stack Developers in India need comprehensive front-to-back development skills in 2026. Frontend: React or Next.js expert-level, JavaScript/TypeScript, HTML/CSS, responsive design, state management (Redux, Zustand). Backend: Node.js/Express or Python/FastAPI, RESTful APIs, authentication/authorization, database design. Databases: PostgreSQL or MySQL for relational, MongoDB for NoSQL, ORM libraries (Prisma, SQLAlchemy). Version control: Git workflows, pull requests, code reviews. Testing: Jest, React Testing Library, Pytest, end-to-end testing (Cypress). Deployment: Docker basics, CI/CD pipelines, Vercel/Netlify for frontend, AWS/Azure for backend. API design: GraphQL awareness, API documentation (Swagger). Performance: Code optimization, lazy loading, caching strategies. Security: OWASP awareness, input validation, SQL injection prevention. Tools: VS Code, Postman, browser DevTools. Soft skills: Time management across stack layers, debugging across full stack, collaboration with specialists. In India, startups and agencies hire full stack developers heavily. Salary: Entry 4-10 LPA, Mid 12-25 LPA, Senior 28-50 LPA. 2026 trend: Vercel's stack (Next.js, Turbo, Postgres) gaining popularity. Portfolio with deployed projects essential.",
+    "metadata": {
+      "doc_id": "doc_019",
+      "source": "Manual",
+      "domain": "Full Stack Web Development",
+      "doc_type": "skill_requirements",
+      "role_title": "Full Stack Developer",
+      "experience_level": "Mid",
+      "region": "India",
+      "last_scraped": "2026-03-11"
+    }
+  },
+  {
+    "doc_id": "doc_020",
+    "text": "EdTech Technical Instructors in India need both technical and teaching skills in 2026. Technical expertise: Deep knowledge in specific domain (DSA, System Design, Web Dev, ML), ability to explain complex topics simply, hands-on coding skills. Teaching skills: Curriculum design, learning theory basics, pacing for different skill levels, creating engaging content. Content creation: Video recording and editing, slide design, code walkthroughs, interactive exercises. Platform tools: Zoom/Google Meet, LMS platforms (Moodle, Canvas), coding platforms (Replit, CodeSandbox). Assessment: Designing assignments, code review, providing constructive feedback, tracking student progress. Communication: Clear explanations, patience, answering questions, building rapport with students. Domain knowledge: Understanding job market trends, what employers want, practical vs theoretical balance. Technology: Screen recording (OBS, Loom), presentation tools, version control for teaching materials. Soft skills: Empathy for struggling learners, adaptability to different learning styles, motivation and inspiration. In India, demand for instructors in regional languages increasing. Salary: 8-25 LPA depending on platform and student count. Top instructors supplement with course sales. Build personal brand on LinkedIn and YouTube.",
+    "metadata": {
+      "doc_id": "doc_020",
+      "source": "Manual",
+      "domain": "EdTech & Technical Education",
+      "doc_type": "skill_requirements",
+      "role_title": "Technical Instructor",
+      "experience_level": "Mid",
+      "region": "India",
+      "last_scraped": "2026-03-11"
+    }
+  },
+  {
+    "doc_id": "doc_021",
+    "text": "Software Engineer salaries in India vary significantly by experience, company type, and location in 2026. Entry-level (0-2 years): Service companies (TCS, Infosys, Wipro) offer 3.5-6 LPA. Product companies (Flipkart, Swiggy, Razorpay) offer 8-20 LPA. Top product companies (Google, Microsoft, Amazon) offer 20-45 LPA for freshers. Mid-level (3-5 years): Service companies 8-15 LPA, product companies 15-35 LPA, top tier 35-60 LPA. Senior (6-10 years): Service companies 15-25 LPA, product companies 30-60 LPA, top tier 60-100 LPA. Staff/Principal engineers at top companies earn 100-200 LPA. Geographic variation: Bangalore pays 20-30% more than tier-2 cities. Mumbai and NCR comparable to Bangalore. Pune and Hyderabad 10-15% lower. Remote roles now paying national rates. Equity: Startups offer 0.01-0.5% equity for mid-senior roles. Stock refreshers important at public companies. Bonuses: Typically 10-20% of base in product companies. Skills premium: ML/AI engineers earn 30-40% more. Full stack engineers versatile but may earn less than specialists. Negotiate effectively: India market increasingly transparent with sites like levels.fyi/India.",
+    "metadata": {
+      "doc_id": "doc_021",
+      "source": "Manual",
+      "domain": "Full Stack Web Development",
+      "doc_type": "salary_data",
+      "role_title": "Software Engineer",
+      "experience_level": "Entry",
+      "region": "India",
+      "last_scraped": "2026-03-11"
+    }
+  },
+  {
+    "doc_id": "doc_022",
+    "text": "Data Scientist salaries in India reflect high demand and specialized skills in 2026. Entry-level (0-2 years): 6-12 LPA at service companies, 12-25 LPA at product companies, 25-40 LPA at top tech firms. Mid-level (3-5 years): 15-30 LPA typical, 30-50 LPA at unicorns, 50-80 LPA at FAANG. Senior (6-10 years): 30-60 LPA at established companies, 60-120 LPA at top product companies. Lead/Principal Data Scientists: 80-150 LPA depending on company. Bangalore offers highest salaries followed by NCR and Hyderabad. Mumbai salaries comparable to Bangalore for finance sector roles. Skills premium: NLP specialists earn 20-30% more due to LLM boom. MLOps engineers in high demand commanding similar premiums. Computer vision roles pay well in autonomous vehicles and surveillance startups. Industry variation: FinTech and HealthTech pay 10-20% premium. E-commerce solid but mature market. Equity: Early-stage startups offer 0.05-0.3% equity. Total compensation at unicorns can reach 150-200 LPA for senior roles with stock grants. PhD holders command 30-40% premium for research roles. Freelance data scientists with strong portfolio earn 2000-5000 per hour. Market growing faster than supply of qualified candidates.",
+    "metadata": {
+      "doc_id": "doc_022",
+      "source": "Manual",
+      "domain": "AI & ML",
+      "doc_type": "salary_data",
+      "role_title": "Data Scientist",
+      "experience_level": "Mid",
+      "region": "Bangalore",
+      "last_scraped": "2026-03-11"
+    }
+  },
+  {
+    "doc_id": "doc_023",
+    "text": "Product Manager salaries in India are highly competitive reflecting business impact in 2026. Entry/APM (0-2 years): 12-20 LPA at mid-tier companies, 20-35 LPA at top startups, 35-55 LPA at FAANG. Mid-level PM (3-5 years): 20-35 LPA typical, 35-60 LPA at unicorns, 60-90 LPA at top tier. Senior PM (6-10 years): 40-70 LPA at established companies, 70-120 LPA at high-growth startups. Group PM/Director level: 80-150 LPA. VP Product: 150-300 LPA at large companies. Location matters: Bangalore and NCR offer highest PM salaries. Mumbai strong for FinTech PM roles. Pune and Hyderabad 15-20% lower. Technical PMs with engineering background earn 10-15% premium. B2B product companies (SaaS) pay more than B2C. Consumer tech (Swiggy, Zomato) offers high base + stock. FinTech PMs earn premium due to domain complexity. Equity: 0.1-0.5% at series A/B startups for senior PMs. Bonuses: 15-25% of base tied to product metrics. Skills affecting salary: Data analysis capability, enterprise sales experience, domain expertise. MBA from top IIMs commands 20-30% premium. Transition from engineering to PM may see lateral or slight increase initially, but faster long-term growth.",
+    "metadata": {
+      "doc_id": "doc_023",
+      "source": "Manual",
+      "domain": "Product Management",
+      "doc_type": "salary_data",
+      "role_title": "Product Manager",
+      "experience_level": "Mid",
+      "region": "India",
+      "last_scraped": "2026-03-11"
+    }
+  },
+  {
+    "doc_id": "doc_024",
+    "text": "DevOps Engineer salaries in India reflect critical infrastructure role in 2026. Entry-level (0-2 years): 6-10 LPA at service companies, 10-18 LPA at product companies, 18-30 LPA at top tech firms. Mid-level (3-5 years): 15-25 LPA typical, 25-40 LPA at unicorns, 40-65 LPA at FAANG. Senior (6-10 years): 28-50 LPA at established companies, 50-85 LPA at top startups. Staff/Principal SRE: 70-120 LPA. Platform Engineering roles command 10-15% premium over traditional DevOps. SRE (Site Reliability Engineer) roles at Google/Microsoft pay 80-150 LPA for senior levels. Geographic spread: Bangalore highest, followed by Hyderabad for GCCs. Pune and NCR comparable. Remote DevOps roles increasingly common. Cloud certifications add 15-20% salary boost. AWS most valuable, followed by Azure. Kubernetes expertise commands premium. Skills in high demand: Terraform, GitOps, observability platforms. Security-focused DevOps engineers earn 20% more. Equity: Startups offer 0.05-0.2% for mid-senior roles. On-call responsibility comes with additional compensation (10-20k/month). Companies value DevOps engineers who reduced deployment time and improved uptime. Growing field with excellent work-life balance at mature companies.",
+    "metadata": {
+      "doc_id": "doc_024",
+      "source": "Manual",
+      "domain": "Cloud & DevOps",
+      "doc_type": "salary_data",
+      "role_title": "DevOps Engineer",
+      "experience_level": "Mid",
+      "region": "India",
+      "last_scraped": "2026-03-11"
+    }
+  },
+  {
+    "doc_id": "doc_025",
+    "text": "Cybersecurity professional salaries in India are rising due to increasing threats in 2026. Entry-level Security Analyst (0-2 years): 5-10 LPA at service companies, 10-18 LPA at product companies, 18-30 LPA at top firms. Mid-level Security Engineer (3-5 years): 15-28 LPA typical, 28-45 LPA at unicorns, 45-70 LPA at FAANG. Senior Security Engineer (6-10 years): 25-50 LPA at established companies, 50-90 LPA at top tier. Security Architect/CISO roles: 60-150 LPA depending on company size. Penetration testers with OSCP earn 20-30% premium. Bug bounty hunters supplement with 5-30 LPA additional income. AppSec engineers at product companies: 15-40 LPA based on experience. Cloud security specialists in high demand: 18-50 LPA. Location: Bangalore, Pune (GCC hub), NCR pay highest. Financial services companies (Bangalore, Mumbai) pay premium for compliance roles. Certifications impact: OSCP adds 30-40% premium. CISSP valued for management roles. AWS/Azure security certifications boost salary 15-20%. Industry variation: Banking/FinTech pay 20-30% more than other sectors. GCCs offer competitive salaries with better work-life balance. Freelance security consultants charge 3000-8000 per hour. Growing field with significant shortage of qualified professionals.",
+    "metadata": {
+      "doc_id": "doc_025",
+      "source": "Manual",
+      "domain": "Cybersecurity",
+      "doc_type": "salary_data",
+      "role_title": "Security Engineer",
+      "experience_level": "Mid",
+      "region": "India",
+      "last_scraped": "2026-03-11"
+    }
+  },
+  {
+    "doc_id": "doc_026",
+    "text": "UX Designer salaries in India growing as companies prioritize user experience in 2026. Entry-level Designer (0-2 years): 4-8 LPA at agencies, 8-15 LPA at product companies, 15-25 LPA at top startups. Mid-level Designer (3-5 years): 10-18 LPA typical, 18-30 LPA at unicorns, 30-45 LPA at FAANG. Senior Designer (6-10 years): 18-35 LPA at established companies, 35-60 LPA at top product firms. Lead Designer/Design Manager: 30-70 LPA. Design Directors: 60-120 LPA at large companies. Location matters: Bangalore offers highest salaries. Mumbai and NCR comparable for certain industries. Agencies generally pay 20-30% less than product companies. Specialists earn premium: UX researchers 15-20% more, Design system specialists in demand. Product designers with prototyping skills valued. Designers with front-end coding ability earn 20-25% more. Industry variation: FinTech and B2B SaaS pay well. Consumer apps offer equity upside. Freelance/contract designers: 1500-4000 per hour for senior talent. Portfolio quality directly impacts salary. Strong case studies demonstrating impact can increase offers by 30-40%. Companies like Razorpay, CRED, PhonePe competing for top design talent. Remote design roles now common, equalizing geographic differences.",
+    "metadata": {
+      "doc_id": "doc_026",
+      "source": "Manual",
+      "domain": "UI/UX Design",
+      "doc_type": "salary_data",
+      "role_title": "UX Designer",
+      "experience_level": "Mid",
+      "region": "India",
+      "last_scraped": "2026-03-11"
+    }
+  },
+  {
+    "doc_id": "doc_027",
+    "text": "Data Engineer salaries in India competitive due to data infrastructure importance in 2026. Entry-level (0-2 years): 6-12 LPA at mid-sized companies, 12-20 LPA at product companies, 20-35 LPA at top firms. Mid-level (3-5 years): 15-28 LPA typical, 28-45 LPA at unicorns, 45-70 LPA at FAANG. Senior (6-10 years): 28-55 LPA at established companies, 55-95 LPA at top tier. Staff/Principal Engineer: 70-130 LPA. Data platform engineers building infrastructure earn 10-15% premium. Engineers with modern data stack expertise (dbt, Airbyte, Fivetran) valued. Real-time data pipeline engineers in high demand. Location: Bangalore and Hyderabad offer highest salaries due to concentration of data-driven companies. Cloud skills premium: Snowflake expertise adds 20% to salary. BigQuery and Redshift also valued. Spark proficiency essential for big data roles. Industry variation: E-commerce, FinTech, and consumer internet pay well. GCCs offer stability with competitive salaries. Equity: Data infrastructure startups offer 0.05-0.3% for senior roles. Certifications: Databricks, Snowflake, dbt certifications boost credibility. Growing field as every company becomes data-driven. Career path to data architect or platform engineering leadership.",
+    "metadata": {
+      "doc_id": "doc_027",
+      "source": "Manual",
+      "domain": "Data Analytics & Business Intelligence",
+      "doc_type": "salary_data",
+      "role_title": "Data Engineer",
+      "experience_level": "Mid",
+      "region": "India",
+      "last_scraped": "2026-03-11"
+    }
+  },
+  {
+    "doc_id": "doc_028",
+    "text": "FinTech Developer salaries in India premium due to domain complexity in 2026. Entry-level (0-2 years): 8-15 LPA at mid-sized FinTech, 15-25 LPA at unicorns like Razorpay/PhonePe, 25-40 LPA at top tier. Mid-level (3-5 years): 18-35 LPA typical, 35-55 LPA at well-funded startups, 55-85 LPA at FAANG FinTech divisions. Senior (6-10 years): 35-65 LPA at established companies, 65-110 LPA at top FinTech unicorns. Principal/Staff engineers: 80-150 LPA. Payment infrastructure engineers earn highest in category. Compliance and regulatory expertise adds 15-20% premium. Location: Bangalore dominates FinTech hiring. Mumbai strong for traditional banking tech. Pune emerging hub. Skills impact: Backend engineers with payment gateway experience highly valued. Microservices architecture expertise essential. Understanding of financial regulations commands premium. Companies: Razorpay, PhonePe, Paytm, CRED, Zerodha, Groww compete aggressively for talent. New entrants: Jupiter, Fi Money, INDmoney offering competitive packages. Equity: 0.1-0.5% at series B/C companies for senior roles. Bonuses tied to product metrics and company performance (10-25% of base). Risk: Regulatory changes can impact startups. Established players offer more stability. High-growth field with strong career progression.",
+    "metadata": {
+      "doc_id": "doc_028",
+      "source": "Manual",
+      "domain": "FinTech & Banking Technology",
+      "doc_type": "salary_data",
+      "role_title": "FinTech Developer",
+      "experience_level": "Mid",
+      "region": "Bangalore",
+      "last_scraped": "2026-03-11"
+    }
+  },
+  {
+    "doc_id": "doc_029",
+    "text": "Healthcare IT professional salaries in India growing with digital health adoption in 2026. Entry-level HealthTech Developer (0-2 years): 6-12 LPA at mid-sized companies, 12-22 LPA at unicorns like Practo/PharmEasy, 22-35 LPA at top firms. Mid-level (3-5 years): 15-30 LPA typical, 30-50 LPA at well-funded startups. Senior (6-10 years): 28-55 LPA at established companies, 55-85 LPA at top tier. Health data engineers with FHIR/HL7 expertise earn premium. ABDM (Ayushman Bharat Digital Mission) specialists in high demand due to government push. Telemedicine platform developers: 12-35 LPA based on experience. Health data scientists: 15-45 LPA with ML expertise. Location: Bangalore, NCR, Mumbai have most opportunities. Pune emerging with health-tech startups. Companies: Practo, PharmEasy, 1mg, HealthifyMe, mfine hiring actively. GCCs of US health-tech companies (like Optum) offer competitive packages with better work-life balance. Compliance knowledge (HIPAA, data privacy) adds value. Doctors transitioning to health-tech command premium due to clinical knowledge. Purpose-driven work attracts talent willing to accept slightly lower packages than pure tech. Equity: 0.05-0.3% at growth-stage startups. Market expected to grow significantly with ABDM rollout creating thousands of jobs.",
+    "metadata": {
+      "doc_id": "doc_029",
+      "source": "Manual",
+      "domain": "Healthcare IT & Health Tech",
+      "doc_type": "salary_data",
+      "role_title": "HealthTech Developer",
+      "experience_level": "Mid",
+      "region": "India",
+      "last_scraped": "2026-03-11"
+    }
+  },
+  {
+    "doc_id": "doc_030",
+    "text": "Digital Marketing and Growth professional salaries in India vary by role and company in 2026. Entry-level Digital Marketer (0-2 years): 3-6 LPA at agencies, 6-12 LPA at startups, 12-20 LPA at top consumer companies. Mid-level Growth Manager (3-5 years): 10-18 LPA typical, 18-30 LPA at unicorns, 30-50 LPA at top tier. Senior Growth Lead (6-10 years): 18-35 LPA at established companies, 35-60 LPA at high-growth startups. VP Growth/CMO: 50-120 LPA depending on company size. Growth engineers (technical + marketing) earn 20-30% premium over pure marketers. Performance marketing specialists with proven ROI track record highly valued. SEO specialists: 4-15 LPA based on experience and results. Content marketers: 5-18 LPA, higher for B2B SaaS. Social media managers: 4-12 LPA. Location: Bangalore, Mumbai, NCR offer highest salaries. Remote marketing roles increasingly common. Industry variation: FinTech and SaaS pay premium. E-commerce and consumer internet competitive. D2C brands offer equity upside. Certifications add marginal value; proven results matter most. Freelance/agency work: 1000-3500 per hour for experienced professionals. Commission-based roles can significantly exceed base salary. Growing field as digital-first businesses dominate. Analytics skills increasingly important.",
+    "metadata": {
+      "doc_id": "doc_030",
+      "source": "Manual",
+      "domain": "Digital Marketing & Growth",
+      "doc_type": "salary_data",
+      "role_title": "Growth Manager",
+      "experience_level": "Mid",
+      "region": "India",
+      "last_scraped": "2026-03-11"
+    }
+  },
+  {
+    "doc_id": "doc_031",
+    "text": "Sustainability and ESG (Environmental, Social, Governance) professionals in Indian corporates drive climate action and responsible business practices. The field combines environmental science, data analytics, compliance, and stakeholder communication. Key responsibilities include carbon footprint measurement, ESG reporting (BRSR mandated by SEBI), sustainability strategy development, vendor assessment, and stakeholder engagement. India's ESG landscape is accelerating due to regulatory push, investor demands, and climate commitments. Required skills: Understanding of GHG Protocol, sustainability frameworks (GRI, SASB), data analysis for metrics tracking, project management, and knowledge of Indian regulations. Technical roles exist for carbon accounting software, renewable energy integration, and circular economy implementations. Companies hiring: Large corporates, consulting firms (Deloitte, PwC, EY), ESG startups, impact investing firms. Salary: Entry 5-10 LPA, Mid 12-22 LPA, Senior 25-45 LPA. Certifications valued: GRI, LEED, CFA ESG. Career paths: ESG Analyst to Manager to Head of Sustainability. Growing field with strong purpose alignment and increasing importance in corporate strategy.",
+    "metadata": {
+      "doc_id": "doc_031",
+      "source": "Manual",
+      "domain": "Sustainability & ESG",
+      "doc_type": "role_description",
+      "role_title": "ESG Analyst",
+      "experience_level": "Mid",
+      "region": "India",
+      "last_scraped": "2026-03-11"
+    }
+  },
+  {
+    "doc_id": "doc_032",
+    "text": "Legal Tech professionals in India combine legal expertise with technology to modernize legal services and compliance. The field includes contract management systems, legal research platforms, compliance automation, and litigation support. Key roles: Legal tech product managers, compliance engineers, contract analysts using AI, e-discovery specialists. India's legal tech market growing due to: digital court systems, increasing regulatory complexity, corporate compliance needs, startup legal operations. Technical skills needed: Understanding of legal workflows, document management, natural language processing for legal text, data privacy regulations (DPDP Act), process automation. Non-technical paths: Legal operations managers, legal researchers using tech tools. Companies: LawRato, Nyaaya, SpotDraft, Leegality, LegalKart, LegitQuest, as well as legal teams in corporations and law firms. Lawyers with tech understanding or engineers with legal knowledge are ideal. Salary: Entry 6-12 LPA, Mid 15-28 LPA, Senior 30-55 LPA. Background in law or engineering both work. Growing field as India digitizes legal infrastructure. DPDP Act creating demand for privacy tech professionals. Niche but high-impact career combining law, policy, and technology.",
+    "metadata": {
+      "doc_id": "doc_032",
+      "source": "Manual",
+      "domain": "Legal Tech & Compliance",
+      "doc_type": "role_description",
+      "role_title": "Legal Tech Specialist",
+      "experience_level": "Mid",
+      "region": "India",
+      "last_scraped": "2026-03-11"
+    }
+  },
+  {
+    "doc_id": "doc_033",
+    "text": "Supply Chain and Operations Technology professionals optimize logistics, inventory, and fulfillment using data and automation. In India's booming e-commerce and manufacturing sectors, these roles are critical. Key responsibilities: Demand forecasting, inventory optimization, warehouse management systems, route optimization, supplier collaboration platforms. Technical skills: SQL for data analysis, Python for optimization models, understanding of ERP systems (SAP, Oracle), WMS/TMS platforms, IoT for tracking. Analytical skills: Operations research, linear programming, simulation modeling. Domain knowledge: Manufacturing processes, logistics networks, quality control. Indian context: Managing multi-tier distribution, dealing with infrastructure constraints, reverse logistics for e-commerce. Companies hiring: Flipkart, Amazon, Zomato, Swiggy, Zepto, manufacturing GCCs, logistics startups (Delhivery, Shadowfax). Roles: Operations Analyst, Supply Chain Engineer, Fulfillment Manager, Operations Research Scientist. Salary: Entry 6-12 LPA, Mid 14-26 LPA, Senior 28-50 LPA. Industrial engineering or CS background both work. Certifications: APICS, Six Sigma add value. Growing field as quick commerce and D2C brands scale. Combines business impact with technical problem solving.",
+    "metadata": {
+      "doc_id": "doc_033",
+      "source": "Manual",
+      "domain": "Supply Chain & Operations Tech",
+      "doc_type": "role_description",
+      "role_title": "Supply Chain Analyst",
+      "experience_level": "Mid",
+      "region": "India",
+      "last_scraped": "2026-03-11"
+    }
+  },
+  {
+    "doc_id": "doc_034",
+    "text": "GCC (Global Capability Center) leadership roles in India involve managing offshore teams delivering technology, analytics, and business services for multinational corporations. India hosts 1500+ GCCs employing over 1.5 million professionals. Leadership responsibilities include: talent acquisition and retention, delivery management, stakeholder alignment with parent company, cost optimization, innovation initiatives, cultural bridge between India and global teams. Skills needed: People management, cross-cultural communication, business understanding, technology strategy, vendor management. Career path: Individual contributor to team lead to delivery manager to site leader. GCCs offer stability, good work-life balance, structured career progression, and exposure to global practices. Cities: Bangalore, Hyderabad, Pune, NCR, Chennai are major GCC hubs. Companies: Almost every Fortune 500 has GCC in India—Goldman Sachs, JP Morgan, Microsoft, Adobe, Walmart, Target. Salary for leaders: Senior Manager 30-50 LPA, Director 50-85 LPA, VP 80-150 LPA. Benefits: Global exposure, training opportunities, work-life balance better than startups. Challenge: Balancing innovation with parent company processes. Growing field as MNCs expand India operations beyond cost arbitrage to innovation centers.",
+    "metadata": {
+      "doc_id": "doc_034",
+      "source": "Manual",
+      "domain": "GCC & Global Delivery Leadership",
+      "doc_type": "role_description",
+      "role_title": "GCC Delivery Manager",
+      "experience_level": "Leadership",
+      "region": "India",
+      "last_scraped": "2026-03-11"
+    }
+  },
+  {
+    "doc_id": "doc_035",
+    "text": "Entrepreneurship in India's startup ecosystem offers opportunity to build innovative companies solving local and global problems. The ecosystem has matured significantly with unicorns, active VC funding, government support (Startup India), and successful exit examples. Key paths: Tech startups (SaaS, consumer internet, fintech), D2C brands, social enterprises, deep tech ventures. Prerequisites: Domain expertise, market understanding, technical or business co-founder, MVP building ability, networking with investors. Challenges: Fundraising, talent acquisition, regulatory navigation, competition, achieving product-market fit. Resources: Incubators (T-Hub, NASSCOM 10000 Startups), accelerators (Y Combinator, Sequoia Surge), angel networks, government schemes. Cities: Bangalore (tech), NCR (consumer), Mumbai (fintech), Pune (SaaS) have strong ecosystems. Financial reality: Most startups fail; founder salaries low initially. Successful exits or sustainable businesses take 5-10 years. Funding: Pre-seed/seed 20L-2Cr, Series A 5-15Cr based on traction. Founder equity: Start with 100%, dilute to 60-80% by Series A. Skills needed: Resilience, sales ability, product sense, people management. Age: Most successful founders start between 25-40. Background: Consulting, product companies, or domain expertise valuable. High risk, high reward career path.",
+    "metadata": {
+      "doc_id": "doc_035",
+      "source": "Manual",
+      "domain": "Entrepreneurship & Startups",
+      "doc_type": "role_description",
+      "role_title": "Startup Founder",
+      "experience_level": "Leadership",
+      "region": "India",
+      "last_scraped": "2026-03-11"
+    }
+  },
+  {
+    "doc_id": "doc_036",
+    "text": "Embedded Systems and IoT engineers in India work on hardware-software integration for connected devices, automotive, consumer electronics, and industrial automation. The field combines firmware development, hardware interfacing, and networking. Key responsibilities: Firmware development in C/C++, microcontroller programming (ARM, ESP32, Arduino), sensor integration, communication protocols (I2C, SPI, UART, Bluetooth, WiFi), power optimization, debugging with oscilloscopes and logic analyzers. Emerging skills: Edge AI for on-device ML, RTOS (Real-Time Operating Systems), IoT platforms (AWS IoT, Azure IoT), OTA updates, security for embedded devices. Applications: Smart home devices, wearables, industrial IoT, automotive electronics, medical devices, robotics. Indian ecosystem: Growing with Make in India, EV revolution, smart city initiatives. Companies: Bosch, Continental, Qualcomm, Texas Instruments, startups like Ather Energy, IoT platform companies. Academia-industry collaboration strong with IITs. Salary: Entry 5-10 LPA, Mid 12-22 LPA, Senior 25-45 LPA. Less than pure software but growing. Skills: Hardware debugging, low-level programming, understanding of electronics. Career path: Embedded engineer to architect to hardware product manager. Niche field with specialized expertise valued.",
+    "metadata": {
+      "doc_id": "doc_036",
+      "source": "Manual",
+      "domain": "Embedded Systems & IoT",
+      "doc_type": "role_description",
+      "role_title": "Embedded Systems Engineer",
+      "experience_level": "Mid",
+      "region": "India",
+      "last_scraped": "2026-03-11"
+    }
+  },
+  {
+    "doc_id": "doc_037",
+    "text": "Research and Academia careers in India suit those passionate about advancing knowledge and teaching. Paths include: PhD researcher, postdoc, assistant professor, scientist at research institutions. Research areas: Computer science, AI/ML, physics, chemistry, biology, social sciences, engineering. Institutions: IITs, IISc, IISERs, TIFR, CSIR labs, DRDO, ISRO, private research labs. Academic path: BTech/BSc → MTech/MSc → PhD (4-6 years) → Postdoc (2-4 years) → Faculty position. Industry research: Microsoft Research India, Google Research, IBM Research, Adobe Research, TCS Research hire PhD researchers. Salary: PhD stipend 31-35k/month (updated 2025). Postdoc: 50-70k/month. Assistant Professor: 60k-1L/month at IITs. Industry research scientist: 15-40 LPA depending on experience and company. Pros: Intellectual freedom, teaching opportunities, contributing to knowledge, work-life balance at some institutions. Cons: Long training period, competitive faculty positions, lower pay than industry. Funding: SERB, DST, DBT provide research grants. Publications and citations critical for career progression. Growing areas: AI research, quantum computing, climate science, biotechnology. Suitable for those prioritizing intellectual pursuits over compensation. Strong math and analytical skills essential.",
+    "metadata": {
+      "doc_id": "doc_037",
+      "source": "Manual",
+      "domain": "Research & Academia",
+      "doc_type": "role_description",
+      "role_title": "Research Scientist",
+      "experience_level": "Mid",
+      "region": "India",
+      "last_scraped": "2026-03-11"
+    }
+  },
+  {
+    "doc_id": "doc_038",
+    "text": "Gaming and Interactive Media careers in India are expanding with mobile gaming boom and esports growth. Roles include game developers, game designers, technical artists, QA testers, esports professionals, game producers. Technical roles: Unity or Unreal Engine developers, graphics programmers, network engineers for multiplayer, AI for NPCs, mobile optimization specialists. Creative roles: Game designers creating mechanics and levels, narrative designers, UI/UX for games, sound designers, 2D/3D artists. Indian gaming market: Mobile-first with casual games dominating. PC and console gaming growing. Esports gaining mainstream acceptance. Companies: Dream11, MPL, Winzo, Nazara, international studios with India offices (Zynga, EA, Ubisoft), indie game developers. Skills: C# for Unity, C++ for Unreal, game physics, rendering, monetization strategies (IAP, ads). Salary: Entry 4-10 LPA, Mid 12-25 LPA, Senior 25-50 LPA. Lower than enterprise software but improving. Passion for games essential as work involves long hours near launch. Education: Game design courses from Arena, ICAT, or online (Coursera, Udemy). Portfolio with shipped games critical. Growing field with India potentially becoming global game development hub due to talent pool and lower costs.",
+    "metadata": {
+      "doc_id": "doc_038",
+      "source": "Manual",
+      "domain": "Gaming & Interactive Media",
+      "doc_type": "role_description",
+      "role_title": "Game Developer",
+      "experience_level": "Mid",
+      "region": "India",
+      "last_scraped": "2026-03-11"
+    }
+  },
+  {
+    "doc_id": "doc_039",
+    "text": "Content Creation and Creator Economy in India offers new career paths beyond traditional media. Creators build audiences on YouTube, Instagram, LinkedIn, Twitter, and monetize through sponsorships, courses, products, and platforms. Categories: Tech content creators (coding tutorials, tech reviews), business/finance influencers, lifestyle and entertainment, educational content. Monetization: YouTube AdSense (10k-50k per lakh views in India), brand sponsorships (10k-10L per post based on reach), affiliate marketing, digital products (courses, ebooks), creator platforms (Patreon, Gumroad), consulting. Technical creators teach programming, system design, career advice, product reviews. Most successful build personal brand over 1-3 years. Skills needed: Content creation (video, writing), editing, SEO/algorithms, community management, basic business sense. Tools: Cameras, editing software (Premiere, Final Cut), design tools (Canva, Figma), analytics platforms. Indian context: Hindi and regional language content has huge potential. Tier-2/3 city audiences growing. Challenges: Algorithm changes, inconsistent income initially, burnout, privacy concerns. Success stories: TechTriveni, Harkirat Singh, Pradeep Giri. Salary equivalent: Top creators earn 20L-2Cr+ annually. Most supplement with full-time job initially. High uncertainty but uncapped upside. Requires consistency and authenticity.",
+    "metadata": {
+      "doc_id": "doc_039",
+      "source": "Manual",
+      "domain": "Content & Creator Economy",
+      "doc_type": "role_description",
+      "role_title": "Tech Content Creator",
+      "experience_level": "Mid",
+      "region": "India",
+      "last_scraped": "2026-03-11"
+    }
+  },
+  {
+    "doc_id": "doc_040",
+    "text": "Civil and Infrastructure Engineering in India combines traditional engineering with modern technology for smart cities and sustainable infrastructure. The field includes structural engineering, transportation planning, water resources, construction management, and increasingly, technology integration. Modern skills: BIM (Building Information Modeling) using Revit, AutoCAD for design, project management software, GIS for urban planning, IoT sensors for structural health monitoring, drones for surveying. India's infrastructure boom: National Infrastructure Pipeline (₹111 lakh crore), Smart Cities Mission, metro rail expansion, highway development, green buildings create massive opportunities. Roles: Civil engineer, structural engineer, project manager, urban planner, construction tech specialist. Companies: L&T, Tata Projects, Shapoorji Pallonji, infrastructure consultancies, government agencies (NHAI, DMRC), PropTech startups. Salary: Entry 3.5-7 LPA, Mid 8-16 LPA, Senior 18-35 LPA. Lower than software but improving with tech integration. Career path: Site engineer to project manager to chief engineer. Certifications: PMP, LEED AP valued. Entrepreneurship: Construction tech startups, sustainable building solutions, infra consulting. Growing focus on sustainability, earthquake-resistant design, climate-resilient infrastructure. Field work required initially; office-based roles at senior levels. Stable career with nation-building impact.",
+    "metadata": {
+      "doc_id": "doc_040",
+      "source": "Manual",
+      "domain": "Civil & Infrastructure Engineering",
+      "doc_type": "role_description",
+      "role_title": "Civil Engineer",
+      "experience_level": "Mid",
+      "region": "India",
+      "last_scraped": "2026-03-11"
+    }
+  }
+]
