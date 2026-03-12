@@ -40,3 +40,14 @@ I have created `postman_collection.json`. Here is how you use it to test everyth
 6. Make sure `api_url` is set to `http://localhost:4000` (or your Render URL once deployed).
 7. Run the requests in order (1 $\rightarrow$ 5).
 8. *Note*: After you run **"2. Auth - Login"**, you need to copy the `token` from the response and paste it into the `jwt_token` variable in Postman to unlock the profile and roadmap endpoints.
+
+## 5. Deploying the Frontend on Vercel
+Now that Person 1 has pushed the `career-path-gen` Next.js frontend, you can deploy it:
+1. Go to your [Vercel Dashboard](https://vercel.com/dashboard) and click **"Add New..."** $\rightarrow$ **"Project"**.
+2. Connect your GitHub repository.
+3. Under **"Framework Preset"**, ensure **Next.js** is selected.
+4. Under **"Root Directory"**, click **"Edit"** and select the `/career-path-gen` folder.
+5. Under **"Environment Variables"**, add the variable from your `.env.example`:
+   - `NEXT_PUBLIC_API_URL` = `[your Render backend URL]` *(e.g. `https://career-path-backend.onrender.com`)*
+6. Click **Deploy**. Vercel will automatically run `npm run build` inside that directory.
+7. Once deployed, test the live URL to ensure it successfully communicates with your Render Backend, which talks to your Hugging Face RAG service.
