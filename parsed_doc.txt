@@ -1,0 +1,243 @@
+Career Path Generator
+4-Day Project Roadmap & Team Execution Plan
+Sunday, March 8 → Wednesday, March 12, 2026
+
+5-Person Team | RAG-Powered | Groq LLaMA 3 | Next.js 15 | FastAPI
+
+1. Project Overview
+This document is the complete 4-day execution plan for the Career Path Generator — an AI-powered, RAG-based career roadmapping tool. The system takes a user profile (skills, experience, life stage) and generates an explainable, ethically-audited career transition roadmap using Groq LLaMA 3, ChromaDB, and a Python RAG microservice.
+
+Tech Stack Summary
+
+2. Team Roles & Responsibilities
+
+
+CRITICAL RULE: Every person exposes their work via clearly defined API contracts by end of Day 2 so Person 5 can integrate everything on Day 3.
+
+3. API Contracts (Agree Before Day 1)
+All team members must agree on these interfaces before writing any code. This prevents integration hell on Day 3.
+
+3.1 Backend → Frontend Contracts (Person 2 exposes)
+
+3.2 RAG Microservice Contracts (Person 3 exposes)
+
+3.3 Data Pipeline Output (Person 4 produces)
+
+4. Day-by-Day Execution Plan
+
+DAY 1 — Sunday, March 8  |  Setup & Foundation
+Goal: Every person has their environment running, base code scaffolded, and is ready to build features on Day 2. No feature work today — pure setup.
+
+Person 1  — Frontend Engineer
+📅 DAY 1  (Sunday)
+⚙️ Scaffold Next.js 15 project  — npx create-next-app@latest career-path-gen --typescript --tailwind --app
+📁 Create folder structure  — /app/(dashboard), /app/profile, /app/roadmap, /app/reports, /components/ui, /components/charts
+🎨 Set up Tailwind config  — Add green palette: primary #004d40, secondary #00695c matching existing UI
+📦 Install dependencies  — npm install react-flow-renderer recharts zustand @types/node
+🖼️ Build static shell of all 4 pages  — Dashboard, Profile Input, Roadmap View, Reports — no real data yet, hardcoded placeholders
+🔗 Set up Zustand store  — userStore (profile data), roadmapStore (generated output)
+✅  All 4 pages render with placeholder UI — ready for real data hookup on Day 2
+
+Person 2  — Backend Engineer
+📅 DAY 1  (Sunday)
+⚙️ Scaffold Node.js + TypeScript + Express project  — npx ts-node, install express, zod, bcrypt, jsonwebtoken, pg, prisma, ioredis
+🗄️ Set up Supabase project  — Create tables: users, profiles, career_clusters, roadmaps, audit_results
+📐 Write Prisma schema  — Define all models with correct relations and types
+🔐 Implement auth routes  — POST /api/auth/register and POST /api/auth/login with JWT
+📡 Set up Redis on Upstash  — Free tier — connect via ioredis, test ping
+✅ Write Zod schemas  — ProfileSchema, RoadmapRequestSchema for all incoming requests
+✅  Auth working (register/login returns JWT), DB connected, Redis connected
+
+Person 3  — AI / RAG Engineer
+📅 DAY 1  (Sunday)
+⚙️ Set up Python environment  — python -m venv venv, pip install fastapi uvicorn chromadb sentence-transformers groq langchain
+🤖 Set up Groq account  — Get free API key from console.groq.com, test LLaMA 3 call works
+🗃️ Initialize ChromaDB  — Create local persistent ChromaDB instance, test add/query with dummy data
+📡 Scaffold FastAPI app  — Create main.py with /rag/generate, /rag/embed, /rag/health endpoints — return dummy data for now
+🧠 Test sentence-transformers  — Load all-MiniLM-L6-v2, encode a test sentence, confirm it works offline
+📝 Write RAG prompt template  — System prompt: career advisor with PASSIONIT/PRUTL audit, injected context format
+✅  FastAPI server runs, all 3 endpoints return dummy responses, Groq + ChromaDB both confirmed working
+
+Person 4  — Data Engineer
+📅 DAY 1  (Sunday)
+⚙️ Set up Python scraping environment  — pip install crawl4ai cheerio requests pandas
+📊 Download Kaggle career datasets  — Job skills dataset, career transition dataset — save as CSV
+🌐 Test O*NET API  — Register at onetonline.org/developer, test /careers and /skills endpoints
+🕷️ Write Crawl4AI scraper  — Target: Naukri.com job listings for top 10 domains — output clean JSON
+🔄 Write data cleaning script  — Normalize all sources into unified format: { role, skills[], domain, demand, description }
+✅  At least 200 clean career documents in unified JSON format ready to embed on Day 2
+
+Person 5  — Integration & DevOps
+📅 DAY 1  (Sunday)
+📁 Create GitHub monorepo  — Folders: /frontend, /backend, /rag-service, /data-pipeline — invite all team members
+🔧 Set up GitHub Actions  — Basic CI: lint + typecheck on every push to main
+🌐 Deploy frontend to Vercel  — Connect GitHub repo, set env vars, confirm auto-deploy works
+🖥️ Deploy backend to Render  — Create Node.js web service, set PORT and DB env vars
+🐳 Write Dockerfile for RAG service  — Python 3.11 + all dependencies, expose port 8000
+📋 Create shared .env.example  — Document every env variable needed across all 3 services — share with team
+📬 Set up Postman collection  — Add all API endpoints from Section 3 as empty requests ready to test
+✅  GitHub repo live, Vercel + Render both deploying, Postman collection shared with team
+
+DAY 2 — Monday, March 9  |  Core Feature Build
+Goal: Every person builds their core feature completely. By end of day, individual pieces work in isolation. Do not wait for other people — use mock data where needed.
+
+Person 1  — Frontend Engineer
+📅 DAY 2  (Monday)
+📋 Build Profile Input Form  — Multi-step form: Step 1 skills/domain, Step 2 experience/life stage — save to Zustand on submit
+📊 Build Dashboard page  — Fetch /api/clusters, render Recharts bar chart (demand scores) + alignment overview stats
+🗺️ Build Roadmap Visualizer  — React Flow nodes: each career milestone = node, transitions = edges, clicking node shows skill requirements
+📈 Build Reports page  — PASSIONIT/PRUTL scores table, skill gap radar chart using Recharts
+🔐 Add auth pages  — Login + Register forms, store JWT in Zustand, add protected route wrapper
+🔄 Wire up API calls  — All fetch calls point to backend URL from env var — mock responses if backend not ready
+✅  Complete frontend works with mock data — all pages functional, charts rendering, React Flow roadmap displays
+⚠️  Use this mock roadmap JSON for React Flow testing: { nodes: [{id:'1', label:'Engineer'}, {id:'2', label:'Tech Lead'}], edges: [{source:'1', target:'2'}] }
+
+Person 2  — Backend Engineer
+📅 DAY 2  (Monday)
+👤 Build profile endpoints  — POST /api/profile (save), GET /api/profile/:id (fetch) — validate with Zod, save to Supabase
+🚀 Build roadmap generation endpoint  — POST /api/roadmap/generate — receives profileId, fetches profile, calls RAG microservice, caches result in Redis, saves to DB
+💾 Build Redis caching layer  — Cache key = hash of profile data, TTL = 24 hours — check cache before calling RAG service every time
+🏢 Seed career clusters  — Insert 20+ career clusters into Supabase with demand scores, GET /api/clusters returns them
+🔗 Wire backend → RAG service  — HTTP call to FastAPI /rag/generate with profile data — handle errors and timeouts (set 30s timeout)
+✅  All API endpoints working, tested in Postman, Redis caching confirmed (second identical request returns cached response)
+
+Person 3  — AI / RAG Engineer
+📅 DAY 2  (Monday)
+📥 Build embedding pipeline  — Accept Person 4's JSON → sentence-transformers embed each doc → store in ChromaDB with metadata
+🔍 Build retrieval logic  — Given user profile text, embed it → query ChromaDB top-5 → return relevant career docs
+🧠 Build LLM prompt chain  — Inject retrieved docs + user profile into system prompt → call Groq LLaMA 3 → parse output
+📊 Build ethical audit output  — Second Groq call with PASSIONIT/PRUTL prompt → return scores as JSON { dimension, score, risk, explanation }
+⚡ Implement /rag/generate fully  — End-to-end: profile in → retrieve → generate roadmap → audit → return structured JSON
+🛡️ Add error handling  — Groq rate limit retry logic (exponential backoff), ChromaDB connection error fallback
+✅  Full RAG pipeline working end-to-end — test with 3 different profiles, all return valid roadmaps + audit scores
+
+Person 4  — Data Engineer
+📅 DAY 2  (Monday)
+📤 Run embedding pipeline  — Hand off cleaned JSON to Person 3's embedding script — embed all 200+ docs into ChromaDB
+🌐 Scrape live job data  — Run Crawl4AI on Naukri/LinkedIn Jobs for top domains — add 100+ real job listings to knowledge base
+📡 Pull O*NET data  — Fetch career descriptions, skills, tasks for 30+ occupations — chunk and embed into ChromaDB
+🗃️ Load career_clusters into Supabase  — Format cluster data as SQL seed file, share with Person 2 to insert into DB
+🔁 Build update script  — Script that re-scrapes + re-embeds weekly — document how to run it
+✅  ChromaDB has 300+ embedded career documents across all major domains — Person 3 can query it and get relevant results
+
+Person 5  — Integration & DevOps
+📅 DAY 2  (Monday)
+🧪 Test all Day 1 endpoints  — Run through entire Postman collection — document which work, which return errors
+🐳 Deploy RAG service to Hugging Face Spaces  — Push Docker image, set GROQ_API_KEY env var, confirm /rag/health returns ok
+🔧 Set all environment variables  — Vercel: NEXT_PUBLIC_API_URL. Render: DATABASE_URL, REDIS_URL, RAG_SERVICE_URL. HF: GROQ_API_KEY
+🔗 Test cross-service communication  — Backend on Render calling RAG service on HF Spaces — confirm HTTP calls work in production
+📋 Write integration test script  — Bash script that hits every endpoint in sequence: register → login → create profile → generate roadmap
+✅  All 3 services deployed and talking to each other in production — integration test script passes
+
+DAY 3 — Tuesday, March 10  |  Integration & Connection
+Goal: Connect everything together. Frontend talks to backend. Backend talks to RAG service. Real data flows through the entire system. Person 5 leads this day.
+
+Person 1  — Frontend Engineer
+📅 DAY 3  (Tuesday)
+🔌 Replace ALL mock data with real API calls  — Profile form → POST /api/profile. Dashboard → GET /api/clusters. Roadmap → POST /api/roadmap/generate
+⏳ Add loading states  — Spinner while roadmap generates (LLM takes 5-15s), skeleton loaders for dashboard charts
+❌ Add error handling UI  — Toast notifications for API errors, retry button if roadmap generation fails
+🗺️ Map real roadmap JSON to React Flow  — Parse roadmap text from LLM → convert to nodes/edges structure React Flow expects
+📊 Map real audit scores to Reports page  — Parse PASSIONIT/PRUTL JSON → render in table + radar chart
+📱 Make UI responsive  — Mobile breakpoints for all pages — Tailwind sm: md: lg: classes
+✅  Complete user journey works: Register → Fill Profile → Generate Roadmap → View on React Flow → See Audit Report
+
+Person 2  — Backend Engineer
+📅 DAY 3  (Tuesday)
+🐛 Fix any API bugs found by Person 5  — Respond quickly to integration issues — this is the most critical day for backend
+📊 Add roadmap history endpoint  — GET /api/roadmap/history/:userId — returns all past roadmaps for a user
+🔒 Add auth middleware  — Protect all non-auth endpoints with JWT verification middleware
+⚡ Optimize DB queries  — Add indexes on users.email, profiles.userId, roadmaps.userId
+📝 Add request logging  — Log all requests with timestamp, endpoint, response time — helps debug integration issues
+✅  All endpoints secured, history working, no integration blockers for Person 5
+
+Person 3  — AI / RAG Engineer
+📅 DAY 3  (Tuesday)
+🐛 Fix any RAG output format issues  — Person 5 will report if LLM output isn't parsing correctly — fix JSON structure
+🎯 Improve prompt quality  — Test with 5 different profile types — refine system prompt for better roadmap quality
+⚡ Optimize retrieval  — Tune ChromaDB topK and similarity threshold — ensure retrieved docs are actually relevant
+🔄 Add streaming support (optional)  — Stream LLM tokens back to frontend for better UX — skip if time-constrained
+📊 Validate audit scores  — Ensure PASSIONIT/PRUTL scores are consistent and not hallucinated — add output validation
+✅  RAG pipeline stable, outputs consistent JSON every time, no parsing failures
+
+Person 4  — Data Engineer
+📅 DAY 3  (Tuesday)
+📈 Expand knowledge base  — Add more domain-specific docs — focus on gaps Person 3 reports during testing
+🔍 Quality check embeddings  — Query ChromaDB with test profiles — verify retrieved docs are relevant to the profile domain
+🌐 Scrape salary & demand data  — Add compensation data to knowledge base — makes roadmaps more realistic
+📋 Document data pipeline  — Write README: how to re-run scraper, how to re-embed, how to add new data sources
+✅  Knowledge base complete and high quality — at least 500 documents, all domains covered
+
+Person 5  — Integration & DevOps
+📅 DAY 3  (Tuesday)
+🔗 Run full integration test  — Complete user journey from registration to roadmap generation in production environment
+🐛 Triage and assign all bugs  — Document every issue found, assign to correct person, set priority (blocker vs nice-to-have)
+📊 Performance testing  — Measure end-to-end latency: profile submit → roadmap displayed. Target: under 20 seconds
+🔧 Fix CORS issues  — Ensure all cross-origin requests work between Vercel frontend and Render backend
+🔐 Security check  — Verify JWT required on protected routes, no API keys exposed in frontend code
+📹 Record demo video  — Screen record the working flow — useful for Day 4 presentation
+✅  Full system works end-to-end in production, all blockers resolved, demo recorded
+
+DAY 4 — Wednesday, March 11  |  Polish & Finalize
+Goal: Fix remaining bugs, polish UI, write documentation, prepare demo. No new features after 12pm — only fixes and polish.
+
+Person 1  — Frontend Engineer
+📅 DAY 4  (Wednesday — Morning Only for Features)
+✨ UI polish  — Consistent spacing, typography, color — match the green #004d40 theme throughout
+🎨 Improve React Flow roadmap  — Custom node styles, animated edges, zoom controls, mini-map
+📊 Animate charts  — Recharts entry animations for dashboard — makes it look professional
+🔔 Add success states  — Celebration animation when roadmap generates, clear empty states when no data
+🐛 Fix all reported UI bugs  — Address everything from Person 5's Day 3 bug list
+✅  UI is polished, professional, and consistent — no visual bugs
+
+Person 2  — Backend Engineer
+📅 DAY 4  (Wednesday)
+🐛 Fix any remaining backend bugs  — Priority: anything blocking the demo flow
+📊 Add analytics endpoint  — GET /api/analytics/summary — powers dashboard stats (total profiles, alignment distribution)
+📝 Write API documentation  — Document all endpoints with request/response examples — use Postman or simple README
+🔧 Environment hardening  — Ensure all secrets in env vars, no hardcoded values, production DB separate from dev
+✅  Backend stable, documented, no crashes under normal demo load
+
+Person 3  — AI / RAG Engineer
+📅 DAY 4  (Wednesday)
+🧪 Final prompt tuning  — Run 10 test profiles — ensure outputs are high quality, specific, and not generic
+📊 Validate ethical audit  — All PASSIONIT/PRUTL dimensions must return scores — fix any missing dimensions
+📝 Document RAG architecture  — Diagram + explanation of how retrieval works — for presentation
+💡 Add fallback responses  — If Groq is rate limited, return cached similar profile response from Redis
+✅  RAG outputs high quality, consistent, ethical audit complete for all test profiles
+
+Person 4  — Data Engineer
+📅 DAY 4  (Wednesday)
+✅ Final knowledge base audit  — Check all domains represented, no duplicate documents, metadata correct
+📋 Write data documentation  — Sources used, document count per domain, how to update
+🎯 Create demo-specific data  — Ensure the exact demo scenario (Engineer → Burnout → Teaching) has rich documents in ChromaDB
+🔁 Test update pipeline  — Run full scrape → clean → embed cycle once more to confirm it works end-to-end
+✅  Knowledge base is demo-ready, documented, and reproducible
+
+Person 5  — Integration & DevOps
+📅 DAY 4  (Wednesday)
+🎬 Prepare demo script  — Write exact click-by-click demo flow using the Engineer → Burnout → Teaching scenario
+🔧 Final deployment check  — All 3 services latest code deployed, env vars correct, health checks green
+📁 Clean up GitHub  — Remove debug logs, merge all branches to main, tag release v1.0
+📊 Create project summary doc  — Tech stack, architecture diagram, what was built, what can be extended
+🧪 Final end-to-end test  — Run demo script 3 times — confirm it works consistently
+✅  Demo ready, all services stable, GitHub clean, project documented
+
+5. Daily Sync Structure
+
+Every day at 9:00 AM and 9:00 PM — 15 minutes maximum. Use a WhatsApp group or Discord.
+
+
+Blocker Protocol
+If blocked for less than 1 hour — try to solve it yourself
+If blocked for more than 1 hour — message the group immediately, don't wait for standup
+Person 5 is the integration coordinator — they have final say on API contract disputes
+If Groq rate limits hit — Person 3 switches to cached responses while waiting for reset
+
+6. Risk Register
+
+
+7. Final Deliverables Checklist
+
+
+Build fast. Ship it. Good luck. 🚀

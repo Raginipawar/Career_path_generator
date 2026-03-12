@@ -1,0 +1,136 @@
+{
+  "info": {
+    "name": "Career Path Generator",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Backend Services",
+      "item": [
+        {
+          "name": "1. Auth - Register",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "url": {"raw": "{{api_url}}/api/auth/register", "host": ["{{api_url}}"], "path": ["api", "auth", "register"]},
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test User\",\n  \"email\": \"test@example.com\",\n  \"password\": \"Password123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "2. Auth - Login",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "url": {"raw": "{{api_url}}/api/auth/login", "host": ["{{api_url}}"], "path": ["api", "auth", "login"]},
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test@example.com\",\n  \"password\": \"Password123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "3. Profile - Create",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{jwt_token}}"}
+            ],
+            "url": {"raw": "{{api_url}}/api/profile", "host": ["{{api_url}}"], "path": ["api", "profile"]},
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Test User\",\n  \"age\": 30,\n  \"gender\": \"Male\",\n  \"locationCity\": \"Mumbai\",\n  \"locationState\": \"Maharashtra\",\n  \"highestDegree\": \"B.Tech\",\n  \"fieldOfStudy\": \"Computer Science\",\n  \"institutionTier\": \"Tier 1\",\n  \"currentRole\": \"Software Engineer\",\n  \"currentIndustry\": \"IT\",\n  \"yearsOfExperience\": 5,\n  \"employmentStatus\": \"Employed Full-Time\",\n  \"currentSalaryLpa\": 15,\n  \"technicalSkills\": [\"JavaScript\", \"Python\"],\n  \"softSkills\": [\"Communication\"],\n  \"certifications\": [],\n  \"interestDomains\": [\"AI\", \"EdTech\"],\n  \"careerGoal\": \"Transition to Tech Lead\",\n  \"preferredWorkStyle\": \"Remote\",\n  \"willingToRelocate\": false,\n  \"targetTimelineYears\": 2,\n  \"lifeStage\": \"Mid Career\",\n  \"burnoutLevel\": 5,\n  \"stressTolerance\": 7,\n  \"hasDependents\": false,\n  \"recentLifeEvent\": \"None\",\n  \"workLifePriority\": \"Career Growth\",\n  \"leadershipScore\": 7,\n  \"alignmentCategory\": \"Moderate\"\n}"
+            }
+          }
+        },
+        {
+          "name": "4. Profile - Get",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{jwt_token}}"}],
+            "url": {"raw": "{{api_url}}/api/profile/{{profile_id}}", "host": ["{{api_url}}"], "path": ["api", "profile", "{{profile_id}}"]}
+          }
+        },
+        {
+          "name": "5. Roadmap - Generate",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{jwt_token}}"}
+            ],
+            "url": {"raw": "{{api_url}}/api/roadmap/generate", "host": ["{{api_url}}"], "path": ["api", "roadmap", "generate"]},
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"profileId\": \"{{profile_id}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "6. Roadmap - History",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{jwt_token}}"}],
+            "url": {"raw": "{{api_url}}/api/roadmap/history/{{profile_id}}", "host": ["{{api_url}}"], "path": ["api", "roadmap", "history", "{{profile_id}}"]}
+          }
+        },
+        {
+          "name": "7. Clusters",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{api_url}}/api/clusters", "host": ["{{api_url}}"], "path": ["api", "clusters"]}
+          }
+        }
+      ]
+    },
+    {
+      "name": "RAG Service",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{rag_url}}/rag/health", "host": ["{{rag_url}}"], "path": ["rag", "health"]}
+          }
+        },
+        {
+          "name": "Generate (Direct)",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "url": {"raw": "{{rag_url}}/rag/generate", "host": ["{{rag_url}}"], "path": ["rag", "generate"]},
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"profile\": {\n    \"fullName\": \"Test User\",\n    \"age\": 35,\n    \"currentRole\": \"Engineer\",\n    \"technicalSkills\": [\"Python\"]\n  },\n  \"top_k\": 5\n}"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "api_url",
+      "value": "http://localhost:4000",
+      "type": "string"
+    },
+    {
+      "key": "rag_url",
+      "value": "http://localhost:8000",
+      "type": "string"
+    },
+    {
+      "key": "jwt_token",
+      "value": "YOUR_JWT_TOKEN",
+      "type": "string"
+    },
+    {
+      "key": "profile_id",
+      "value": "YOUR_PROFILE_ID",
+      "type": "string"
+    }
+  ]
+}

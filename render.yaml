@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: career-path-backend
+    env: node
+    rootDir: backend
+    buildCommand: npm install && npm run prisma:generate && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 4000
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: REDIS_URL
+        sync: false
+      - key: REDIS_TTL_SECONDS
+        value: 86400
+      - key: RAG_SERVICE_URL
+        value: https://notxh-career-path-generator-rag.hf.space
+      - key: RAG_TIMEOUT_MS
+        value: 30000
+      - key: FRONTEND_URL
+        sync: false
