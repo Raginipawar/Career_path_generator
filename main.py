@@ -1,4 +1,6 @@
 import time
+import os
+import json
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -34,6 +36,34 @@ async def lifespan(app: FastAPI):
 
     # Initialize ChromaDB collection
     get_collection()
+
+    # Auto-embed docs if collection is empty
+    if get_doc_count() == 0:
+        print("Collection is empty — auto-embedding career docs...")
+        data_dir = os.path.join(os.path.dirname(__file__), "data", "processed")
+        all_ids, all_texts, all_metas = [], [], []
+        for fname in sorted(os.listdir(data_dir)):
+            if not fname.endswith(".json"):
+                continue
+            try:
+                with open(os.path.join(data_dir, fname), "r", encoding="utf-8") as f:
+                    raw = json.load(f)
+                docs = raw if isinstance(raw, list) else raw.get("documents", [])
+                for doc in docs:
+                    if not all(k in doc for k in ("doc_id", "text", "metadata")):
+                        continue
+                    text = doc["text"]
+                    if isinstance(text, list):
+                        text = " ".join(str(t) for t in text)
+                    all_ids.append(doc["doc_id"])
+                    all_texts.append(str(text))
+                    all_metas.append(doc["metadata"])
+                print(f"  Loaded {len(docs)} docs from {fname}")
+            except Exception as e:
+                print(f"  Skipping {fname}: {e}")
+        if all_ids:
+            added = add_documents(all_ids, all_texts, all_metas)
+            print(f"Auto-embed complete. Added {added} docs. Total: {get_doc_count()}")
 
     print(f"Documents in collection: {get_doc_count()}")
     print(f"Redis connected: {redis_connected()}")
