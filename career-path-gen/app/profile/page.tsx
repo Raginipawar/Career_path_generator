@@ -31,6 +31,8 @@ const softSuggestions = ["Leadership", "Communication", "Problem Solving", "Team
 export default function ProfileWizard() {
   const router = useRouter();
   const { setProfile, setRoadmap, setGenerating, isGenerating, user } = useAppStore();
+
+  useEffect(() => { setGenerating(false); }, []);
   
   const [step, setStep] = useState(1);
   const [data, setData] = useState<UserProfile>(emptyProfile);

@@ -64,6 +64,16 @@ RULES:
 - Generate exactly 1-2 alternative paths
 - Emotional forecast should have 2-4 phases matching the transition timeline
 - All timeline estimates should respect the user's target_timeline_years
+
+PROBABILITY CALIBRATION (be realistic, not encouraging):
+- Same domain, adjacent role (e.g. Dev → Senior Dev): 75-90%
+- Cross-functional but related (e.g. Dev → Product): 55-70%
+- Major pivot with some transferable skills (e.g. MBA → PM): 45-60%
+- Major pivot with few transferable skills (e.g. MBA → ML Engineer): 25-45%
+- If technical_skills list is empty and target is technical: subtract 15%
+- If years_of_experience < 2 and target is senior: subtract 10%
+- If burnout_level >= 8: subtract 10% (execution risk)
+- Never exceed 85% for any transition — career changes always carry risk
 - ONLY output JSON, nothing else"""
 
 

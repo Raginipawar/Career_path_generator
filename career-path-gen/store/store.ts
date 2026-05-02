@@ -38,6 +38,16 @@ export const useAppStore = create<AppStore>()(
       setGenerating: (val) => set({ isGenerating: val }),
       clearRoadmap: () => set({ roadmapResponse: null }),
     }),
-    { name: 'career-path-store' }
+    {
+      name: 'career-path-store',
+      partialize: (state) => ({
+        user: state.user,
+        token: state.token,
+        profileId: state.profileId,
+        profileData: state.profileData,
+        roadmapResponse: state.roadmapResponse,
+        // isGenerating intentionally excluded — always resets to false on load
+      }),
+    }
   )
 );

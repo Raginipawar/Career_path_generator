@@ -44,7 +44,7 @@ export function zodErrorHandler(
   next: NextFunction,
 ): void {
   if (err && typeof err === 'object' && 'name' in err && (err as { name: string }).name === 'ZodError') {
-    const zodErr = err as { errors: Array<{ path: string[]; message: string }> };
+    const zodErr = err as unknown as { errors: Array<{ path: string[]; message: string }> };
     res.status(400).json({
       error: 'Validation failed',
       details: zodErr.errors.map((e) => ({

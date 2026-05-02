@@ -21,7 +21,10 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({ error: 'Request failed' }));
-    throw new Error(err.error || `HTTP ${res.status}`);
+    const details = err.details?.fieldErrors
+      ? ' — ' + Object.entries(err.details.fieldErrors).map(([k, v]) => `${k}: ${(v as string[]).join(', ')}`).join('; ')
+      : '';
+    throw new Error((err.error || `HTTP ${res.status}`) + details);
   }
   return res.json();
 }

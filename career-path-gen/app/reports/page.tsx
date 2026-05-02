@@ -52,7 +52,7 @@ export default function ReportsPage() {
             <div className="lg:col-span-1 space-y-8">
               <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 h-[450px] flex flex-col">
                 <h2 className="text-xl font-serif text-[var(--dark)] mb-4">Viability Radar</h2>
-                <div className="flex-1 w-full relative -ml-4">
+                <div className="w-full" style={{ height: 360 }}>
                   <ResponsiveContainer width="100%" height="100%">
                     <RadarChart cx="50%" cy="50%" outerRadius="70%" data={radarData}>
                       <PolarGrid stroke="#e2e8f0" />

@@ -24,18 +24,18 @@ export const ProfileSchema = z.object({
   // Personal info
   fullName:      z.string().min(2).max(100),
   age:           z.number().int().min(16).max(80),
-  gender:        z.string().min(1),
-  locationCity:  z.string().min(1),
-  locationState: z.string().min(1),
+  gender:        z.string().default(''),
+  locationCity:  z.string().default(''),
+  locationState: z.string().default(''),
 
   // Education
-  highestDegree:   z.string().min(1),
-  fieldOfStudy:    z.string().min(1),
+  highestDegree:   z.string().default(''),
+  fieldOfStudy:    z.string().default(''),
   institutionTier: z.enum(['Tier 1', 'Tier 2', 'Tier 3']),
 
   // Career current state
-  currentRole:       z.string().min(1),
-  currentIndustry:   z.string().min(1),
+  currentRole:       z.string().default(''),
+  currentIndustry:   z.string().default(''),
   yearsOfExperience: z.number().min(0).max(60),
   employmentStatus:  z.enum([
     'Employed Full-Time',
@@ -48,13 +48,13 @@ export const ProfileSchema = z.object({
   currentSalaryLpa: z.number().min(0),
 
   // Skills
-  technicalSkills: z.array(z.string()).min(1).max(30),
+  technicalSkills: z.array(z.string()).max(30).default([]),
   softSkills:      z.array(z.string()).max(20).default([]),
   certifications:  z.array(z.string()).max(20).default([]),
 
   // Goals & preferences
-  interestDomains:     z.array(z.string()).min(1).max(10),
-  careerGoal:          z.string().min(5).max(500),
+  interestDomains:     z.array(z.string()).max(10).default([]),
+  careerGoal:          z.string().max(500).default(''),
   preferredWorkStyle:  z.enum(['Remote', 'Hybrid', 'On-site']),
   willingToRelocate:   z.boolean(),
   targetTimelineYears: z.number().int().min(1).max(10),
