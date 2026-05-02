@@ -38,11 +38,15 @@ analyticsRouter.use(requireAuth);
 analyticsRouter.get('/summary', async (req: Request, res: Response) => {
   const userId = req.user!.userId;
 
+  const userRoadmapIds = (
+    await prisma.roadmap.findMany({ where: { userId }, select: { id: true } })
+  ).map(r => r.id);
+
   const [totalProfiles, totalRoadmaps, auditResults] = await Promise.all([
     prisma.profile.count({ where: { userId } }),
     prisma.roadmap.count({ where: { userId } }),
     prisma.auditResult.findMany({
-      where: { roadmap: { userId } },
+      where: { roadmapId: { in: userRoadmapIds } },
       select: { dimension: true, score: true, risk: true },
     }),
   ]);

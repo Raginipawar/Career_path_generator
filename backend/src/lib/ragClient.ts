@@ -102,7 +102,7 @@ export interface RagResponse {
 // ─── Main caller ──────────────────────────────────────────────────────────────
 
 // Add to ragClient.ts
-function prismaToRagProfile(p: any): RagProfile {
+export function prismaToRagProfile(p: any): RagProfile {
   return {
     user_id: p.userId ?? p.id,
     full_name: p.fullName,

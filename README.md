@@ -1,7 +1,16 @@
-# Career Path Generator — RAG Service
+---
+title: Career Path Generator RAG
+emoji: 🚀
+colorFrom: green
+colorTo: teal
+sdk: docker
+app_port: 7860
+pinned: false
+---
 
-**Owner:** Sachi (Person 3 — AI/RAG Engineer)
+# Career Path Generator — RAG Microservice
 
+HEAD
 FastAPI microservice powering the career roadmap generation pipeline using RAG (Retrieval-Augmented Generation) with ChromaDB, sentence-transformers, and Groq LLaMA 3.
 
 ## Architecture
@@ -91,3 +100,6 @@ docker run -p 8000:8000 --env-file .env rag-service
 ## python scripts/create_quality_report.py
 ## 
 python scripts/embedder.py
+=======
+FastAPI + ChromaDB + Groq LLaMA 3 RAG pipeline for career roadmap generation.
+031eb30e9840be0260113c1237c771422c2aa0dc

@@ -1,0 +1,10 @@
+backend/node_modules
+backend/dist
+career-path-gen/node_modules
+career-path-gen/.next
+chroma_data
+__pycache__
+**/__pycache__
+*.pyc
+.env
+.git

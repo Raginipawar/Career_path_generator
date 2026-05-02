@@ -4,7 +4,7 @@ import { prisma } from '../lib/prisma';
 import { requireAuth } from '../middleware/auth';
 import { RoadmapRequestSchema } from '../schemas';
 import { cacheGet, cacheSet, profileCacheKey } from '../lib/redis';
-import { callRagGenerate, AuditScore } from '../lib/ragClient';
+import { callRagGenerate, prismaToRagProfile, AuditScore } from '../lib/ragClient';
 
 const router = Router();
 router.use(requireAuth);
@@ -20,23 +20,15 @@ router.post('/generate', async (req: Request, res: Response) => {
   const { profileId } = parsed.data;
   const userId = req.user!.userId;
 
-  // Verify this profile belongs to the requesting user
   const profile = await prisma.profile.findFirst({ where: { id: profileId, userId } });
   if (!profile) {
     res.status(404).json({ error: 'Profile not found or access denied' });
     return;
   }
 
-  // ── Check Redis cache first ──────────────────────────────────────────────────
+  // ── Redis cache check ────────────────────────────────────────────────────────
   const cacheKey = profileCacheKey(profileId);
-  const cached = await cacheGet<{
-    roadmapId: string;
-    roadmap: unknown;
-    auditScores: unknown;
-    probability: number;
-    fromCache: boolean;
-  }>(cacheKey);
-
+  const cached = await cacheGet<Record<string, unknown>>(cacheKey);
   if (cached) {
     console.log(`🗃️ Cache HIT for profile ${profileId}`);
     res.json({ ...cached, fromCache: true });
@@ -48,7 +40,7 @@ router.post('/generate', async (req: Request, res: Response) => {
   // ── Call RAG microservice ────────────────────────────────────────────────────
   let ragResponse;
   try {
-    ragResponse = await callRagGenerate(profile);
+    ragResponse = await callRagGenerate(prismaToRagProfile(profile));
   } catch (error) {
     const msg = error instanceof Error ? error.message : 'Unknown error';
     console.error(`❌ RAG service error: ${msg}`);
@@ -59,40 +51,59 @@ router.post('/generate', async (req: Request, res: Response) => {
     return;
   }
 
-  // ── Save roadmap + audit results to DB ──────────────────────────────────────
+  // ── Save to DB ───────────────────────────────────────────────────────────────
   const roadmap = await prisma.roadmap.create({
     data: {
       userId,
       profileId,
-      roadmapData: ragResponse as object,
+      roadmapData: {
+        nodes:                   ragResponse.roadmap_nodes,
+        edges:                   ragResponse.roadmap_edges,
+        current_role:            ragResponse.current_role,
+        target_role:             ragResponse.target_role,
+        total_transition_months: ragResponse.total_transition_months,
+        explanation:             ragResponse.explanation,
+        emotional_forecast:      ragResponse.emotional_forecast,
+        alternative_paths:       ragResponse.alternative_paths,
+        model_used:              ragResponse.model_used,
+      } as object,
       auditScores: ragResponse.audit_scores as object,
-      probability: ragResponse.success_probability,
+      probability: ragResponse.success_probability / 100,
     },
   });
 
-  // Save individual audit results for analytics
+  // Save individual audit results
   if (ragResponse.audit_scores?.length) {
     await prisma.auditResult.createMany({
       data: ragResponse.audit_scores.map((score: AuditScore) => ({
-        roadmapId: roadmap.id,
-        dimension: score.dimension,
-        score: score.score,
-        risk: score.risk_level,
-        explanation: score.explanation,
+        roadmapId:      roadmap.id,
+        dimension:      score.dimension,
+        framework:      score.framework ?? 'PASSIONIT',
+        score:          score.score,
+        risk:           score.risk_level,
+        explanation:    score.explanation,
+        recommendation: score.recommendation ?? '',
       })),
     });
   }
 
-  // ── Cache the result ─────────────────────────────────────────────────────────
+  // ── Flat response matching frontend RoadmapResponse type ────────────────────
   const responseData = {
-    roadmapId: roadmap.id,
-    roadmap: ragResponse,
-    auditScores: ragResponse.audit_scores,
-    probability: ragResponse.success_probability,
-    fromCache: false,
+    roadmapId:               roadmap.id,
+    roadmap_nodes:           ragResponse.roadmap_nodes,
+    roadmap_edges:           ragResponse.roadmap_edges,
+    current_role:            ragResponse.current_role,
+    target_role:             ragResponse.target_role,
+    success_probability:     ragResponse.success_probability,
+    total_transition_months: ragResponse.total_transition_months,
+    explanation:             ragResponse.explanation,
+    emotional_forecast:      ragResponse.emotional_forecast,
+    alternative_paths:       ragResponse.alternative_paths,
+    audit_scores:            ragResponse.audit_scores,
+    fromCache:               false,
   };
-  await cacheSet(cacheKey, responseData);
 
+  await cacheSet(cacheKey, responseData);
   res.json(responseData);
 });
 
@@ -117,10 +128,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 // ─── GET /api/roadmap/history/:userId ─────────────────────────────────────────
 router.get('/history/:userId', async (req: Request, res: Response) => {
   const { userId } = req.params;
-  const requestingUser = req.user!.userId;
-
-  // Users can only access their own history
-  if (userId !== requestingUser) {
+  if (userId !== req.user!.userId) {
     res.status(403).json({ error: 'Access denied' });
     return;
   }
@@ -128,14 +136,28 @@ router.get('/history/:userId', async (req: Request, res: Response) => {
   const roadmaps = await prisma.roadmap.findMany({
     where: { userId },
     orderBy: { createdAt: 'desc' },
-    include: {
-      profile: {
-        select: { skills: true, domain: true, experience: true, lifeStage: true },
-      },
-    },
   });
 
-  res.json({ roadmaps, count: roadmaps.length });
+  // Reconstruct flat RoadmapResponse shape from DB row
+  const mapped = roadmaps.map(r => {
+    const d = (r.roadmapData ?? {}) as Record<string, unknown>;
+    return {
+      roadmapId:               r.id,
+      roadmap_nodes:           d.nodes ?? [],
+      roadmap_edges:           d.edges ?? [],
+      current_role:            d.current_role ?? '',
+      target_role:             d.target_role ?? '',
+      success_probability:     Math.round((r.probability ?? 0) * 100),
+      total_transition_months: d.total_transition_months ?? 0,
+      explanation:             d.explanation ?? '',
+      emotional_forecast:      d.emotional_forecast ?? [],
+      alternative_paths:       d.alternative_paths ?? [],
+      audit_scores:            r.auditScores ?? [],
+      fromCache:               false,
+    };
+  });
+
+  res.json(mapped);
 });
 
 export default router;
