@@ -163,6 +163,13 @@ router.patch('/:id/progress', async (req: Request, res: Response) => {
   const roadmap = await prisma.roadmap.findFirst({ where: { id, userId } });
   if (!roadmap) { res.status(404).json({ error: 'Roadmap not found' }); return; }
 
+  // Validate nodeId is a real node in this roadmap
+  const validNodeIds: string[] = ((roadmap.roadmapData as any)?.nodes ?? []).map((n: any) => n.node_id as string);
+  if (validNodeIds.length > 0 && !validNodeIds.includes(nodeId)) {
+    res.status(400).json({ error: 'Invalid node ID for this roadmap' });
+    return;
+  }
+
   const current = roadmap.completedNodes ?? [];
   const updated = current.includes(nodeId)
     ? current.filter((n: string) => n !== nodeId)   // uncheck

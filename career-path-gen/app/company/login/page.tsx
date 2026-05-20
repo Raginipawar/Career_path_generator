@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useAppStore } from "@/store/store";
 import { Building2, Mail, Lock, ArrowRight } from "lucide-react";
 import toast from "react-hot-toast";
 import Link from "next/link";
@@ -9,6 +10,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 export default function CompanyLogin() {
   const router = useRouter();
+  const { logout } = useAppStore();
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({ email: "", password: "" });
   const set = (k: string) => (e: React.ChangeEvent<HTMLInputElement>) => setForm(f => ({ ...f, [k]: e.target.value }));
@@ -24,6 +26,8 @@ export default function CompanyLogin() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Login failed");
+      // Clear any personal session before starting company session
+      logout();
       localStorage.setItem("company-token", data.token);
       localStorage.setItem("company-user", JSON.stringify(data.user));
       toast.success(`Welcome back, ${data.user.name}!`);

@@ -291,6 +291,10 @@ router.post('/upload', upload.single('employees'), async (req: Request, res: Res
         continue;
       }
 
+      // Skip if profile already exists for this employee (idempotent upload)
+      const existingProfile = await prisma.profile.findFirst({ where: { userId: user.id } });
+      if (existingProfile) { results.skipped++; continue; }
+
       // Build profile from Excel columns with safe defaults
       const skillsRaw  = String(row.technical_skills ?? '');
       const softRaw    = String(row.soft_skills ?? '');

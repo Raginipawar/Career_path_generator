@@ -91,8 +91,17 @@ router.delete('/clear', async (req: Request, res: Response) => {
     return;
   }
 
+  // Verify the profile belongs to the requesting user
+  const profile = await prisma.profile.findFirst({
+    where: { id: profileId, userId: req.user!.userId },
+  });
+  if (!profile) {
+    res.status(404).json({ error: 'Profile not found or access denied' });
+    return;
+  }
+
   const historyKey = `chat:${req.user!.userId}:${profileId}`;
-  await cacheSet(historyKey, [], 1); // expire immediately
+  await cacheSet(historyKey, [], 1);
   res.json({ cleared: true });
 });
 

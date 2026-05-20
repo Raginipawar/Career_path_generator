@@ -24,15 +24,24 @@ router.post('/register', async (req: Request, res: Response) => {
     return;
   }
 
+  // Block company accounts from registering via personal route
+  const existingCompany = await prisma.user.findFirst({
+    where: { email, role: 'company_admin' },
+  });
+  if (existingCompany) {
+    res.status(409).json({ error: 'This email is registered as a company admin. Use company login.' });
+    return;
+  }
+
   const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
 
   const user = await prisma.user.create({
-    data: { name, email, password: hashedPassword },
-    select: { id: true, name: true, email: true, createdAt: true },
+    data: { name, email, password: hashedPassword, role: 'personal' }, // explicit role
+    select: { id: true, name: true, email: true, role: true, createdAt: true },
   });
 
   const token = jwt.sign(
-    { userId: user.id, email: user.email },
+    { userId: user.id, email: user.email, role: 'personal' },
     process.env.JWT_SECRET!,
     { expiresIn: (process.env.JWT_EXPIRES_IN ?? '7d') as any },
   );
@@ -52,13 +61,18 @@ router.post('/login', async (req: Request, res: Response) => {
 
   const user = await prisma.user.findUnique({
     where: { email },
-    select: { id: true, name: true, email: true, password: true, createdAt: true },
+    select: { id: true, name: true, email: true, password: true, role: true, createdAt: true },
   });
 
   if (!user) {
-    // Use consistent timing to prevent user enumeration
     await bcrypt.hash('dummy', SALT_ROUNDS);
     res.status(401).json({ error: 'Invalid email or password' });
+    return;
+  }
+
+  // Block company accounts from logging in via personal route
+  if (user.role === 'company_admin') {
+    res.status(403).json({ error: 'This is a company admin account. Please use company login at /company/login' });
     return;
   }
 
@@ -69,7 +83,7 @@ router.post('/login', async (req: Request, res: Response) => {
   }
 
   const token = jwt.sign(
-    { userId: user.id, email: user.email },
+    { userId: user.id, email: user.email, role: user.role ?? 'personal' },
     process.env.JWT_SECRET!,
     { expiresIn: (process.env.JWT_EXPIRES_IN ?? '7d') as any },
   );
