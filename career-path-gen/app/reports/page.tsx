@@ -2,32 +2,47 @@
 
 import { useAppStore } from "@/store/store";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import { ShieldCheck, Info, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { ShieldCheck, Info, AlertTriangle, CheckCircle2, Users2 } from "lucide-react";
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, Tooltip, Legend } from "recharts";
+import { useState, useEffect } from "react";
+import { api } from "@/lib/api";
 
 export default function ReportsPage() {
-  const { roadmapResponse, profileData } = useAppStore();
+  const { roadmapResponse, profileData, profileId } = useAppStore();
+  const [benchmarks, setBenchmarks] = useState<any>(null);
+
+  useEffect(() => {
+    if (!profileId) return;
+    api.getBenchmarks(profileId)
+      .then(setBenchmarks)
+      .catch(() => {}); // silent — benchmarking is optional
+  }, [profileId]);
 
   if (!roadmapResponse) return null; // ProtectedRoute will redirect
 
-  // Group scores by framework
+  // ── Audit radar (PASSIONIT / PRUTL) ──────────────────────────────────────────
   const scores = roadmapResponse.audit_scores;
-  
-  // Transform data for recharts
-  // We need to merge all dimensions into one data array to plot two radars on the same chart,
-  // or we can just plot them side by side. The spec asks for overlapping radar areas.
-  // To overlap correctly, we need a unified set of dimensions.
-  
   const allDimensions = Array.from(new Set(scores.map(s => s.dimension)));
   const radarData = allDimensions.map(dim => {
     const s = scores.find(score => score.dimension === dim);
     return {
-      subject: dim,
+      subject: dim.length > 14 ? dim.slice(0, 12) + '…' : dim,
       PASSIONIT: s?.framework === 'PASSIONIT' ? s.score : null,
-      PRUTL: s?.framework === 'PRUTL' ? s.score : null,
-      fullMark: 10
+      PRUTL:     s?.framework === 'PRUTL'     ? s.score : null,
+      fullMark:  10,
     };
   });
+
+  // ── Skill Gap Radar — current skills vs required for target role ──────────────
+  const targetNode = roadmapResponse.roadmap_nodes[roadmapResponse.roadmap_nodes.length - 1];
+  const userSkills = new Set((profileData?.technicalSkills ?? []).map(s => s.toLowerCase()));
+  const skillGapData = (targetNode?.required_skills ?? []).slice(0, 8).map(skill => {
+    const have = userSkills.has(skill.toLowerCase()) ? 10 : 0;
+    return { subject: skill.length > 12 ? skill.slice(0, 10) + '…' : skill, Current: have, Required: 10, fullMark: 10 };
+  });
+  const readinessPct = skillGapData.length > 0
+    ? Math.round(skillGapData.filter(d => d.Current === 10).length / skillGapData.length * 100)
+    : 0;
 
   return (
     <ProtectedRoute>
@@ -47,11 +62,36 @@ export default function ReportsPage() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            
-            {/* Radar Chart Section */}
-            <div className="lg:col-span-1 space-y-8">
-              <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 h-[450px] flex flex-col">
-                <h2 className="text-xl font-serif text-[var(--dark)] mb-4">Viability Radar</h2>
+
+            {/* Radar Charts column */}
+            <div className="lg:col-span-1 space-y-6">
+
+              {/* Skill Gap Radar */}
+              {skillGapData.length > 0 && (
+                <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                  <div className="flex items-center justify-between mb-1">
+                    <h2 className="text-lg font-serif text-[var(--dark)]">Skill Gap Radar</h2>
+                    <span className={`text-sm font-bold ${readinessPct >= 70 ? 'text-green-600' : readinessPct >= 40 ? 'text-yellow-600' : 'text-red-500'}`}>{readinessPct}% ready</span>
+                  </div>
+                  <p className="text-xs text-[var(--muted)] mb-3">Your skills vs what {targetNode?.role_title} requires</p>
+                  <div style={{ height: 240 }}>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <RadarChart cx="50%" cy="50%" outerRadius="65%" data={skillGapData}>
+                        <PolarGrid stroke="#e2e8f0" />
+                        <PolarAngleAxis dataKey="subject" tick={{ fill: 'var(--text)', fontSize: 10 }} />
+                        <PolarRadiusAxis angle={30} domain={[0, 10]} tick={false} axisLine={false} />
+                        <Radar name="Required" dataKey="Required" stroke="#e2e8f0" fill="#e2e8f0" fillOpacity={0.4} />
+                        <Radar name="You" dataKey="Current" stroke="var(--primary)" fill="var(--primary)" fillOpacity={0.5} />
+                        <Legend wrapperStyle={{ fontSize: 11 }} />
+                      </RadarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+              )}
+
+              {/* Viability Radar (PASSIONIT / PRUTL) */}
+              <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                <h2 className="text-lg font-serif text-[var(--dark)] mb-4">Ethics Viability Radar</h2>
                 <div className="w-full" style={{ height: 360 }}>
                   <ResponsiveContainer width="100%" height="100%">
                     <RadarChart cx="50%" cy="50%" outerRadius="70%" data={radarData}>
@@ -89,7 +129,7 @@ export default function ReportsPage() {
                   </p>
                 </div>
               </div>
-            </div>
+            </div>  {/* end radar charts column */}
 
             {/* Score Table Section */}
             <div className="lg:col-span-2">
@@ -155,6 +195,52 @@ export default function ReportsPage() {
             </div>
 
           </div>
+
+          {/* Cohort Benchmarking */}
+          {benchmarks && !benchmarks.message && (
+            <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
+              <h2 className="text-xl font-serif text-[var(--dark)] mb-1 flex items-center gap-3">
+                <Users2 className="w-6 h-6 text-[var(--primary)]" /> How You Compare
+              </h2>
+              <p className="text-[var(--muted)] text-sm mb-6">
+                Benchmarked against <strong>{benchmarks.peerCount}</strong> peers in your cohort: <span className="text-[var(--primary)] font-medium">{benchmarks.cohortLabel}</span>
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                {[
+                  { label: "Leadership Score", data: benchmarks.percentiles.leadershipScore, unit: "/10" },
+                  { label: "Skill Breadth", data: benchmarks.percentiles.skillBreadth, unit: " skills" },
+                  { label: "Experience", data: benchmarks.percentiles.experience, unit: "y" },
+                ].map(({ label, data }) => (
+                  <div key={label} className="bg-slate-50 rounded-xl p-5 border border-slate-100">
+                    <p className="text-xs font-semibold text-[var(--muted)] uppercase tracking-wide mb-3">{label}</p>
+                    <div className="flex items-end gap-2 mb-3">
+                      <span className="text-4xl font-bold text-[var(--primary)]">{data.percentile}</span>
+                      <span className="text-lg text-[var(--muted)] mb-1">%ile</span>
+                    </div>
+                    <div className="h-2 bg-slate-200 rounded-full overflow-hidden mb-2">
+                      <div className="h-full bg-[var(--accent)] rounded-full" style={{ width: `${data.percentile}%` }} />
+                    </div>
+                    <p className="text-xs text-[var(--muted)]">
+                      Your score: <strong>{data.yours}</strong> · Peer avg: <strong>{data.peerAvg}</strong>
+                    </p>
+                    <p className="text-xs mt-1 font-medium" style={{
+                      color: data.percentile >= 75 ? "var(--success)" : data.percentile >= 40 ? "var(--warning)" : "var(--danger)"
+                    }}>
+                      {data.percentile >= 75 ? "Top performer" : data.percentile >= 40 ? "Average range" : "Room to grow"}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {benchmarks?.message && (
+            <div className="bg-white p-6 rounded-2xl border border-slate-200 text-center">
+              <Users2 className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+              <p className="text-[var(--muted)] text-sm">{benchmarks.message}</p>
+            </div>
+          )}
+
         </div>
       </div>
     </ProtectedRoute>

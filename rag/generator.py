@@ -6,6 +6,7 @@ from groq import Groq
 from config import get_settings
 from prompts.roadmap import ROADMAP_SYSTEM_PROMPT, build_roadmap_prompt
 from prompts.audit import AUDIT_SYSTEM_PROMPT, build_audit_prompt
+from prompts.suggest import SUGGEST_SYSTEM_PROMPT, build_suggest_prompt
 
 settings = get_settings()
 
@@ -239,6 +240,29 @@ DEMO_AUDIT_FALLBACK = [
     {"dimension": "Trustworthiness", "framework": "PRUTL", "score": 8, "risk_level": "Low", "explanation": "A career counselor would largely agree.", "recommendation": "Validate with domain experts.", "flagged_biases": []},
     {"dimension": "Legality", "framework": "PRUTL", "score": 9, "risk_level": "Low", "explanation": "Compliant with employment laws.", "recommendation": "No action needed.", "flagged_biases": []},
 ]
+
+
+def generate_suggestions(profile_dict: dict) -> list[dict]:
+    """
+    Suggest 3 career paths for a user who has not specified a goal.
+    Returns list of suggestion dicts.
+    """
+    user_message = build_suggest_prompt(profile_dict)
+    result = _call_groq(SUGGEST_SYSTEM_PROMPT, user_message, temperature=0.5)
+    if result and "suggestions" in result:
+        return result["suggestions"]
+    # Fallback
+    return [
+        {
+            "path_name": "Senior " + profile_dict.get("current_role", "Professional"),
+            "target_role": "Senior " + profile_dict.get("current_role", "Professional"),
+            "reasoning": "A natural progression from your current role with your existing skills.",
+            "estimated_probability": 70,
+            "timeline_months": 12,
+            "top_skills_needed": ["Leadership", "System Design", "Mentoring"],
+            "salary_range_lpa": "Not estimated",
+        }
+    ]
 
 
 def get_fallback_roadmap() -> dict:

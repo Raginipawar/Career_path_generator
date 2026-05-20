@@ -15,7 +15,7 @@ from models import (
 )
 from rag.embedder import get_model, get_collection, add_documents, get_doc_count
 from rag.retriever import retrieve_career_docs
-from rag.generator import generate_roadmap, generate_audit, is_groq_available, get_fallback_roadmap, get_fallback_audit
+from rag.generator import generate_roadmap, generate_audit, generate_suggestions, is_groq_available, get_fallback_roadmap, get_fallback_audit
 from rag.cache import get_cached_response, set_cached_response, is_connected as redis_connected
 
 settings = get_settings()
@@ -278,6 +278,20 @@ async def rag_embed(request: EmbedRequest):
         embedded=added,
         collection_total=get_doc_count(),
     )
+
+
+# ──────────────────────────────────────────────
+# POST /rag/suggest — Suggest 3 career paths
+# ──────────────────────────────────────────────
+
+@app.post("/rag/suggest")
+async def rag_suggest(request: RagGenerateRequest):
+    """
+    Given a profile with no specific goal, suggest 3 career paths.
+    """
+    profile_dict = request.profile.model_dump()
+    suggestions = generate_suggestions(profile_dict)
+    return {"suggestions": suggestions}
 
 
 # ──────────────────────────────────────────────

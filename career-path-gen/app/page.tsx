@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, BrainCircuit, Target, ShieldCheck, Compass, CheckCircle2 } from "lucide-react";
+import { ArrowRight, BrainCircuit, Target, ShieldCheck, Compass, CheckCircle2, Building2, Users, Zap } from "lucide-react";
 
 export default function Home() {
   const features = [
@@ -46,19 +46,22 @@ export default function Home() {
             Generate precise, ethically-audited career transition roadmaps in seconds using advanced Retrieval-Augmented Generation.
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-            <Link 
-              href="/auth/register" 
-              className="bg-[var(--primary)] hover:bg-[var(--secondary)] text-white px-8 py-4 rounded-xl font-bold text-lg transition-all shadow-lg hover:-translate-y-1 flex items-center justify-center gap-2"
-            >
-              Start Generating <ArrowRight className="w-5 h-5" />
-            </Link>
-            <Link 
-              href="/auth/login" 
-              className="bg-white/10 hover:bg-white/20 text-white border border-white/20 px-8 py-4 rounded-xl font-bold text-lg transition-all flex items-center justify-center"
-            >
-              Sign In
-            </Link>
+          {/* Dual CTA — Personal vs Company */}
+          <div className="flex flex-col sm:flex-row gap-4 w-full max-w-2xl">
+            <div className="flex-1 bg-white/10 border border-white/20 rounded-2xl p-5 flex flex-col items-center gap-3">
+              <p className="text-white/70 text-xs uppercase tracking-widest font-semibold">For Individuals</p>
+              <Link href="/auth/register" className="w-full bg-[var(--primary)] hover:bg-[var(--secondary)] text-white px-6 py-3 rounded-xl font-bold transition-all shadow-lg hover:-translate-y-0.5 flex items-center justify-center gap-2">
+                Get My Roadmap <ArrowRight className="w-4 h-4" />
+              </Link>
+              <Link href="/auth/login" className="text-white/60 hover:text-white text-sm transition-colors">Already have an account? Sign in</Link>
+            </div>
+            <div className="flex-1 bg-white/10 border border-white/20 rounded-2xl p-5 flex flex-col items-center gap-3">
+              <p className="text-white/70 text-xs uppercase tracking-widest font-semibold">For Companies</p>
+              <Link href="/company/register" className="w-full bg-white text-[var(--primary)] hover:bg-white/90 px-6 py-3 rounded-xl font-bold transition-all shadow-lg hover:-translate-y-0.5 flex items-center justify-center gap-2">
+                <Building2 className="w-4 h-4" /> Set Up Organisation
+              </Link>
+              <Link href="/company/login" className="text-white/60 hover:text-white text-sm transition-colors">Company admin? Sign in</Link>
+            </div>
           </div>
         </div>
       </section>

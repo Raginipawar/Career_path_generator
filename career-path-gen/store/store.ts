@@ -20,6 +20,7 @@ interface AppStore {
   setRoadmap: (roadmap: RoadmapResponse) => void;
   setGenerating: (val: boolean) => void;
   clearRoadmap: () => void;
+  setCompletedNodes: (nodeIds: string[]) => void;
 }
 
 export const useAppStore = create<AppStore>()(
@@ -37,6 +38,11 @@ export const useAppStore = create<AppStore>()(
       setRoadmap: (roadmap) => set({ roadmapResponse: roadmap }),
       setGenerating: (val) => set({ isGenerating: val }),
       clearRoadmap: () => set({ roadmapResponse: null }),
+      setCompletedNodes: (nodeIds) => set(state => ({
+        roadmapResponse: state.roadmapResponse
+          ? { ...state.roadmapResponse, completedNodes: nodeIds }
+          : null,
+      })),
     }),
     {
       name: 'career-path-store',

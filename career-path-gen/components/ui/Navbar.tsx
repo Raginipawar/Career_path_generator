@@ -23,9 +23,11 @@ export default function Navbar() {
         {user ? (
           <>
             <div className="hidden md:flex items-center gap-6">
-              <NavLink href="/profile" active={pathname === '/profile'}>Profile</NavLink>
+              <NavLink href="/dashboard" active={pathname === '/dashboard'}>Dashboard</NavLink>
+              <NavLink href="/profiles" active={pathname === '/profiles'}>My Profiles</NavLink>
               <NavLink href="/roadmap" active={pathname === '/roadmap'}>Roadmap</NavLink>
               <NavLink href="/reports" active={pathname === '/reports'}>Reports</NavLink>
+              <NavLink href="/trends" active={pathname === '/trends'}>Trends</NavLink>
               <NavLink href="/history" active={pathname === '/history'}>History</NavLink>
             </div>
             <div className="flex items-center gap-4 pl-4 border-l border-slate-200">

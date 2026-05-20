@@ -125,6 +125,53 @@ router.get('/:id', async (req: Request, res: Response) => {
   res.json(roadmap);
 });
 
+// ─── POST /api/roadmap/suggest — AI-suggested career paths ───────────────────
+router.post('/suggest', async (req: Request, res: Response) => {
+  const { profileId } = req.body as { profileId: string };
+  const userId = req.user!.userId;
+
+  if (!profileId) { res.status(400).json({ error: 'profileId required' }); return; }
+
+  const profile = await prisma.profile.findFirst({ where: { id: profileId, userId } });
+  if (!profile) { res.status(404).json({ error: 'Profile not found' }); return; }
+
+  const RAG_URL = process.env.RAG_SERVICE_URL ?? 'http://localhost:8000';
+  try {
+    const response = await fetch(`${RAG_URL}/rag/suggest`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ profile: prismaToRagProfile(profile), top_k: 5 }),
+      signal: AbortSignal.timeout(30000),
+    });
+    if (!response.ok) throw new Error(`RAG responded ${response.status}`);
+    const data = await response.json() as { suggestions: unknown[] };
+    res.json(data);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : 'Unknown error';
+    res.status(503).json({ error: 'Suggestion service unavailable', details: msg });
+  }
+});
+
+// ─── PATCH /api/roadmap/:id/progress — toggle a completed node ───────────────
+router.patch('/:id/progress', async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { nodeId } = req.body as { nodeId: string };
+  const userId = req.user!.userId;
+
+  if (!nodeId) { res.status(400).json({ error: 'nodeId required' }); return; }
+
+  const roadmap = await prisma.roadmap.findFirst({ where: { id, userId } });
+  if (!roadmap) { res.status(404).json({ error: 'Roadmap not found' }); return; }
+
+  const current = roadmap.completedNodes ?? [];
+  const updated = current.includes(nodeId)
+    ? current.filter((n: string) => n !== nodeId)   // uncheck
+    : [...current, nodeId];               // check
+
+  await prisma.roadmap.update({ where: { id }, data: { completedNodes: updated } });
+  res.json({ completedNodes: updated });
+});
+
 // ─── GET /api/roadmap/history/:userId ─────────────────────────────────────────
 router.get('/history/:userId', async (req: Request, res: Response) => {
   const { userId } = req.params;
