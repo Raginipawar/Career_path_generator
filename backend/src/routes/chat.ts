@@ -35,20 +35,27 @@ router.post('/', async (req: Request, res: Response) => {
     return;
   }
 
-  // Load latest roadmap for context (optional)
+  // Load latest roadmap for context — full data including nodes+skill_gaps
   let roadmapData: Record<string, unknown> | null = null;
-  if (roadmapId) {
-    const roadmap = await prisma.roadmap.findFirst({ where: { id: roadmapId, userId } });
-    if (roadmap) {
-      roadmapData = {
-        ...(roadmap.roadmapData as object),
-        current_role:        (roadmap.roadmapData as any)?.current_role ?? profile.currentRole,
-        target_role:         (roadmap.roadmapData as any)?.target_role ?? '',
-        success_probability: Math.round((roadmap.probability ?? 0) * 100),
-        total_transition_months: (roadmap.roadmapData as any)?.total_transition_months ?? 0,
-        explanation:         (roadmap.roadmapData as any)?.explanation ?? '',
-      };
-    }
+
+  // Try by roadmapId first, fall back to latest roadmap for this user
+  const roadmapRecord = roadmapId
+    ? await prisma.roadmap.findFirst({ where: { id: roadmapId, userId } })
+    : await prisma.roadmap.findFirst({ where: { userId }, orderBy: { createdAt: 'desc' } });
+
+  if (roadmapRecord) {
+    const d = (roadmapRecord.roadmapData ?? {}) as Record<string, unknown>;
+    roadmapData = {
+      current_role:            d.current_role            ?? profile.currentRole,
+      target_role:             d.target_role             ?? '',
+      success_probability:     Math.round((roadmapRecord.probability ?? 0) * 100),
+      total_transition_months: d.total_transition_months ?? 0,
+      explanation:             d.explanation             ?? '',
+      // Full node data — this is what the AI needs to answer specific questions
+      nodes:                   d.nodes                   ?? [],
+      alternative_paths:       d.alternative_paths       ?? [],
+      emotional_forecast:      d.emotional_forecast      ?? [],
+    };
   }
 
   // Load conversation history from Redis
