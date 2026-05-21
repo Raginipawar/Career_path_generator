@@ -138,6 +138,24 @@ export function prismaToRagProfile(p: any): RagProfile {
 }
 
 export async function callRagGenerate(ragProfile: RagProfile): Promise<RagResponse> {
+  // Compute deterministic probability range before calling LLM
+  const { computeProbabilityRange } = await import('./probabilityScorer');
+  const probRange = computeProbabilityRange({
+    technicalSkills:   ragProfile.technical_skills,
+    currentRole:       ragProfile.current_role,
+    currentIndustry:   ragProfile.current_industry,
+    yearsOfExperience: ragProfile.years_of_experience,
+    highestDegree:     ragProfile.highest_degree,
+    fieldOfStudy:      ragProfile.field_of_study,
+    interestDomains:   ragProfile.interest_domains,
+    careerGoal:        ragProfile.career_goal,
+    burnoutLevel:      ragProfile.burnout_level,
+    hasDependents:     ragProfile.has_dependents,
+    leadershipScore:   ragProfile.leadership_score,
+    alignmentCategory: ragProfile.alignment_category,
+  });
+  console.log(`📊 Probability constraint: ${probRange.rationale}`);
+
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
 
@@ -148,6 +166,8 @@ export async function callRagGenerate(ragProfile: RagProfile): Promise<RagRespon
       body: JSON.stringify({
         profile: ragProfile,
         top_k: 5,
+        probability_min: probRange.min,
+        probability_max: probRange.max,
       }),
       signal: controller.signal,
     });

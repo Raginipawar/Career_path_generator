@@ -66,6 +66,8 @@ class UserProfile(BaseModel):
 class RagGenerateRequest(BaseModel):
     profile: UserProfile
     top_k: int = Field(default=5, ge=1, le=20)
+    probability_min: int = Field(default=5,  ge=5,  le=95)   # deterministic lower bound
+    probability_max: int = Field(default=88, ge=5,  le=95)   # deterministic upper bound
 
 
 class RoadmapNode(BaseModel):
@@ -165,3 +167,5 @@ class HealthResponse(BaseModel):
     redis: str
     embedding_model: str
     doc_count: int
+    graph_nodes: int = 0
+    graph_edges: int = 0

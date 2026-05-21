@@ -439,16 +439,24 @@ router.post('/quick-analysis', async (req: Request, res: Response) => {
   const prob = ragResponse.success_probability;
   const verdict = prob >= 70 ? 'Ready' : prob >= 50 ? '3-6 months away' : prob >= 35 ? '6-12 months away' : 'Not recommended yet';
 
+  // Same flat shape as personal roadmap generation — consistent across all entry points
   res.json({
+    roadmapId:               null,   // no DB record for quick analysis
+    roadmap_nodes:           ragResponse.roadmap_nodes,
+    roadmap_edges:           ragResponse.roadmap_edges,
+    current_role:            ragResponse.current_role,
+    target_role:             ragResponse.target_role,
+    success_probability:     prob,
+    total_transition_months: ragResponse.total_transition_months,
+    explanation:             ragResponse.explanation,
+    emotional_forecast:      ragResponse.emotional_forecast,
+    alternative_paths:       ragResponse.alternative_paths,
+    audit_scores:            ragResponse.audit_scores,
+    // Quick-analysis extras (additive — frontend can use or ignore)
     purpose,
-    targetRole,
-    success_probability: prob,
     verdict,
-    roadmap_nodes:   ragResponse.roadmap_nodes,
-    explanation:     ragResponse.explanation,
-    audit_scores:    ragResponse.audit_scores,
-    skill_gaps:      ragResponse.roadmap_nodes.flatMap((n: any) => n.skill_gap ?? []),
-    fromCache:       false,
+    skill_gaps: ragResponse.roadmap_nodes.flatMap((n: any) => n.skill_gap ?? []),
+    fromCache:  false,
   });
 });
 

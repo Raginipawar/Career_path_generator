@@ -5,6 +5,7 @@ import { requireAuth } from '../middleware/auth';
 import { RoadmapRequestSchema } from '../schemas';
 import { cacheGet, cacheSet, profileCacheKey } from '../lib/redis';
 import { callRagGenerate, prismaToRagProfile, AuditScore } from '../lib/ragClient';
+import { getCollaborativeRecommendations, findSimilarSuccessfulTransitions } from '../lib/collaborativeFilter';
 
 const router = Router();
 router.use(requireAuth);
@@ -125,7 +126,7 @@ router.get('/:id', async (req: Request, res: Response) => {
   res.json(roadmap);
 });
 
-// ─── POST /api/roadmap/suggest — AI-suggested career paths ───────────────────
+// ─── POST /api/roadmap/suggest — Neural career path suggestions ───────────────
 router.post('/suggest', async (req: Request, res: Response) => {
   const { profileId } = req.body as { profileId: string };
   const userId = req.user!.userId;
@@ -136,20 +137,46 @@ router.post('/suggest', async (req: Request, res: Response) => {
   if (!profile) { res.status(404).json({ error: 'Profile not found' }); return; }
 
   const RAG_URL = process.env.RAG_SERVICE_URL ?? 'http://localhost:8000';
-  try {
-    const response = await fetch(`${RAG_URL}/rag/suggest`, {
+
+  // Run RAG neural suggestions + collaborative filter in parallel
+  const [ragResult, cfResult] = await Promise.allSettled([
+    fetch(`${RAG_URL}/rag/suggest`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ profile: prismaToRagProfile(profile), top_k: 5 }),
       signal: AbortSignal.timeout(30000),
-    });
-    if (!response.ok) throw new Error(`RAG responded ${response.status}`);
-    const data = await response.json() as { suggestions: unknown[] };
-    res.json(data);
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : 'Unknown error';
-    res.status(503).json({ error: 'Suggestion service unavailable', details: msg });
-  }
+    }).then(r => r.ok ? r.json() as Promise<{ suggestions: unknown[] }> : null),
+    getCollaborativeRecommendations(
+      userId,
+      profile.interestDomains[0] ?? '',
+      profile.technicalSkills,
+      3,
+    ),
+  ]);
+
+  const suggestions = ragResult.status === 'fulfilled' && ragResult.value
+    ? (ragResult.value as any).suggestions
+    : [];
+
+  const cfRecommendations = cfResult.status === 'fulfilled' ? cfResult.value : [];
+
+  res.json({ suggestions, collaborativeInsights: cfRecommendations });
+});
+
+// ─── GET /api/roadmap/similar/:profileId — similar successful transitions ─────
+router.get('/similar/:profileId', async (req: Request, res: Response) => {
+  const { profileId } = req.params;
+  const userId = req.user!.userId;
+
+  const profile = await prisma.profile.findFirst({ where: { id: profileId, userId } });
+  if (!profile) { res.status(404).json({ error: 'Profile not found' }); return; }
+
+  const domain = profile.interestDomains[0] ?? '';
+  const similar = await findSimilarSuccessfulTransitions(
+    userId, domain, profile.technicalSkills, 0.6, 5
+  );
+
+  res.json({ similar });
 });
 
 // ─── PATCH /api/roadmap/:id/progress — toggle a completed node ───────────────

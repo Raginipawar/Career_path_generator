@@ -1,49 +1,60 @@
 // src/routes/trends.ts
 import { Router, Request, Response } from 'express';
-import { prisma } from '../lib/prisma';
 import { requireAuth } from '../middleware/auth';
 import { cacheGet, cacheSet } from '../lib/redis';
+import { forecastDemand, detectDemandAnomalies } from '../lib/demandForecaster';
+import { prisma } from '../lib/prisma';
 
 const router = Router();
 router.use(requireAuth);
 
-// ─── GET /api/clusters/trends — demand scores over last 8 weeks ───────────────
+// ─── GET /api/trends — historical + forecast + anomalies ─────────────────────
 router.get('/', async (_req: Request, res: Response) => {
-  const cached = await cacheGet<object>('trends:demand');
+  const cached = await cacheGet<object>('trends:full');
   if (cached) { res.json({ ...cached, fromCache: true }); return; }
 
-  const snapshots = await prisma.demandSnapshot.findMany({
-    include: { cluster: { select: { name: true } } },
-    orderBy: { snapshotDate: 'asc' },
-  });
+  const [forecastData, anomalies] = await Promise.all([
+    forecastDemand(4),
+    detectDemandAnomalies(),
+  ]);
 
-  // Group by cluster name → array of { date, score }
-  const byCluster: Record<string, { date: string; score: number }[]> = {};
-  for (const s of snapshots) {
-    const name = s.cluster.name;
-    if (!byCluster[name]) byCluster[name] = [];
-    byCluster[name].push({
-      date:  s.snapshotDate.toISOString().slice(0, 10),
-      score: s.demandScore,
-    });
+  // Build unified chart data (historical + forecast combined per cluster)
+  const { historical, forecasts, clusterNames } = forecastData;
+
+  // Chart data for Recharts: historical rows + forecast rows marked as predicted
+  const allDates = new Set<string>();
+  for (const name of clusterNames) {
+    historical[name]?.forEach(p => allDates.add(p.date));
+    forecasts[name]?.forEach(p => allDates.add(p.date));
   }
 
-  // Build a unified week-by-week table for Recharts
-  const allDates = [...new Set(snapshots.map(s => s.snapshotDate.toISOString().slice(0, 10)))].sort();
-  const clusterNames = Object.keys(byCluster).slice(0, 8); // top 8 for readability
-
-  const chartData = allDates.map(date => {
-    const row: Record<string, string | number> = { date };
+  const sortedDates = [...allDates].sort();
+  const chartData = sortedDates.map(date => {
+    const row: Record<string, string | number | boolean> = { date, predicted: false };
     for (const name of clusterNames) {
-      const point = byCluster[name]?.find(p => p.date === date);
-      row[name] = point?.score ?? 0;
+      const hist = historical[name]?.find(p => p.date === date);
+      const fore = forecasts[name]?.find(p => p.date === date);
+      if (hist) {
+        row[name]          = hist.score;
+      } else if (fore) {
+        row[name]          = fore.score;
+        row[`${name}_lower`] = fore.lower;
+        row[`${name}_upper`] = fore.upper;
+        row.predicted      = true;
+      }
     }
     return row;
   });
 
-  const result = { chartData, clusterNames, fromCache: false };
-  await cacheSet('trends:demand', result, 3600);
+  const result = { chartData, clusterNames, forecasts, anomalies, fromCache: false };
+  await cacheSet('trends:full', result, 1800); // 30 min cache
   res.json(result);
+});
+
+// ─── GET /api/trends/anomalies — demand change alerts ────────────────────────
+router.get('/anomalies', async (_req: Request, res: Response) => {
+  const anomalies = await detectDemandAnomalies();
+  res.json({ anomalies });
 });
 
 export default router;

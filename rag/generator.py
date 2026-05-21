@@ -5,8 +5,6 @@ import re
 from groq import Groq
 from config import get_settings
 from prompts.roadmap import ROADMAP_SYSTEM_PROMPT, build_roadmap_prompt
-from prompts.audit import AUDIT_SYSTEM_PROMPT, build_audit_prompt
-from prompts.suggest import SUGGEST_SYSTEM_PROMPT, build_suggest_prompt
 
 settings = get_settings()
 
@@ -149,28 +147,65 @@ def _call_groq(
 def generate_roadmap(
     profile_dict: dict,
     retrieved_docs: list[dict],
+    prob_min: int = 5,
+    prob_max: int = 88,
 ) -> dict | None:
     """
-    Generate a career transition roadmap using Groq LLaMA 3.
-    Returns parsed JSON roadmap or None on failure.
+    Build career roadmap from knowledge base (system is the brain).
+    Groq writes ONE explanation paragraph — that's its only job here.
     """
-    user_message = build_roadmap_prompt(profile_dict, retrieved_docs)
-    result = _call_groq(ROADMAP_SYSTEM_PROMPT, user_message)
+    from rag.roadmap_builder import build_roadmap_from_data
 
-    if result:
-        # Validate minimum structure
-        required_keys = ["roadmap_nodes", "roadmap_edges", "current_role",
-                         "target_role", "success_probability", "explanation"]
-        missing = [k for k in required_keys if k not in result]
-        if missing:
-            print(f"WARNING: Roadmap missing keys: {missing}")
-            # Still return what we have — the response model will handle defaults
+    # System builds the full roadmap structure from data
+    roadmap = build_roadmap_from_data(profile_dict, retrieved_docs, prob_min, prob_max)
+    print(f"System built roadmap: {roadmap['current_role']} → {roadmap['target_role']}, "
+          f"P={roadmap['success_probability']}%, {roadmap['total_transition_months']}mo")
 
-    return result
+    # Groq writes ONE explanation paragraph — only natural language job
+    explanation = _generate_explanation(profile_dict, roadmap)
+    roadmap["explanation"] = explanation
+
+    return roadmap
+
+
+def _generate_explanation(profile_dict: dict, roadmap: dict) -> str:
+    """
+    Single Groq call — writes ONE explanation paragraph.
+    Everything else is already computed by the system.
+    """
+    prompt = (
+        f"Write a 3-sentence career advisor explanation for this transition:\n"
+        f"Person: {profile_dict.get('full_name', 'User')}, "
+        f"currently {profile_dict.get('current_role', '')} with "
+        f"{profile_dict.get('years_of_experience', 0)} years experience.\n"
+        f"Transition: {roadmap['current_role']} → {roadmap['target_role']}\n"
+        f"Timeline: {roadmap['total_transition_months']} months, "
+        f"Probability: {roadmap['success_probability']}%\n"
+        f"Key skill gaps: {', '.join(roadmap['roadmap_nodes'][-1].get('skill_gap', [])[:3])}\n"
+        f"Write in second person ('Your background...'). Be specific, honest, and encouraging. "
+        f"Reference actual numbers. Do NOT use markdown."
+    )
+    try:
+        client = get_groq_client()
+        response = client.chat.completions.create(
+            model=settings.groq_model,
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.4,
+            max_tokens=200,
+        )
+        return response.choices[0].message.content.strip()
+    except Exception as e:
+        print(f"Explanation generation failed: {e}")
+        return (
+            f"Your background positions you for the {roadmap['current_role']} → "
+            f"{roadmap['target_role']} transition with a {roadmap['success_probability']}% "
+            f"success probability over {roadmap['total_transition_months']} months. "
+            f"Focus on building the key skills identified in each stage."
+        )
 
 
 # ──────────────────────────────────────────────
-# Public API: Generate ethical audit
+# Public API: Generate ethical audit (now deterministic)
 # ──────────────────────────────────────────────
 
 def generate_audit(
@@ -178,19 +213,14 @@ def generate_audit(
     roadmap_json: dict,
 ) -> list[dict]:
     """
-    Generate PASSIONIT/PRUTL ethical audit scores.
-    Returns list of audit score dicts.
+    PASSIONIT/PRUTL audit computed deterministically from profile and roadmap data.
+    Groq is NOT called here. The system is the auditor.
     """
-    user_message = build_audit_prompt(profile_dict, roadmap_json)
-    result = _call_groq(AUDIT_SYSTEM_PROMPT, user_message, temperature=0.2)
-
-    if result and "audit_scores" in result:
-        scores = result["audit_scores"]
-        print(f"Ethical audit generated: {len(scores)} dimensions evaluated.")
-        return scores
-
-    # Fallback: return empty audit if LLM fails
-    print("WARNING: Ethical audit generation failed. Returning empty scores.")
+    from rag.auditor import compute_full_audit
+    retrieved_doc_ids = roadmap_json.get("retrieved_doc_ids", [])
+    scores = compute_full_audit(profile_dict, roadmap_json, retrieved_doc_ids)
+    print(f"Deterministic audit complete: {len(scores)} dimensions evaluated, no LLM used.")
+    return scores
 
     # ──────────────────────────────────────────────
 # Fallback: pre-generated demo response
@@ -242,27 +272,84 @@ DEMO_AUDIT_FALLBACK = [
 ]
 
 
-def generate_suggestions(profile_dict: dict) -> list[dict]:
+def apply_deterministic_audit(audit_scores: list[dict], profile_dict: dict, roadmap_json: dict) -> list[dict]:
     """
-    Suggest 3 career paths for a user who has not specified a goal.
-    Returns list of suggestion dicts.
+    Override/correct specific PASSIONIT/PRUTL dimensions using actual profile data.
+    This prevents the LLM from self-grading generously on quantifiable dimensions.
     """
-    user_message = build_suggest_prompt(profile_dict)
-    result = _call_groq(SUGGEST_SYSTEM_PROMPT, user_message, temperature=0.5)
-    if result and "suggestions" in result:
-        return result["suggestions"]
-    # Fallback
-    return [
-        {
-            "path_name": "Senior " + profile_dict.get("current_role", "Professional"),
-            "target_role": "Senior " + profile_dict.get("current_role", "Professional"),
-            "reasoning": "A natural progression from your current role with your existing skills.",
-            "estimated_probability": 70,
-            "timeline_months": 12,
-            "top_skills_needed": ["Leadership", "System Design", "Mentoring"],
-            "salary_range_lpa": "Not estimated",
-        }
-    ]
+    burnout        = profile_dict.get('burnout_level', 5)
+    stress_tol     = profile_dict.get('stress_tolerance', 5)
+    has_dependents = profile_dict.get('has_dependents', False)
+    willing_reloc  = profile_dict.get('willing_to_relocate', False)
+    inst_tier      = profile_dict.get('institution_tier', 'Tier 2')
+    career_goal    = (profile_dict.get('career_goal') or '').lower()
+    target_role    = (roadmap_json.get('target_role') or '').lower()
+    prob           = roadmap_json.get('success_probability', 50)
+    nodes          = roadmap_json.get('roadmap_nodes', [])
+
+    # Check if any node requires relocation (heuristic: high salary jump implies tier-1 city)
+    needs_relocation = any(n.get('salary_estimate_lpa', 0) > 30 for n in nodes)
+
+    # Check salary jump ratio
+    current_salary = profile_dict.get('current_salary_lpa', 0)
+    target_salary  = nodes[-1].get('salary_estimate_lpa', 0) if nodes else 0
+    salary_jump    = (target_salary - current_salary) / max(current_salary, 1)
+
+    # Purpose: keyword overlap between career_goal and target_role
+    goal_words   = set(career_goal.split())
+    target_words = set(target_role.split())
+    overlap      = len(goal_words & target_words)
+    purpose_score = 9 if overlap >= 2 else (7 if career_goal else 5)
+
+    # Safety: burnout + stress + high-demand path
+    if burnout >= 8:
+        safety_score, safety_risk, safety_note = 3, 'High', f'Burnout at {burnout}/10 is critical. This transition adds significant stress.'
+    elif burnout >= 6:
+        safety_score, safety_risk, safety_note = 5, 'Medium', f'Moderate burnout ({burnout}/10). Monitor stress during transition.'
+    else:
+        safety_score, safety_risk, safety_note = 8, 'Low', 'Burnout levels manageable for this transition.'
+
+    # Sustainability: dependents + relocation + salary dip risk
+    if has_dependents and needs_relocation and not willing_reloc:
+        sust_score, sust_risk = 3, 'High'
+        sust_note = 'Has dependents but not willing to relocate — path requires metro presence. Significant sustainability risk.'
+    elif has_dependents and salary_jump < -0.1:
+        sust_score, sust_risk = 4, 'High'
+        sust_note = 'Has dependents and expected salary drop. Financial sustainability risk.'
+    elif burnout >= 7 and stress_tol <= 4:
+        sust_score, sust_risk = 4, 'High'
+        sust_note = 'High burnout + low stress tolerance makes long transition unsustainable.'
+    else:
+        sust_score, sust_risk = 7 if has_dependents else 8, 'Medium' if has_dependents else 'Low'
+        sust_note = 'Transition appears sustainable given life context.'
+
+    # Non-bias: institution tier check
+    if inst_tier == 'Tier 3' and prob < 40:
+        bias_score, bias_risk = 4, 'Medium'
+        bias_note = 'Low probability may reflect institution tier bias. Tier 3 graduates face extra scrutiny in competitive roles.'
+        bias_flags = ['Institution tier bias detected — Tier 3 may be disadvantaged']
+    else:
+        bias_score, bias_risk = 8, 'Low'
+        bias_note = 'No significant demographic or institutional bias detected in this recommendation.'
+        bias_flags = []
+
+    deterministic_overrides = {
+        'Purpose':       {'score': purpose_score, 'risk_level': 'Low' if purpose_score >= 7 else 'Medium', 'explanation': f'Career goal alignment with target role: {"strong" if purpose_score >= 7 else "partial"}. Goal: "{profile_dict.get("career_goal", "not specified")}", Target: "{roadmap_json.get("target_role", "")}"', 'flagged_biases': []},
+        'Safety':        {'score': safety_score, 'risk_level': safety_risk, 'explanation': safety_note, 'flagged_biases': []},
+        'Sustainability':{'score': sust_score,   'risk_level': sust_risk,   'explanation': sust_note,   'flagged_biases': []},
+        'Non-bias':      {'score': bias_score,   'risk_level': bias_risk,   'explanation': bias_note,   'flagged_biases': bias_flags},
+    }
+
+    updated = []
+    for score in audit_scores:
+        dim = score.get('dimension', '')
+        if dim in deterministic_overrides:
+            override = deterministic_overrides[dim]
+            score = {**score, **override}
+        updated.append(score)
+
+    return updated
+
 
 
 def get_fallback_roadmap() -> dict:
