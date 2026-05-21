@@ -40,7 +40,12 @@ router.post('/import', async (req: Request, res: Response) => {
   if (!username?.trim()) { res.status(400).json({ error: 'GitHub username required' }); return; }
 
   try {
-    const headers = { 'User-Agent': 'CareerPathGenerator/1.0', Accept: 'application/vnd.github.v3+json' };
+    const ghToken = process.env.GITHUB_TOKEN;
+    const headers: Record<string, string> = {
+      'User-Agent': 'CareerPathGenerator/1.0',
+      'Accept': 'application/vnd.github.v3+json',
+      ...(ghToken ? { 'Authorization': `Bearer ${ghToken}` } : {}),
+    };
 
     const [profileRes, reposRes] = await Promise.all([
       fetch(`https://api.github.com/users/${username}`, { headers, signal: AbortSignal.timeout(8000) }),
@@ -49,6 +54,10 @@ router.post('/import', async (req: Request, res: Response) => {
 
     if (!profileRes.ok) {
       if (profileRes.status === 404) { res.status(404).json({ error: `GitHub user "${username}" not found` }); return; }
+      if (profileRes.status === 403 || profileRes.status === 429) {
+        res.status(429).json({ error: 'GitHub API rate limit reached. Add a GITHUB_TOKEN to your backend environment variables to fix this.' });
+        return;
+      }
       throw new Error(`GitHub API error: ${profileRes.status}`);
     }
 
