@@ -170,20 +170,51 @@ def generate_roadmap(
 
 def _generate_explanation(profile_dict: dict, roadmap: dict) -> str:
     """
-    Single Groq call — writes ONE explanation paragraph.
+    Single Groq call — writes ONE personalised explanation paragraph.
     Everything else is already computed by the system.
     """
+    employment   = profile_dict.get("employment_status", "")
+    is_student   = employment == "Student"
+    years_exp    = profile_dict.get("years_of_experience", 0)
+    name         = profile_dict.get("full_name", "You") or "You"
+    skills       = profile_dict.get("technical_skills", [])
+    all_gaps     = [s for n in roadmap["roadmap_nodes"][1:] for s in n.get("skill_gap", [])]
+    unique_gaps  = list(dict.fromkeys(all_gaps))[:3]
+    nodes        = roadmap["roadmap_nodes"]
+    final_salary = nodes[-1].get("salary_estimate_lpa", 0) if nodes else 0
+
+    if is_student:
+        context = (
+            f"{name} is a student"
+            f"{' studying ' + profile_dict.get('current_role', '') if profile_dict.get('current_role') else ''}"
+            f" with {len(skills)} technical skills ({', '.join(skills[:3])}{'...' if len(skills) > 3 else ''}) "
+            f"and 0 professional experience."
+        )
+        framing = (
+            f"This is a STARTING OUT roadmap, not a career change. "
+            f"Write for a student who wants their first job in {roadmap['target_role']}. "
+            f"Be encouraging, specific, and realistic about the learning journey ahead."
+        )
+    else:
+        context = (
+            f"{name} is currently {profile_dict.get('current_role', 'a professional')} "
+            f"with {years_exp} years of experience and skills in {', '.join(skills[:3])}."
+        )
+        framing = f"This is a career transition roadmap. Be honest about the pivot required."
+
     prompt = (
-        f"Write a 3-sentence career advisor explanation for this transition:\n"
-        f"Person: {profile_dict.get('full_name', 'User')}, "
-        f"currently {profile_dict.get('current_role', '')} with "
-        f"{profile_dict.get('years_of_experience', 0)} years experience.\n"
-        f"Transition: {roadmap['current_role']} → {roadmap['target_role']}\n"
-        f"Timeline: {roadmap['total_transition_months']} months, "
-        f"Probability: {roadmap['success_probability']}%\n"
-        f"Key skill gaps: {', '.join(roadmap['roadmap_nodes'][-1].get('skill_gap', [])[:3])}\n"
-        f"Write in second person ('Your background...'). Be specific, honest, and encouraging. "
-        f"Reference actual numbers. Do NOT use markdown."
+        f"{framing}\n\n"
+        f"Context: {context}\n"
+        f"Target: {roadmap['target_role']}\n"
+        f"Success probability: {roadmap['success_probability']}%\n"
+        f"Timeline: {roadmap['total_transition_months']} months across {len(nodes)} steps\n"
+        f"Key skills to build: {', '.join(unique_gaps) if unique_gaps else 'already well-covered'}\n"
+        f"Final earning potential: ₹{final_salary} LPA\n\n"
+        f"Write exactly 3 sentences in second person. "
+        f"Sentence 1: acknowledge their current position honestly. "
+        f"Sentence 2: state the {roadmap['success_probability']}% probability with specific reasons (skills, timeline). "
+        f"Sentence 3: give ONE concrete first action to take this week. "
+        f"Use real numbers. No markdown. No generic advice."
     )
     try:
         client = get_groq_client()

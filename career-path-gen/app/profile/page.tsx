@@ -401,44 +401,136 @@ function Step2({ data, setData }: any) {
 }
 
 function Step3({ data, setData }: any) {
+  const isStudent    = data.employmentStatus === "Student";
+  const isUnemployed = data.employmentStatus === "Unemployed" || data.employmentStatus === "Career Break";
+
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-right-4">
       <div className="flex items-center gap-3 text-[var(--primary)] mb-6">
         <Briefcase className="w-6 h-6" />
-        <h2 className="text-xl font-serif text-[var(--dark)]">Current Career</h2>
+        <h2 className="text-xl font-serif text-[var(--dark)]">
+          {isStudent ? "Your Academic Background" : "Current Career"}
+        </h2>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <label className="block text-sm font-medium text-[var(--text)] mb-2">Current Role</label>
-          <input type="text" value={data.currentRole} onChange={e => setData({...data, currentRole: e.target.value})} className="input-field" placeholder="e.g. Frontend Engineer" />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-[var(--text)] mb-2">Current Industry</label>
-          <input type="text" value={data.currentIndustry} onChange={e => setData({...data, currentIndustry: e.target.value})} className="input-field" placeholder="e.g. Fintech" />
-        </div>
-        <div className="md:col-span-2">
-          <label className="flex justify-between text-sm font-medium text-[var(--text)] mb-2">
-            <span>Years of Experience</span>
-            <span className="text-[var(--primary)] font-bold">{data.yearsOfExperience} years</span>
-          </label>
-          <input type="range" min="0" max="40" value={data.yearsOfExperience} onChange={e => setData({...data, yearsOfExperience: Number(e.target.value)})} className="w-full accent-[var(--accent)]" />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-[var(--text)] mb-2">Employment Status</label>
-          <select value={data.employmentStatus} onChange={e => setData({...data, employmentStatus: e.target.value})} className="input-field">
-            <option>Employed Full-Time</option><option>Employed Part-Time</option><option>Self-Employed</option>
-            <option>Unemployed</option><option>Student</option><option>Career Break</option>
-          </select>
-        </div>
-        <div>
-          <label className="flex justify-between text-sm font-medium text-[var(--text)] mb-2">
-            <span>Current Salary (LPA)</span>
-            <span className="text-[var(--primary)] font-bold">₹{data.currentSalaryLpa}</span>
-          </label>
-          <input type="range" min="0" max="100" value={data.currentSalaryLpa} onChange={e => setData({...data, currentSalaryLpa: Number(e.target.value)})} className="w-full accent-[var(--accent)]" />
+      {/* Employment status — first, drives everything below */}
+      <div>
+        <label className="block text-sm font-medium text-[var(--text)] mb-2">I am currently a…</label>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          {[
+            { value: "Student",           label: "Student" },
+            { value: "Employed Full-Time", label: "Working Full-Time" },
+            { value: "Employed Part-Time", label: "Working Part-Time" },
+            { value: "Self-Employed",      label: "Freelancer / Self-Employed" },
+            { value: "Unemployed",         label: "Looking for Work" },
+            { value: "Career Break",       label: "Career Break" },
+          ].map(opt => (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => setData({ ...data, employmentStatus: opt.value,
+                currentSalaryLpa: opt.value === "Student" || opt.value === "Unemployed" ? 0 : data.currentSalaryLpa,
+                yearsOfExperience: opt.value === "Student" ? 0 : data.yearsOfExperience,
+              })}
+              className={`py-3 px-4 rounded-xl border-2 text-sm font-medium text-left transition-all ${
+                data.employmentStatus === opt.value
+                  ? "border-[var(--primary)] bg-[var(--primary)]/5 text-[var(--primary)]"
+                  : "border-slate-200 text-slate-600 hover:border-[var(--accent)]"
+              }`}
+            >
+              {opt.label}
+            </button>
+          ))}
         </div>
       </div>
+
+      {/* Student-specific fields */}
+      {isStudent ? (
+        <div className="space-y-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <label className="block text-sm font-medium text-[var(--text)] mb-2">Degree & Program</label>
+              <input
+                type="text"
+                value={data.currentRole}
+                onChange={e => setData({ ...data, currentRole: e.target.value })}
+                className="input-field"
+                placeholder="e.g. B.Tech Computer Science"
+              />
+              <p className="text-xs text-[var(--muted)] mt-1">This tells us your starting point</p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-[var(--text)] mb-2">College / University</label>
+              <input
+                type="text"
+                value={data.currentIndustry}
+                onChange={e => setData({ ...data, currentIndustry: e.target.value })}
+                className="input-field"
+                placeholder="e.g. VIT Vellore, BITS Pilani"
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <label className="block text-sm font-medium text-[var(--text)] mb-2">Current Year of Study</label>
+              <select
+                value={data.yearsOfExperience}
+                onChange={e => setData({ ...data, yearsOfExperience: Number(e.target.value) })}
+                className="input-field"
+              >
+                <option value={0}>1st Year / Fresher</option>
+                <option value={1}>2nd Year</option>
+                <option value={2}>3rd Year</option>
+                <option value={3}>Final Year</option>
+                <option value={4}>Postgraduate / MBA</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-[var(--text)] mb-2">Target First Job Type</label>
+              <select
+                value={data.lifeStage}
+                onChange={e => setData({ ...data, lifeStage: e.target.value })}
+                className="input-field"
+              >
+                <option value="Early Career">Full-Time Job after graduation</option>
+                <option value="Intern">Internship first</option>
+                <option value="Fresher">Campus placement</option>
+              </select>
+            </div>
+          </div>
+          <div className="bg-[var(--primary)]/5 border border-[var(--primary)]/20 rounded-xl p-4 text-sm text-[var(--primary)]">
+            <strong>Student path:</strong> Your roadmap will show you the exact skills, projects, and milestones to land your first job in your target domain — with realistic timelines from your current year of study.
+          </div>
+        </div>
+      ) : (
+        /* Professional / other fields */
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div>
+            <label className="block text-sm font-medium text-[var(--text)] mb-2">Current Role</label>
+            <input type="text" value={data.currentRole} onChange={e => setData({...data, currentRole: e.target.value})} className="input-field" placeholder="e.g. Frontend Engineer" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-[var(--text)] mb-2">Current Industry</label>
+            <input type="text" value={data.currentIndustry} onChange={e => setData({...data, currentIndustry: e.target.value})} className="input-field" placeholder="e.g. Fintech" />
+          </div>
+          <div className="md:col-span-2">
+            <label className="flex justify-between text-sm font-medium text-[var(--text)] mb-2">
+              <span>Years of Experience</span>
+              <span className="text-[var(--primary)] font-bold">{data.yearsOfExperience} years</span>
+            </label>
+            <input type="range" min="0" max="40" value={data.yearsOfExperience} onChange={e => setData({...data, yearsOfExperience: Number(e.target.value)})} className="w-full accent-[var(--accent)]" />
+          </div>
+          {!isUnemployed && (
+            <div>
+              <label className="flex justify-between text-sm font-medium text-[var(--text)] mb-2">
+                <span>Current Salary (LPA)</span>
+                <span className="text-[var(--primary)] font-bold">₹{data.currentSalaryLpa}</span>
+              </label>
+              <input type="range" min="0" max="100" value={data.currentSalaryLpa} onChange={e => setData({...data, currentSalaryLpa: Number(e.target.value)})} className="w-full accent-[var(--accent)]" />
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

@@ -272,6 +272,30 @@ def _add_anchors(G: nx.DiGraph, model):
             ("ui/ux::Senior",     "Senior Designer",              ["Strategic Design", "Accessibility", "Cross-functional"]),
             ("ui/ux::Leadership", "Design Lead",                   ["Design Direction", "Team Building", "Brand Strategy"]),
         ],
+        "entrepreneurship": [
+            ("entrepreneurship::Entry",      "Startup Intern / Founding Member",  ["Lean Startup", "Market Research", "Customer Development", "Excel"]),
+            ("entrepreneurship::Mid",        "Product / Growth Manager",           ["Growth Hacking", "Product Management", "Fundraising Basics", "Analytics"]),
+            ("entrepreneurship::Senior",     "Startup Founder / Co-Founder",       ["Business Strategy", "Investor Relations", "Team Building", "P&L Management"]),
+            ("entrepreneurship::Leadership", "CEO / Managing Director",            ["Company Vision", "Board Management", "M&A", "Scaling Operations"]),
+        ],
+        "consulting": [
+            ("consulting::Entry",      "Business Analyst",            ["Excel", "PowerPoint", "Data Analysis", "Problem Solving"]),
+            ("consulting::Mid",        "Consultant",                  ["Client Management", "Structured Thinking", "Project Delivery", "SQL"]),
+            ("consulting::Senior",     "Senior Consultant / Manager", ["P&L Ownership", "Team Leadership", "Strategy Decks", "Stakeholder Management"]),
+            ("consulting::Leadership", "Principal / Partner",         ["Business Development", "Practice Leadership", "Revenue Ownership"]),
+        ],
+        "digital marketing": [
+            ("digital marketing::Entry",      "Digital Marketing Executive",  ["SEO", "Google Ads", "Social Media", "Content Writing"]),
+            ("digital marketing::Mid",        "Growth Marketer",               ["Performance Marketing", "A/B Testing", "Email Marketing", "Analytics"]),
+            ("digital marketing::Senior",     "Marketing Manager",             ["Brand Strategy", "Team Leadership", "Budget Management", "CRM"]),
+            ("digital marketing::Leadership", "CMO / Head of Marketing",       ["Revenue Marketing", "Go-to-Market Strategy", "Brand Direction"]),
+        ],
+        "hr technology": [
+            ("hr technology::Entry",      "HR Analyst",               ["Excel", "HRIS", "Talent Acquisition", "Data Analysis"]),
+            ("hr technology::Mid",        "HR Business Partner",       ["People Analytics", "OKRs", "Compensation Planning", "SQL"]),
+            ("hr technology::Senior",     "HR Manager / HRBP Lead",    ["Org Design", "Strategic Workforce Planning", "Change Management"]),
+            ("hr technology::Leadership", "CHRO / VP People",          ["Culture Strategy", "Board Reporting", "Talent Strategy"]),
+        ],
     }
 
     for domain, stages in anchors.items():

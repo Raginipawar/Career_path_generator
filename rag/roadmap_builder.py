@@ -104,15 +104,17 @@ def build_roadmap_from_data(
 
     Returns same schema as before — frontend unchanged.
     """
-    current_role      = profile.get("current_role", "")
-    user_skills       = profile.get("technical_skills", [])
-    soft_skills       = profile.get("soft_skills", [])
-    certifications    = profile.get("certifications", [])
-    burnout           = profile.get("burnout_level", 5)
-    years_exp         = profile.get("years_of_experience", 0)
-    willing_relocate  = profile.get("willing_to_relocate", False)
-    work_style        = profile.get("preferred_work_style", "Hybrid")
-    target_timeline   = profile.get("target_timeline_years", 2)
+    current_role       = profile.get("current_role", "")
+    employment_status  = profile.get("employment_status", "")
+    is_student         = employment_status == "Student"
+    user_skills        = profile.get("technical_skills", [])
+    soft_skills        = profile.get("soft_skills", [])
+    certifications     = profile.get("certifications", [])
+    burnout            = profile.get("burnout_level", 5)
+    years_exp          = profile.get("years_of_experience", 0)
+    willing_relocate   = profile.get("willing_to_relocate", False)
+    work_style         = profile.get("preferred_work_style", "Hybrid")
+    target_timeline    = profile.get("target_timeline_years", 2)
 
     # Merge certifications as extra skills for gap computation
     if certifications:
@@ -146,23 +148,35 @@ def build_roadmap_from_data(
     domain_desc = DOMAIN_DESCRIPTIONS.get(target_domain, f"{target_domain} professional")
 
     # Node 1 — current position (always first, no skill gap)
+    if is_student:
+        node1_title = current_role or "Student"
+        node1_desc  = (
+            f"You're starting your career journey"
+            f"{f' studying {current_role}' if current_role else ''}. "
+            f"{'You have ' + str(len(user_skills)) + ' technical skills already — ' + ', '.join(user_skills[:3]) + ' — which gives you a real head start. ' if user_skills else 'Use this phase to build your foundational skills. '}"
+            f"The roadmap below shows exactly what you need to land your first role in {target_domain}."
+        )
+        node1_salary = 0.0
+    else:
+        node1_title = current_role or "Current Role"
+        node1_desc  = (
+            f"Your starting point. "
+            f"{'You bring ' + str(len(user_skills)) + ' technical skills (' + ', '.join(user_skills[:3]) + ('...' if len(user_skills) > 3 else '') + ') into this transition. ' if user_skills else ''}"
+            f"{'Willing to relocate — this opens more opportunities. ' if willing_relocate else ''}"
+            f"Preferred working style: {work_style}."
+        )
+        node1_salary = float(profile.get("current_salary_lpa", 0) or _get_salary(target_domain, 1))
+
     nodes.append({
-        "node_id":           "node_1",
-        "role_title":        current_role or "Current Role",
-        "node_order":        1,
-        "timeline_months":   0,
-        "required_skills":   user_skills[:6],
-        "skill_gap":         [],
-        "salary_estimate_lpa": float(profile.get("current_salary_lpa", 0) or
-                                     _get_salary(target_domain, 1)),
-        "risk_level":        "Low",
-        "description":       (
-            f"Starting point. "
-            f"{f'Soft skills: {chr(44).join(soft_skills[:3])}. ' if soft_skills else ''}"
-            f"{'Willing to relocate. ' if willing_relocate else 'Prefers local/remote roles. '}"
-            f"Preferred style: {work_style}. "
-            f"Foundation for transitioning into {target_domain}."
-        ),
+        "node_id":             "node_1",
+        "role_title":          node1_title,
+        "node_order":          1,
+        "timeline_months":     0,
+        "required_skills":     user_skills[:6],
+        "skill_gap":           [],
+        "salary_estimate_lpa": node1_salary,
+        "risk_level":          "Low",
+        "description":         node1_desc,
     })
 
     # Graph-derived intermediate nodes
@@ -187,10 +201,17 @@ def build_roadmap_from_data(
         # Timeline from seniority progression
         prev_seniority = nodes[-1].get("_seniority", 1) if nodes else 1
         stage_months   = _timeline_between(prev_seniority, seniority)
+
+        # Students and people starting fresh need minimum ramp-up time
+        if is_student or years_exp == 0:
+            stage_months = max(stage_months, 4 + i * 2)  # at least 4, 6, 8 months per step
+        elif stage_months == 0:
+            stage_months = 6  # never 0 months between steps
+
         if burnout >= 7:
-            stage_months = round(stage_months * 1.3)  # slow down if burnt out
+            stage_months = round(stage_months * 1.3)
         elif burnout <= 3 and years_exp > 3:
-            stage_months = round(stage_months * 0.85)  # experienced + low burnout → faster
+            stage_months = round(stage_months * 0.85)
         cumulative_months += stage_months
 
         # Salary from domain + seniority
@@ -200,19 +221,52 @@ def build_roadmap_from_data(
         gap_ratio  = 1 - overlap_ratio
         risk_level = "High" if gap_ratio > 0.65 else ("Medium" if gap_ratio > 0.35 else "Low")
 
+        # User-friendly description
+        overlap_pct = round(overlap_ratio * 100)
+        n_gaps      = len(skill_gap)
+        top_gaps    = skill_gap[:2]
+
+        if i == 0:
+            if is_student:
+                desc = (
+                    f"Your first career milestone: {role_title}. "
+                    f"{'You already have ' + str(overlap_pct) + '% of the skills needed — great head start. ' if overlap_pct > 0 else ''}"
+                    f"{'Build ' + ' and '.join(top_gaps) + ' to get here. ' if top_gaps else ''}"
+                    f"Focus on projects and internships during this phase."
+                )
+            else:
+                desc = (
+                    f"First milestone: {role_title}. "
+                    f"You're {overlap_pct}% of the way there on skills already. "
+                    f"{'Main gaps to close: ' + ', '.join(top_gaps) + '. ' if top_gaps else 'You have strong coverage here. '}"
+                    f"Estimated ₹{salary} LPA once you make this transition."
+                )
+        elif i == len(path_to_use[:3]) - 1:
+            desc = (
+                f"Your target role: {role_title}. "
+                f"By this stage you'll have {overlap_pct}% skill coverage from earlier steps. "
+                f"{'You still need to build ' + ' and '.join(top_gaps) + '.' if top_gaps else 'No skill gaps remaining — you are ready.'} "
+                f"At ₹{salary} LPA, this is {round(salary/(node1_salary or 1)*100 - 100) if node1_salary and node1_salary > 0 else 'significantly'}% above your starting point."
+            )
+        else:
+            desc = (
+                f"Progression to {role_title}. "
+                f"Building on your previous step, you'll be {overlap_pct}% aligned. "
+                f"{'Focus next on: ' + ', '.join(top_gaps) + '.' if top_gaps else 'No additional skill gaps at this stage.'} "
+                f"Salary grows to ₹{salary} LPA here."
+            )
+
         node = {
-            "node_id":           f"node_{i+2}",
-            "role_title":        role_title,
-            "node_order":        i + 2,
-            "timeline_months":   cumulative_months,
-            "required_skills":   required_skills,
-            "skill_gap":         skill_gap[:5],
+            "node_id":             f"node_{i+2}",
+            "role_title":          role_title,
+            "node_order":          i + 2,
+            "timeline_months":     cumulative_months,
+            "required_skills":     required_skills,
+            "skill_gap":           skill_gap[:5],
             "salary_estimate_lpa": salary,
-            "risk_level":        risk_level,
-            "description":       f"Target milestone: {role_title}. "
-                                  f"Skill coverage: {round(overlap_ratio*100)}%. "
-                                  f"{len(skill_gap)} skills to build.",
-            "_seniority":        seniority,  # internal, stripped before return
+            "risk_level":          risk_level,
+            "description":         desc,
+            "_seniority":          seniority,
         }
         nodes.append(node)
         # Update user_skills for next iteration (cumulative)
