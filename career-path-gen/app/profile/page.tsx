@@ -682,14 +682,20 @@ function Step5({ data, setData, toggleDomain }: any) {
         </div>
       </div>
 
-      <div>
-        <label className="block text-sm font-medium text-[var(--text)] mb-2">Career Goal (1-2 sentences)</label>
-        <textarea 
-          value={data.careerGoal} 
-          onChange={e => setData({...data, careerGoal: e.target.value})} 
-          className="input-field min-h-[80px]" 
-          placeholder="E.g., I want to transition into a leadership role within a highly innovative tech company."
+      <div className="md:col-span-2">
+        <label className="block text-sm font-medium text-[var(--text)] mb-2">
+          Career Goal <span className="text-[var(--muted)] font-normal">(be as specific as possible)</span>
+        </label>
+        <textarea
+          value={data.careerGoal}
+          onChange={e => setData({...data, careerGoal: e.target.value})}
+          rows={4}
+          className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-transparent transition-all resize-none text-[var(--text)] text-sm leading-relaxed"
+          placeholder="E.g., I want to become a Senior Full Stack Engineer or Engineering Manager at a product-driven tech company within 2 years, focusing on React and Node.js."
         />
+        <p className="text-xs text-[var(--muted)] mt-1.5">
+          Tip: Include your target role title, company type, and timeline for the most accurate roadmap.
+        </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

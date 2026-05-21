@@ -41,7 +41,7 @@ DOMAIN_DESCRIPTIONS = {
     "data analytics":
         "Business intelligence data analytics dashboards SQL Tableau Power BI reporting KPIs stakeholder insights Excel business analyst BI Developer",
     "full stack":
-        "Full stack web development React Node.js JavaScript TypeScript PostgreSQL REST API Docker authentication frontend backend software engineer",
+        "Full stack web development React Node.js JavaScript TypeScript PostgreSQL REST API Docker authentication frontend backend software engineer tech lead principal engineer engineering manager senior developer web architect",
     "cybersecurity":
         "Cybersecurity information security penetration testing SIEM threat detection OWASP compliance SOC ISO27001 forensics security analyst",
     "cloud & devops":
@@ -67,7 +67,7 @@ DOMAIN_DESCRIPTIONS = {
     "entrepreneurship":
         "Startup entrepreneurship product-market fit fundraising venture capital growth hacking business development founder",
     "global delivery":
-        "Global delivery GCC offshore leadership management operations cross-cultural stakeholder delivery head",
+        "GCC Global Capability Centre offshore delivery India US Europe cross-border operations transition Micro-GCC shared services global team management delivery head",
     "hr technology":
         "HR technology people analytics HRIS talent management workforce planning organizational development human resources",
     "finance":

@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { Compass, UserCircle2, LogOut, Building2 } from "lucide-react";
+import { UserCircle2, LogOut, Building2 } from "lucide-react";
 import { useAppStore } from "@/store/store";
 import { useEffect, useState } from "react";
 
@@ -43,8 +44,8 @@ export default function Navbar() {
     return (
       <nav className="w-full h-14 bg-[var(--primary)] text-white flex items-center justify-between px-6 lg:px-12 sticky top-0 z-50">
         <Link href="/company/dashboard" className="flex items-center gap-2 hover:opacity-90 transition-opacity">
-          <Building2 className="w-5 h-5 text-[var(--accent)]" />
-          <span className="font-serif text-lg font-bold">CareerPath — Company</span>
+          <Image src="/logo.png" alt="Sanatan Labs" width={32} height={32} className="rounded-md object-contain" />
+          <span className="font-serif text-base font-bold hidden sm:inline">SANATAN LABS — KALKI AI</span>
         </Link>
         <div className="flex items-center gap-6">
           <NavLinkWhite href="/company/dashboard" active={pathname === '/company/dashboard'}>Dashboard</NavLinkWhite>
@@ -64,8 +65,11 @@ export default function Navbar() {
   return (
     <nav className="w-full h-14 bg-white border-b border-slate-200 flex items-center justify-between px-6 lg:px-12 sticky top-0 z-50">
       <Link href="/" className="flex items-center gap-2 text-[var(--primary)] hover:opacity-90 transition-opacity">
-        <Compass className="w-6 h-6 text-[var(--accent)]" />
-        <span className="font-serif text-xl font-bold tracking-tight">CareerPath AI</span>
+        <Image src="/logo.png" alt="Sanatan Labs" width={34} height={34} className="rounded-md object-contain" />
+        <div className="hidden sm:flex flex-col leading-tight">
+          <span className="font-serif text-sm font-bold tracking-tight text-[var(--dark)]">SANATAN LABS</span>
+          <span className="text-[9px] font-semibold tracking-widest text-[var(--muted)] uppercase">PASSIONIT-PRUTL · KALKI AI DHARMA</span>
+        </div>
       </Link>
 
       <div className="flex items-center gap-8">

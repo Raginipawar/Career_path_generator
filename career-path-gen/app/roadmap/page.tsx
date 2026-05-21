@@ -88,6 +88,18 @@ function NodeFlashcard({ node, onClose, roadmapId, completed, onToggle }: {
     statistics:       { title: "Statistics with Python",             platform: "Coursera",      url: "https://www.coursera.org/specializations/statistics-with-python",       free: false },
     linux:            { title: "Linux Command Line Basics",          platform: "Udacity",       url: "https://www.udacity.com/course/linux-command-line-basics--ud595",       free: true  },
     "ci/cd":          { title: "DevOps CI/CD Pipeline",              platform: "YouTube",       url: "https://www.youtube.com/watch?v=scEDHsr3APg",                           free: true  },
+    // PASSIONIT-PRUTL / GCC / Sanatan Labs Curriculum
+    "gcc":            { title: "Engagement Management & GCC Shared Services",   platform: "Sanatan Labs",  url: "https://passionit.in",                                      free: false },
+    "global delivery": { title: "GCC Operations & Offshore Delivery Leadership", platform: "Sanatan Labs", url: "https://passionit.in",                                      free: false },
+    "process management": { title: "Process Management & Agile Sprint Choreography", platform: "Sanatan Labs", url: "https://passionit.in",                                  free: false },
+    "sop":            { title: "SOP Architecture & Operational PMO",            platform: "Sanatan Labs",  url: "https://passionit.in",                                      free: false },
+    "prompt engineering": { title: "Predictive Prompt Engineering & Semantic Logic", platform: "Sanatan Labs", url: "https://passionit.in",                                  free: false },
+    "osint":          { title: "OSINT & Forensic Operational Audit",            platform: "Sanatan Labs",  url: "https://passionit.in",                                      free: false },
+    "corporate communications": { title: "Corporate Communications & C-Suite Reporting", platform: "Sanatan Labs", url: "https://passionit.in",                              free: false },
+    "data governance": { title: "Zero-Trust Cyber Hygiene & Data Sovereignty",  platform: "Sanatan Labs",  url: "https://passionit.in",                                      free: false },
+    "stakeholder":    { title: "Strategic Project Alignment & Stakeholder Management", platform: "Sanatan Labs", url: "https://passionit.in",                                free: false },
+    "compliance":     { title: "Forensic Compliance & GDPR/ISO Data Isolation", platform: "Sanatan Labs",  url: "https://passionit.in",                                      free: false },
+    "market research": { title: "AI-Driven Competitive Intelligence & Market Research", platform: "Sanatan Labs", url: "https://passionit.in",                               free: false },
   };
 
   const courses = node.skill_gap.slice(0, 4).map(skill => {
