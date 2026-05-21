@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAppStore } from "@/store/store";
-import { Building2, Mail, Lock, ArrowRight } from "lucide-react";
+import { Building2, Mail, Lock, ArrowRight, ArrowLeft } from "lucide-react";
 import toast from "react-hot-toast";
 import Link from "next/link";
 
@@ -42,6 +42,9 @@ export default function CompanyLogin() {
   return (
     <div className="min-h-screen bg-[var(--surface)] flex items-center justify-center px-4">
       <div className="w-full max-w-md">
+        <Link href="/" className="inline-flex items-center gap-1.5 text-sm text-[var(--muted)] hover:text-[var(--primary)] mb-6 transition-colors">
+          <ArrowLeft className="w-4 h-4" /> Back to Home
+        </Link>
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-14 h-14 bg-[var(--primary)] rounded-2xl mb-4">
             <Building2 className="w-7 h-7 text-white" />

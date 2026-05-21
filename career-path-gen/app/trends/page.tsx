@@ -33,11 +33,22 @@ export default function TrendsPage() {
 
           <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
             <h1 className="text-3xl font-serif text-[var(--dark)] mb-2 flex items-center gap-3">
-              <TrendingUp className="w-7 h-7 text-[var(--primary)]" /> Market Trend Analysis
+              <TrendingUp className="w-7 h-7 text-[var(--primary)]" /> Market Demand Analysis
             </h1>
-            <p className="text-[var(--muted)]">
-              Demand scores for the top career clusters over the past 8 weeks. Rising clusters indicate growing job market demand.
+            <p className="text-[var(--muted)] mb-4">
+              Demand scores for the top career clusters. Scores are modelled from career cluster analytics — higher = more active hiring market for that domain.
             </p>
+            <div className="flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 text-sm text-amber-800">
+              <span className="font-semibold flex-shrink-0">Data source:</span>
+              <span>
+                Scores are based on our curated career knowledge base and cluster analytics — <strong>not</strong> live job board data.
+                For real-time hiring activity, cross-reference with{" "}
+                <a href="https://www.linkedin.com/jobs/" target="_blank" rel="noopener noreferrer" className="underline font-medium">LinkedIn Jobs</a>,{" "}
+                <a href="https://www.naukri.com/" target="_blank" rel="noopener noreferrer" className="underline font-medium">Naukri</a>, or{" "}
+                <a href="https://www.glassdoor.co.in/" target="_blank" rel="noopener noreferrer" className="underline font-medium">Glassdoor India</a>.
+                The 4-week forecast uses Holt exponential smoothing on historical snapshot data.
+              </span>
+            </div>
           </div>
 
           {loading ? (

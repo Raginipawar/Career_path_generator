@@ -106,4 +106,10 @@ export const api = {
 
   getDemandTrends: () =>
     request<any>('/api/trends'),
+
+  deleteRoadmap: (roadmapId: string) =>
+    request<{ deleted: boolean }>(`/api/roadmap/${roadmapId}`, { method: 'DELETE' }),
+
+  deleteAllData: () =>
+    request<{ deleted: boolean; roadmapsDeleted: number }>('/api/auth/data', { method: 'DELETE' }),
 };

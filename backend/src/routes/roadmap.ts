@@ -3,7 +3,7 @@ import { Router, Request, Response } from 'express';
 import { prisma } from '../lib/prisma';
 import { requireAuth } from '../middleware/auth';
 import { RoadmapRequestSchema } from '../schemas';
-import { cacheGet, cacheSet, profileCacheKey } from '../lib/redis';
+import { cacheGet, cacheSet, cacheDel, profileCacheKey } from '../lib/redis';
 import { callRagGenerate, prismaToRagProfile, AuditScore } from '../lib/ragClient';
 import { getCollaborativeRecommendations, findSimilarSuccessfulTransitions } from '../lib/collaborativeFilter';
 
@@ -204,6 +204,27 @@ router.patch('/:id/progress', async (req: Request, res: Response) => {
 
   await prisma.roadmap.update({ where: { id }, data: { completedNodes: updated } });
   res.json({ completedNodes: updated });
+});
+
+// ─── DELETE /api/roadmap/:id ─────────────────────────────────────────────────
+router.delete('/:id', async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const userId = req.user!.userId;
+
+  const roadmap = await prisma.roadmap.findFirst({ where: { id, userId } });
+  if (!roadmap) {
+    res.status(404).json({ error: 'Roadmap not found or access denied' });
+    return;
+  }
+
+  await prisma.auditResult.deleteMany({ where: { roadmapId: id } });
+  await prisma.roadmap.delete({ where: { id } });
+
+  if (roadmap.profileId) {
+    await cacheDel(profileCacheKey(roadmap.profileId));
+  }
+
+  res.json({ deleted: true });
 });
 
 // ─── GET /api/roadmap/history/:userId ─────────────────────────────────────────

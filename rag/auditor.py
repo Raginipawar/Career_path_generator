@@ -80,32 +80,43 @@ def _purpose(profile: dict, roadmap: dict) -> dict:
 def _accountability(profile: dict, roadmap: dict, retrieved_doc_ids: list[str]) -> dict:
     """
     Measures how traceable the recommendation is.
-    More retrieved docs = more evidence-based = more accountable.
+    Penalises generic skill lists and missing career_goal specificity.
     """
     doc_count = len(retrieved_doc_ids)
     nodes     = roadmap.get("roadmap_nodes", [])
+    career_goal = profile.get("career_goal", "").strip()
 
-    # Every node should have skill_gap and required_skills populated
-    nodes_with_skills = sum(1 for n in nodes if n.get("required_skills"))
-    completeness = nodes_with_skills / max(len(nodes), 1)
+    # Every node should have specific (non-generic) skill_gap populated
+    generic_skills = {"leadership", "communication", "teamwork", "agile", "problem solving"}
+    nodes_with_specific_skills = sum(
+        1 for n in nodes
+        if n.get("required_skills") and any(
+            s.lower() not in generic_skills for s in n.get("required_skills", [])
+        )
+    )
+    specificity_ratio = nodes_with_specific_skills / max(len(nodes), 1)
 
-    if doc_count >= 4 and completeness >= 0.8:
-        score = 9
-    elif doc_count >= 2 and completeness >= 0.5:
-        score = 7
-    elif doc_count >= 1:
-        score = 5
-    else:
-        score = 3
+    # Penalise if career goal is too vague
+    goal_specific = len(career_goal) > 15 and career_goal.lower() not in {"grow", "succeed", "be better", "improve"}
+
+    score = 4  # cautious base
+    if doc_count >= 4: score += 2
+    elif doc_count >= 2: score += 1
+    if specificity_ratio >= 0.8: score += 2
+    elif specificity_ratio >= 0.5: score += 1
+    if goal_specific: score += 1
+    score = min(9, score)
 
     return {
         "dimension":     "Accountability",
         "framework":     "PASSIONIT",
         "score":         score,
         "risk_level":    _risk(score),
-        "explanation":   f"Recommendation backed by {doc_count} knowledge base documents. "
-                         f"{nodes_with_skills}/{len(nodes)} roadmap nodes have documented skill requirements.",
-        "recommendation": "All recommendations are linked to knowledge base sources and traceable." if score >= 8 else "Some nodes lack documented skill requirements — increase knowledge base coverage.",
+        "explanation":   f"Recommendation backed by {doc_count} KB documents. "
+                         f"{nodes_with_specific_skills}/{len(nodes)} nodes have specific (non-generic) skill requirements. "
+                         f"Career goal specificity: {'clear' if goal_specific else 'vague — consider refining'}.",
+        "recommendation": "Well-traced recommendation." if score >= 8 else
+                          "Refine your career goal to a specific role title and add domain-specific technical skills.",
         "flagged_biases": [],
     }
 
@@ -267,30 +278,47 @@ def _inclusivity(profile: dict, roadmap: dict) -> dict:
 def _objectivity(profile: dict, roadmap: dict, retrieved_doc_ids: list[str]) -> dict:
     """
     Measures whether the recommendation is grounded in data vs assumptions.
-    Checks ChromaDB usage, skill coverage in nodes, and probability calibration.
+    Checks skill gap specificity, goal clarity, and probability calibration realism.
     """
     doc_count = len(retrieved_doc_ids)
     nodes = roadmap.get("roadmap_nodes", [])
-    nodes_with_gaps = sum(1 for n in nodes if n.get("skill_gap"))
-    skill_coverage = nodes_with_gaps / max(len(nodes), 1)
+    prob = roadmap.get("success_probability", 50)
+    career_goal = profile.get("career_goal", "").strip()
+    user_skills = profile.get("technical_skills", [])
 
-    score = 5  # base
-    if doc_count >= 5: score += 3
-    elif doc_count >= 3: score += 2
+    nodes_with_specific_gaps = sum(
+        1 for n in nodes
+        if n.get("skill_gap") and len(n["skill_gap"]) > 0
+    )
+    gap_coverage = nodes_with_specific_gaps / max(len(nodes), 1)
+
+    # Check if probability seems calibrated (not uniformly high)
+    prob_realistic = 30 <= prob <= 85
+
+    # Check if user skills are detailed (not just empty)
+    skills_detailed = len(user_skills) >= 3
+
+    score = 3  # skeptical base
+    if doc_count >= 3: score += 2
     elif doc_count >= 1: score += 1
-    if skill_coverage >= 0.8: score += 1
-    score = min(10, score)
+    if gap_coverage >= 0.7: score += 2
+    elif gap_coverage >= 0.4: score += 1
+    if prob_realistic: score += 1
+    if skills_detailed: score += 1
+    if career_goal: score += 1
+    score = min(9, score)
 
     return {
         "dimension":     "Objectivity",
         "framework":     "PASSIONIT",
         "score":         score,
         "risk_level":    _risk(score),
-        "explanation":   f"Recommendation uses {doc_count} knowledge base documents. "
-                         f"Skill gaps documented for {nodes_with_gaps}/{len(nodes)} nodes. "
-                         f"{'Highly data-grounded.' if score >= 8 else 'Moderately grounded — more domain data would improve accuracy.'}",
-        "recommendation": "Knowledge base coverage is sufficient." if score >= 8 else "Add more domain-specific documents to improve objectivity.",
-        "flagged_biases": [],
+        "explanation":   f"{doc_count} KB documents used. Skill gaps present in {nodes_with_specific_gaps}/{len(nodes)} nodes. "
+                         f"Success probability {prob}% {'appears calibrated' if prob_realistic else 'may be over- or under-confident'}. "
+                         f"Profile has {len(user_skills)} technical skills listed.",
+        "recommendation": "Recommendation is well-grounded in data." if score >= 7 else
+                          "Add more specific technical skills and a concrete career goal to improve objectivity.",
+        "flagged_biases": ["Probability outside realistic range (30–85%)" ] if not prob_realistic else [],
     }
 
 
@@ -334,17 +362,25 @@ def _non_bias(profile: dict, roadmap: dict) -> dict:
 
 def _integrity(retrieved_doc_ids: list[str]) -> dict:
     """
-    Evaluates data integrity — are the sources real and documented?
+    Evaluates data integrity — are the sources real, current, and domain-specific?
     """
     doc_count = len(retrieved_doc_ids)
-    score = min(10, 5 + doc_count)
+    # Our KB is from career cluster seed data + industry docs — real but not live
+    # Cap at 8 to reflect that it's curated knowledge, not live job board data
+    score = min(8, 4 + doc_count)
+    note = (
+        "Recommendation uses curated career knowledge base. Not based on live job board data — "
+        "validate with current LinkedIn/Glassdoor postings before applying."
+        if doc_count > 0 else
+        "No knowledge base documents retrieved. Recommendation is based on general career patterns only."
+    )
     return {
         "dimension":     "Integrity",
         "framework":     "PASSIONIT",
         "score":         score,
         "risk_level":    _risk(score),
-        "explanation":   f"Recommendation references {doc_count} verified knowledge base documents (O*NET, BLS, Kaggle career datasets). All sources are tracked via document IDs: {retrieved_doc_ids[:3]}{'...' if len(retrieved_doc_ids) > 3 else ''}.",
-        "recommendation": "Knowledge base should be updated quarterly to maintain data currency." if doc_count < 3 else "Data sources are well-documented.",
+        "explanation":   f"{doc_count} KB documents referenced (IDs: {retrieved_doc_ids[:2]}{'...' if len(retrieved_doc_ids) > 2 else ''}). {note}",
+        "recommendation": "Cross-validate salary and role titles with live sources (LinkedIn Salary, Glassdoor, Levels.fyi).",
         "flagged_biases": [],
     }
 
@@ -352,24 +388,35 @@ def _integrity(retrieved_doc_ids: list[str]) -> dict:
 def _transparency(profile: dict, roadmap: dict, retrieved_doc_ids: list[str]) -> dict:
     """
     Evaluates how explainable and understandable the recommendation is.
+    Penalises short or boilerplate explanations.
     """
-    has_explanation = bool(roadmap.get("explanation", "").strip())
-    has_nodes       = len(roadmap.get("roadmap_nodes", [])) > 0
-    has_edges       = len(roadmap.get("roadmap_edges", [])) > 0
-    has_alt_paths   = len(roadmap.get("alternative_paths", [])) > 0
-    has_emotion     = len(roadmap.get("emotional_forecast", [])) > 0
-    has_doc_refs    = len(retrieved_doc_ids) > 0
+    explanation_text = roadmap.get("explanation", "").strip()
+    has_explanation  = len(explanation_text) > 100  # meaningful, not just "System-generated"
+    is_personalized  = any(kw in explanation_text.lower() for kw in ["your", "you", "year", "month", "%"])
+    has_nodes        = len(roadmap.get("roadmap_nodes", [])) >= 2
+    has_edges        = len(roadmap.get("roadmap_edges", [])) > 0
+    has_alt_paths    = len(roadmap.get("alternative_paths", [])) > 0
+    has_emotion      = len(roadmap.get("emotional_forecast", [])) > 0
+    has_doc_refs     = len(retrieved_doc_ids) > 0
 
-    components = sum([has_explanation, has_nodes, has_edges, has_alt_paths, has_emotion, has_doc_refs])
-    score = max(1, min(10, components + 4))
+    score = 3  # base
+    if has_explanation:  score += 2
+    if is_personalized:  score += 1
+    if has_nodes:        score += 1
+    if has_edges:        score += 1
+    if has_alt_paths:    score += 1
+    if has_emotion:      score += 1
+    score = min(10, score)
 
     return {
         "dimension":     "Transparency",
         "framework":     "PASSIONIT",
         "score":         score,
         "risk_level":    _risk(score),
-        "explanation":   f"Transparency components present: explanation={has_explanation}, step-by-step nodes={has_nodes}, transition edges={has_edges}, alternative paths={has_alt_paths}, emotional forecast={has_emotion}, document references={has_doc_refs}.",
-        "recommendation": "All key transparency components are present." if score >= 8 else "Add explanation text and source references to improve transparency.",
+        "explanation":   f"Explanation: {'present & personalised' if is_personalized else 'generic' if has_explanation else 'missing'}. "
+                         f"Components: {sum([has_nodes, has_edges, has_alt_paths, has_emotion])}/4 present.",
+        "recommendation": "Recommendation is well-explained." if score >= 8 else
+                          "The explanation could be more personalised — reference specific skills and percentages.",
         "flagged_biases": [],
     }
 
@@ -379,20 +426,24 @@ def _transparency(profile: dict, roadmap: dict, retrieved_doc_ids: list[str]) ->
 def _privacy(profile: dict) -> dict:
     """
     Checks that personal data handling follows minimization principles.
+    Scores lower when more sensitive demographic data is used in scoring.
     """
     sensitive_fields = ["gender", "age", "has_dependents", "recent_life_event"]
-    used_fields = [f for f in sensitive_fields if profile.get(f) not in (None, "", "None", False, 0)]
+    used_sensitive = [f for f in sensitive_fields if profile.get(f) not in (None, "", "None", False, 0)]
+    num_sensitive = len(used_sensitive)
 
-    # All these fields are user-provided voluntarily and used only for recommendation
-    score = 9  # high by design — user provides data voluntarily
+    # Base 7 — user provides voluntarily, but sensitive data use carries residual risk
+    score = 7 if num_sensitive > 2 else (8 if num_sensitive > 0 else 9)
     return {
         "dimension":     "Privacy",
         "framework":     "PRUTL",
         "score":         score,
-        "risk_level":    "Low",
-        "explanation":   f"Personal data used: {', '.join(used_fields) if used_fields else 'minimal'}. All data is user-provided, stored encrypted, and used only for recommendation generation. No third-party data sharing.",
-        "recommendation": "Implement explicit data deletion on user request for full GDPR compliance.",
-        "flagged_biases": [],
+        "risk_level":    _risk(score),
+        "explanation":   f"{num_sensitive} sensitive fields used in scoring: {', '.join(used_sensitive) if used_sensitive else 'none'}. "
+                         f"All data is user-provided and used only for recommendation. No third-party sharing.",
+        "recommendation": "Ensure explicit user consent for sensitive fields (age, dependents, gender). "
+                          "Provide data deletion option in account settings.",
+        "flagged_biases": [f"Sensitive fields actively influencing recommendation: {', '.join(used_sensitive)}"] if num_sensitive >= 3 else [],
     }
 
 
@@ -438,25 +489,29 @@ def _reliability(profile: dict, roadmap: dict) -> dict:
 def _usability(roadmap: dict) -> dict:
     """
     Measures how actionable and clear the output is.
+    Checks that nodes have specific skill gaps (not just generic ones) and real salary data.
     """
-    nodes    = roadmap.get("roadmap_nodes", [])
-    edges    = roadmap.get("roadmap_edges", [])
-    alt      = roadmap.get("alternative_paths", [])
-    emotion  = roadmap.get("emotional_forecast", [])
-    explains = roadmap.get("explanation", "")
+    nodes   = roadmap.get("roadmap_nodes", [])
+    edges   = roadmap.get("roadmap_edges", [])
+    alt     = roadmap.get("alternative_paths", [])
+    emotion = roadmap.get("emotional_forecast", [])
 
-    # Check richness of each node
-    rich_nodes = sum(1 for n in nodes
-                     if n.get("description") and n.get("skill_gap") and n.get("salary_estimate_lpa"))
-    completeness = rich_nodes / max(len(nodes), 1)
+    generic_skills = {"leadership", "communication", "teamwork", "problem solving"}
+    actionable_nodes = sum(
+        1 for n in nodes
+        if n.get("skill_gap") and
+           any(s.lower() not in generic_skills for s in n.get("skill_gap", [])) and
+           n.get("salary_estimate_lpa", 0) > 0
+    )
+    actionability = actionable_nodes / max(len(nodes), 1)
 
-    score = 5
-    if len(nodes) >= 3:    score += 1
-    if edges:              score += 1
-    if alt:                score += 1
-    if emotion:            score += 1
-    if completeness >= 0.8: score += 1
-    if len(explains) > 100: pass  # explanation richness already in transparency
+    score = 3
+    if len(nodes) >= 3:       score += 1
+    if edges:                  score += 1
+    if alt:                    score += 1
+    if emotion:                score += 1
+    if actionability >= 0.7:   score += 2
+    elif actionability >= 0.4: score += 1
     score = min(10, score)
 
     return {
@@ -464,8 +519,10 @@ def _usability(roadmap: dict) -> dict:
         "framework":     "PRUTL",
         "score":         score,
         "risk_level":    _risk(score),
-        "explanation":   f"Roadmap has {len(nodes)} steps, {len(edges)} connections, {len(alt)} alternative paths, {len(emotion)} emotional forecast phases. {rich_nodes}/{len(nodes)} nodes have full details (description, skill gap, salary).",
-        "recommendation": "Add salary estimates and skill gaps to all nodes for maximum actionability." if completeness < 0.8 else "Output is highly actionable.",
+        "explanation":   f"{len(nodes)} roadmap steps, {len(edges)} transitions, {len(alt)} alternatives, {len(emotion)} forecast phases. "
+                         f"{actionable_nodes}/{len(nodes)} nodes are fully actionable (specific skill gaps + salary estimates).",
+        "recommendation": "Output is highly actionable." if score >= 8 else
+                          "Ensure each transition step has specific technical skill gaps and accurate salary data.",
         "flagged_biases": [],
     }
 

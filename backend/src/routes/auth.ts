@@ -4,6 +4,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { prisma } from '../lib/prisma';
 import { RegisterSchema, LoginSchema } from '../schemas';
+import { requireAuth } from '../middleware/auth';
 
 const router = Router();
 const SALT_ROUNDS = 12;
@@ -90,6 +91,23 @@ router.post('/login', async (req: Request, res: Response) => {
 
   const { password: _pw, ...safeUser } = user;
   res.json({ token, user: safeUser });
+});
+
+// ─── DELETE /api/auth/data — wipe all roadmaps & profiles for the user ────────
+router.delete('/data', requireAuth, async (req: Request, res: Response) => {
+  const userId = req.user!.userId;
+
+  // Cascade: AuditResult → Roadmap → Profile (in dependency order)
+  const roadmaps = await prisma.roadmap.findMany({ where: { userId }, select: { id: true } });
+  const roadmapIds = roadmaps.map(r => r.id);
+
+  if (roadmapIds.length > 0) {
+    await prisma.auditResult.deleteMany({ where: { roadmapId: { in: roadmapIds } } });
+  }
+  await prisma.roadmap.deleteMany({ where: { userId } });
+  await prisma.profile.deleteMany({ where: { userId } });
+
+  res.json({ deleted: true, roadmapsDeleted: roadmapIds.length });
 });
 
 export default router;

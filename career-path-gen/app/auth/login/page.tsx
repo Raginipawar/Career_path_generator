@@ -6,7 +6,7 @@ import Link from "next/link";
 import toast from "react-hot-toast";
 import { api } from "@/lib/api";
 import { useAppStore } from "@/store/store";
-import { Compass } from "lucide-react";
+import { Compass, ArrowLeft } from "lucide-react";
 
 export default function Login() {
   const router = useRouter();
@@ -43,6 +43,11 @@ export default function Login() {
 
       {/* Right side form */}
       <div className="flex flex-col justify-center items-center w-full lg:w-1/2 p-8 sm:p-12">
+        <div className="w-full max-w-md">
+          <Link href="/" className="inline-flex items-center gap-1.5 text-sm text-[var(--muted)] hover:text-[var(--primary)] mb-6 transition-colors">
+            <ArrowLeft className="w-4 h-4" /> Back to Home
+          </Link>
+        </div>
         <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
           <div className="text-center mb-8 lg:hidden">
             <Compass className="w-12 h-12 text-[var(--primary)] mx-auto mb-4" />
@@ -93,6 +98,12 @@ export default function Login() {
             Don't have an account?{" "}
             <Link href="/auth/register" className="text-[var(--primary)] font-medium hover:underline">
               Sign up
+            </Link>
+          </p>
+          <p className="text-center text-sm text-[var(--muted)] mt-3">
+            Company?{" "}
+            <Link href="/company/login" className="text-[var(--primary)] font-medium hover:underline">
+              Company login
             </Link>
           </p>
         </div>

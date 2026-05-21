@@ -53,19 +53,48 @@ function NodeFlashcard({ node, onClose, roadmapId, completed, onToggle }: {
     { period: `Month ${Math.ceil(months * 2 / 3) + 1}–${months}`, focus: "Consolidation — apply for roles, negotiate offers, transition" },
   ] : [];
 
-  // Suggested learning resources based on skill gap
-  const courses = node.skill_gap.slice(0, 4).map(skill => ({
-    skill,
-    resource: skill.toLowerCase().includes("python") ? "Python — freeCodeCamp (free, YouTube)"
-      : skill.toLowerCase().includes("aws") ? "AWS — A Cloud Guru or official AWS training"
-      : skill.toLowerCase().includes("sql") ? "SQL — Mode Analytics SQL Tutorial (free)"
-      : skill.toLowerCase().includes("docker") ? "Docker — Docker's official get-started guide (free)"
-      : skill.toLowerCase().includes("react") ? "React — official React docs + Scrimba course"
-      : skill.toLowerCase().includes("ml") || skill.toLowerCase().includes("machine") ? "ML — Andrew Ng's ML Specialization on Coursera"
-      : skill.toLowerCase().includes("system") ? "System Design — Grokking System Design (Educative)"
-      : skill.toLowerCase().includes("leadership") ? "Leadership — \"The Manager's Path\" by Camille Fournier"
-      : `${skill} — search Coursera, Udemy, or YouTube for beginner guides`,
-  }));
+  // Skill → real course with URL
+  const COURSE_MAP: Record<string, { title: string; platform: string; url: string; free: boolean }> = {
+    python:           { title: "Python for Everybody",               platform: "Coursera",      url: "https://www.coursera.org/specializations/python",                        free: false },
+    sql:              { title: "SQL for Data Science",               platform: "Coursera",      url: "https://www.coursera.org/learn/sql-for-data-science",                   free: false },
+    aws:              { title: "AWS Cloud Practitioner Essentials",  platform: "AWS Training",  url: "https://explore.skillbuilder.aws/learn/course/134",                     free: true  },
+    docker:           { title: "Docker Tutorial for Beginners",      platform: "YouTube",       url: "https://www.youtube.com/watch?v=3c-iBn73dDE",                           free: true  },
+    kubernetes:       { title: "Kubernetes for Beginners",           platform: "freeCodeCamp",  url: "https://www.youtube.com/watch?v=d6WC5n9G_sM",                           free: true  },
+    react:            { title: "React – The Official Tutorial",      platform: "React Docs",    url: "https://react.dev/learn",                                               free: true  },
+    "node.js":        { title: "Node.js Crash Course",               platform: "YouTube",       url: "https://www.youtube.com/watch?v=fBNz5xF-Kx4",                          free: true  },
+    typescript:       { title: "TypeScript Handbook",                platform: "TypeScript",    url: "https://www.typescriptlang.org/docs/handbook/intro.html",               free: true  },
+    tensorflow:       { title: "TensorFlow Developer Certificate",   platform: "Coursera",      url: "https://www.coursera.org/professional-certificates/tensorflow-in-practice", free: false },
+    pytorch:          { title: "Deep Learning with PyTorch",         platform: "fast.ai",       url: "https://course.fast.ai/",                                               free: true  },
+    "machine learning": { title: "ML Specialization – Andrew Ng",  platform: "Coursera",      url: "https://www.coursera.org/specializations/machine-learning-introduction", free: false },
+    "deep learning":  { title: "Deep Learning Specialization",       platform: "Coursera",      url: "https://www.coursera.org/specializations/deep-learning",                free: false },
+    llm:              { title: "LLM Bootcamp",                       platform: "Full Stack DL",url: "https://fullstackdeeplearning.com/llm-bootcamp/",                       free: true  },
+    mlops:            { title: "MLOps Specialization",               platform: "Coursera",      url: "https://www.coursera.org/specializations/machine-learning-engineering-for-production-mlops", free: false },
+    "system design":  { title: "Grokking System Design",             platform: "Educative",     url: "https://www.educative.io/courses/grokking-the-system-design-interview", free: false },
+    terraform:        { title: "Terraform Crash Course",             platform: "YouTube",       url: "https://www.youtube.com/watch?v=SLB_c_ayRMo",                           free: true  },
+    java:             { title: "Java Programming Masterclass",       platform: "Udemy",         url: "https://www.udemy.com/course/java-the-complete-java-developer-course/",  free: false },
+    figma:            { title: "Figma UI Design Tutorial",           platform: "YouTube",       url: "https://www.youtube.com/watch?v=HZuk6Wkx_Eg",                           free: true  },
+    "product management": { title: "Product Management Fundamentals", platform: "Coursera",   url: "https://www.coursera.org/learn/uva-darden-foundations-of-the-strategy",   free: false },
+    agile:            { title: "Agile Project Management",           platform: "Google/Coursera", url: "https://www.coursera.org/learn/agile-project-management",             free: false },
+    cybersecurity:    { title: "Google Cybersecurity Certificate",   platform: "Coursera",      url: "https://www.coursera.org/professional-certificates/google-cybersecurity", free: false },
+    "penetration testing": { title: "Ethical Hacking Bootcamp",     platform: "Udemy",         url: "https://www.udemy.com/course/learn-ethical-hacking-from-scratch/",       free: false },
+    leadership:       { title: "Inspiring and Motivating Individuals", platform: "Coursera",   url: "https://www.coursera.org/learn/motivate-people-teams",                  free: false },
+    "data analysis":  { title: "Google Data Analytics Certificate",  platform: "Coursera",      url: "https://www.coursera.org/professional-certificates/google-data-analytics", free: false },
+    tableau:          { title: "Tableau Tutorial for Beginners",     platform: "YouTube",       url: "https://www.youtube.com/watch?v=TPMlZxRRaBQ",                           free: true  },
+    "power bi":       { title: "Power BI Full Course",               platform: "YouTube",       url: "https://www.youtube.com/watch?v=fnA-_iDV_LY",                           free: true  },
+    postgresql:       { title: "PostgreSQL Tutorial",                platform: "freeCodeCamp",  url: "https://www.youtube.com/watch?v=qw--VYLpxG4",                           free: true  },
+    "rest api":       { title: "REST API Design – Best Practices",   platform: "YouTube",       url: "https://www.youtube.com/watch?v=7nm1pYuKAhY",                           free: true  },
+    microservices:    { title: "Microservices with Node & React",    platform: "Udemy",         url: "https://www.udemy.com/course/microservices-with-node-js-and-react/",     free: false },
+    blockchain:       { title: "Blockchain Basics",                  platform: "Coursera",      url: "https://www.coursera.org/learn/blockchain-basics",                     free: false },
+    statistics:       { title: "Statistics with Python",             platform: "Coursera",      url: "https://www.coursera.org/specializations/statistics-with-python",       free: false },
+    linux:            { title: "Linux Command Line Basics",          platform: "Udacity",       url: "https://www.udacity.com/course/linux-command-line-basics--ud595",       free: true  },
+    "ci/cd":          { title: "DevOps CI/CD Pipeline",              platform: "YouTube",       url: "https://www.youtube.com/watch?v=scEDHsr3APg",                           free: true  },
+  };
+
+  const courses = node.skill_gap.slice(0, 4).map(skill => {
+    const key = Object.keys(COURSE_MAP).find(k => skill.toLowerCase().includes(k));
+    const course = key ? COURSE_MAP[key] : null;
+    return { skill, course };
+  });
 
   return (
     <div className="fixed top-0 right-0 h-full w-full max-w-lg bg-white shadow-2xl z-50 flex flex-col border-l border-slate-200 animate-in slide-in-from-right duration-300">
@@ -138,13 +167,32 @@ function NodeFlashcard({ node, onClose, roadmapId, completed, onToggle }: {
         {courses.length > 0 && (
           <div className="px-6 py-5 border-b border-slate-100">
             <h3 className="flex items-center gap-2 font-semibold text-[var(--dark)] text-sm mb-3">
-              <BookOpen className="w-4 h-4 text-[var(--primary)]" /> Recommended Learning
+              <BookOpen className="w-4 h-4 text-[var(--primary)]" /> Recommended Courses
             </h3>
             <div className="space-y-3">
-              {courses.map(({ skill, resource }) => (
+              {courses.map(({ skill, course }) => (
                 <div key={skill} className="bg-slate-50 rounded-lg p-3 border border-slate-100">
-                  <p className="text-xs font-semibold text-[var(--primary)] uppercase tracking-wide mb-0.5">{skill}</p>
-                  <p className="text-sm text-[var(--text)]">{resource}</p>
+                  <p className="text-xs font-semibold text-[var(--primary)] uppercase tracking-wide mb-1">{skill}</p>
+                  {course ? (
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <p className="text-sm font-medium text-[var(--dark)]">{course.title}</p>
+                        <p className="text-xs text-[var(--muted)] mt-0.5">{course.platform} · {course.free ? "Free" : "Paid"}</p>
+                      </div>
+                      <a
+                        href={course.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex-shrink-0 text-xs font-semibold text-white bg-[var(--primary)] hover:bg-[var(--secondary)] px-2.5 py-1 rounded-lg transition-colors"
+                      >
+                        Open →
+                      </a>
+                    </div>
+                  ) : (
+                    <p className="text-sm text-[var(--text)]">
+                      Search <a href={`https://www.coursera.org/search?query=${encodeURIComponent(skill)}`} target="_blank" rel="noopener noreferrer" className="text-[var(--primary)] underline">Coursera</a> or <a href={`https://www.udemy.com/courses/search/?q=${encodeURIComponent(skill)}`} target="_blank" rel="noopener noreferrer" className="text-[var(--primary)] underline">Udemy</a> for {skill} courses.
+                    </p>
+                  )}
                 </div>
               ))}
             </div>
@@ -249,7 +297,7 @@ function CareerNode({ data, selected }: any) {
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function RoadmapPage() {
-  const { roadmapResponse, profileId, setCompletedNodes } = useAppStore();
+  const { roadmapResponse, profileId, user, setCompletedNodes } = useAppStore();
   const [sidebarOpen, setSidebarOpen]   = useState(true);
   const [selectedNode, setSelectedNode] = useState<RoadmapNode | null>(null);
 
@@ -426,10 +474,8 @@ export default function RoadmapPage() {
         </>
       )}
 
-      {/* Chat */}
-      {profileId && (
-        <ChatDrawer profileId={profileId} roadmapId={roadmapResponse.roadmapId} />
-      )}
+      {/* Chat — always shown when roadmap exists; profileId falls back to user id */}
+      <ChatDrawer profileId={profileId ?? user?.id ?? 'default'} roadmapId={roadmapResponse.roadmapId} />
     </ProtectedRoute>
   );
 }

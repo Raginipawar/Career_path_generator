@@ -81,6 +81,9 @@ def _build_profile_query(profile: dict) -> str:
         profile.get("current_role", ""),
         profile.get("current_industry", ""),
         " ".join(profile.get("technical_skills", [])[:5]),
+        # Include soft skills + certifications for richer domain signal
+        " ".join(profile.get("soft_skills", [])[:3]),
+        " ".join(profile.get("certifications", [])[:3]),
     ]
     return " ".join(p for p in parts if p).strip()
 
@@ -101,10 +104,19 @@ def build_roadmap_from_data(
 
     Returns same schema as before — frontend unchanged.
     """
-    current_role  = profile.get("current_role", "")
-    user_skills   = profile.get("technical_skills", [])
-    burnout       = profile.get("burnout_level", 5)
-    years_exp     = profile.get("years_of_experience", 0)
+    current_role      = profile.get("current_role", "")
+    user_skills       = profile.get("technical_skills", [])
+    soft_skills       = profile.get("soft_skills", [])
+    certifications    = profile.get("certifications", [])
+    burnout           = profile.get("burnout_level", 5)
+    years_exp         = profile.get("years_of_experience", 0)
+    willing_relocate  = profile.get("willing_to_relocate", False)
+    work_style        = profile.get("preferred_work_style", "Hybrid")
+    target_timeline   = profile.get("target_timeline_years", 2)
+
+    # Merge certifications as extra skills for gap computation
+    if certifications:
+        user_skills = list(dict.fromkeys(user_skills + certifications))
 
     # ── Step 1: Neural domain classification ──────────────────────────────────
     query_text    = _build_profile_query(profile)
@@ -144,7 +156,13 @@ def build_roadmap_from_data(
         "salary_estimate_lpa": float(profile.get("current_salary_lpa", 0) or
                                      _get_salary(target_domain, 1)),
         "risk_level":        "Low",
-        "description":       f"Starting point. Current expertise forms the foundation for transitioning into {target_domain}.",
+        "description":       (
+            f"Starting point. "
+            f"{f'Soft skills: {chr(44).join(soft_skills[:3])}. ' if soft_skills else ''}"
+            f"{'Willing to relocate. ' if willing_relocate else 'Prefers local/remote roles. '}"
+            f"Preferred style: {work_style}. "
+            f"Foundation for transitioning into {target_domain}."
+        ),
     })
 
     # Graph-derived intermediate nodes
@@ -171,6 +189,8 @@ def build_roadmap_from_data(
         stage_months   = _timeline_between(prev_seniority, seniority)
         if burnout >= 7:
             stage_months = round(stage_months * 1.3)  # slow down if burnt out
+        elif burnout <= 3 and years_exp > 3:
+            stage_months = round(stage_months * 0.85)  # experienced + low burnout → faster
         cumulative_months += stage_months
 
         # Salary from domain + seniority
