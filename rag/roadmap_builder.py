@@ -73,6 +73,63 @@ def _timeline_between(s1: int, s2: int) -> int:
     return SENIORITY_TIMELINE.get(key, abs(s2 - s1) * 8)
 
 
+def _groq_classify_domain(profile: dict) -> str | None:
+    """
+    Use Groq to read the user's career goal in plain English and map it to
+    the closest domain in our taxonomy. Works for ANY career goal —
+    psychologist, chef, architect, full stack leadership, etc.
+    Falls back to None so the neural classifier takes over.
+
+    This is the permanent fix: Groq understands intent, not just keywords.
+    """
+    goal    = (profile.get("career_goal") or "").strip()
+    current = (profile.get("current_role") or "").strip()
+    domains = (profile.get("interest_domains") or [])
+
+    if not goal and not current:
+        return None
+
+    domain_list = "\n".join(f"- {d}" for d in DOMAIN_DESCRIPTIONS.keys())
+    context = f'Career goal: "{goal}"' if goal else ""
+    if current:
+        context += f'\nCurrent role: "{current}"'
+    if domains:
+        context += f'\nInterest domains: {", ".join(domains[:3])}'
+
+    prompt = (
+        f"{context}\n\n"
+        f"Available domains:\n{domain_list}\n\n"
+        f"Which ONE domain name from the list above best matches this person's goal? "
+        f"Rules:\n"
+        f"- If they mention 'full stack', 'frontend', 'backend', 'web developer' → full stack\n"
+        f"- If they mention 'leadership' with a technical field, use THAT technical field\n"
+        f"- If their goal (psychologist, chef, lawyer) is not in the list, pick the closest one\n"
+        f"- Reply with ONLY the exact domain name from the list. Nothing else."
+    )
+
+    try:
+        from groq import Groq
+        from config import get_settings
+        settings = get_settings()
+        client = Groq(api_key=settings.groq_api_key)
+        response = client.chat.completions.create(
+            model=settings.groq_model,
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.0,
+            max_tokens=15,
+        )
+        raw = response.choices[0].message.content.strip().lower().strip('"').strip("'")
+        # Match against known domains (exact or partial)
+        for domain in DOMAIN_DESCRIPTIONS.keys():
+            if domain == raw or domain in raw or raw in domain:
+                print(f"  Groq mapped '{goal[:50]}' → '{domain}'")
+                return domain
+    except Exception as e:
+        print(f"  Groq domain classification failed ({e}) — falling back to neural")
+
+    return None
+
+
 def _build_profile_query(profile: dict) -> str:
     """Build a rich text query for neural domain classification."""
     parts = [
@@ -120,12 +177,26 @@ def build_roadmap_from_data(
     if certifications:
         user_skills = list(dict.fromkeys(user_skills + certifications))
 
-    # ── Step 1: Neural domain classification ──────────────────────────────────
+    # ── Step 1: Domain classification — Groq-first, embedding fallback ───────
+    # Groq reads the user's actual intent in plain language (handles ANY career:
+    # psychologist, chef, architect, etc.) and maps to our closest domain.
+    # This is permanent — no keyword lists, no embedding gaps.
     query_text    = _build_profile_query(profile)
-    domain_scores = classify_domain(query_text, top_k=3)
-    target_domain = domain_scores[0][0]
-    domain_conf   = domain_scores[0][1]
-    print(f"Domain classifier: {target_domain} (confidence={round(domain_conf*100)}%)")
+    target_domain = _groq_classify_domain(profile) or None
+
+    if target_domain:
+        domain_conf = 0.95
+        print(f"Groq domain classifier: {target_domain}")
+        # Still get ranked alternatives for alternative_paths
+        domain_scores = [(target_domain, 0.95)] + [
+            (d, s) for d, s in classify_domain(query_text, top_k=4)
+            if d != target_domain
+        ][:3]
+    else:
+        domain_scores = classify_domain(query_text, top_k=3)
+        target_domain = domain_scores[0][0]
+        domain_conf   = domain_scores[0][1]
+        print(f"Neural domain classifier: {target_domain} (confidence={round(domain_conf*100)}%)")
 
     # ── Step 2: Knowledge graph path finding ──────────────────────────────────
     graph_path = find_career_path(current_role, target_domain, max_steps=4)

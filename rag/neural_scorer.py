@@ -117,25 +117,162 @@ def _get_domain_embeddings() -> dict[str, list[float]]:
     return _domain_embeddings
 
 
-# ─── Neural domain classifier ─────────────────────────────────────────────────
+# ─── Explicit keyword → domain overrides ─────────────────────────────────────
+# Stage 1 of the classifier: if any of these terms appear literally in the text,
+# boost that domain score by +0.45 so it wins over fuzzy embedding matches.
+# This prevents "leadership in full stack" mapping to "global delivery",
+# or "psychologist" mapping to "data science".
+
+DOMAIN_KEYWORD_MAP: dict[str, list[str]] = {
+    "full stack": [
+        "full stack", "fullstack", "frontend", "front-end", "backend", "back-end",
+        "web developer", "web development", "react developer", "node developer",
+        "javascript developer", "typescript", "react engineer", "mern", "mean",
+        "software engineer", "software developer", "tech lead", "engineering manager",
+        "principal engineer", "senior engineer", "web engineer",
+    ],
+    "ai & ml": [
+        "machine learning", "artificial intelligence", " ai ", "deep learning",
+        "ml engineer", "ai engineer", "data scientist", "nlp", "computer vision",
+        "llm", "generative ai", "neural network", "pytorch", "tensorflow", "mlops",
+    ],
+    "data analytics": [
+        "data analyst", "business analyst", "business intelligence", "bi developer",
+        "data engineer", "analytics engineer", "tableau", "power bi", "sql analyst",
+    ],
+    "cybersecurity": [
+        "cybersecurity", "cyber security", "security engineer", "penetration test",
+        "ethical hacking", "soc analyst", "infosec", "information security",
+    ],
+    "cloud & devops": [
+        "devops", "cloud engineer", "sre", "site reliability", "platform engineer",
+        "infrastructure engineer", "kubernetes", "aws engineer", "azure engineer",
+        "gcp engineer", "devsecops",
+    ],
+    "product management": [
+        "product manager", "product management", "product owner", "product lead",
+        "associate pm", "senior pm", "director of product", "head of product",
+    ],
+    "ui/ux": [
+        "ux designer", "ui designer", "product designer", "ux researcher",
+        "interaction designer", "design lead", "figma", "user experience",
+    ],
+    "fintech": [
+        "fintech", "financial technology", "banking technology", "payments engineer",
+        "quantitative", "quant developer", "risk engineer", "trading systems",
+    ],
+    "entrepreneurship": [
+        "entrepreneur", "startup founder", "co-founder", "startup", "venture",
+        "build a company", "own business", "start a business",
+    ],
+    "consulting": [
+        "management consultant", "strategy consultant", "business consultant",
+        "mckinsey", "bcg", "bain", "deloitte consultant", "advisory",
+    ],
+    "digital marketing": [
+        "digital marketing", "seo specialist", "performance marketing",
+        "growth hacker", "social media manager", "content marketer",
+    ],
+    "global delivery": [
+        "gcc", "global capability centre", "global delivery center",
+        "offshore delivery", "micro-gcc", "shared services center",
+        "global delivery leadership",
+    ],
+    "research": [
+        "researcher", "research scientist", "phd", "academic", "professor",
+        "psychologist", "psychology", "sociologist", "anthropologist",
+        "philosopher", "historian", "biologist", "chemist",
+        "clinical researcher", "behavioural scientist",
+    ],
+    "healthcare it": [
+        "doctor", "physician", "nurse", "therapist", "counselor", "psychiatrist",
+        "medical", "clinical", "health informatics", "hospital", "ehr", "emr",
+        "health tech", "medtech", "biotech",
+    ],
+    "edtech": [
+        "teacher", "professor", "educator", "tutor", "curriculum", "edtech",
+        "instructional designer", "e-learning", "learning experience",
+        "education technology", "training specialist",
+    ],
+    "legal tech": [
+        "lawyer", "attorney", "legal", "advocate", "barrister", "solicitor",
+        "legaltech", "compliance officer", "paralegal", "corporate law",
+    ],
+    "finance": [
+        "investment banker", "equity analyst", "portfolio manager", "cfa",
+        "financial analyst", "private equity", "venture capital", "hedge fund",
+        "chartered accountant", "ca ", "finance manager",
+    ],
+    "embedded & iot": [
+        "embedded systems", "iot engineer", "firmware", "rtos", "microcontroller",
+        "hardware engineer", "fpga", "embedded software",
+    ],
+    "gaming": [
+        "game developer", "game designer", "unity developer", "unreal engineer",
+        "game engine", "vr developer", "ar developer", "3d artist",
+    ],
+    "supply chain": [
+        "supply chain", "logistics", "procurement", "operations manager",
+        "warehouse", "inventory", "erp consultant", "scm",
+    ],
+    "content": [
+        "content creator", "youtuber", "blogger", "influencer", "copywriter",
+        "content writer", "journalist", "writer", "creator economy",
+    ],
+    "sustainability": [
+        "sustainability", "esg", "climate", "green energy", "carbon",
+        "environmental", "net zero", "renewable energy",
+    ],
+    "hr technology": [
+        "hr manager", "people manager", "talent acquisition", "recruiter",
+        "hrbp", "hr business partner", "people analytics", "chro",
+    ],
+}
+
 
 def classify_domain(text: str, top_k: int = 3) -> list[tuple[str, float]]:
     """
-    Classify any free-text career goal/role into our domain taxonomy
-    using cosine similarity in embedding space.
-    Works for ANY input — not limited to pre-defined keywords.
-    Returns top_k (domain, similarity_score) pairs.
+    Two-stage domain classifier:
+
+    Stage 1 — Keyword scan (literal):
+      Checks if any domain's explicit keywords appear in the text.
+      If found, boosts that domain's score by +0.45 so it wins cleanly
+      over fuzzy embedding similarity. This ensures 'leadership in full stack'
+      → full stack, not global delivery; 'psychologist' → research, not data science.
+
+    Stage 2 — Embedding cosine similarity (fallback):
+      For any domain not matched by keywords, compute cosine similarity
+      in 384-dim embedding space. Still works for novel inputs.
+
+    Returns top_k (domain, score) pairs sorted descending.
     """
+    text_lower = f" {text.lower()} "   # pad for whole-word boundary matching
+
     model = get_model()
     text_vec = model.encode(text).tolist()
     domain_vecs = _get_domain_embeddings()
 
-    scores = [
-        (domain, _cosine(text_vec, vec))
+    # Base cosine scores
+    scores: dict[str, float] = {
+        domain: _cosine(text_vec, vec)
         for domain, vec in domain_vecs.items()
-    ]
-    scores.sort(key=lambda x: x[1], reverse=True)
-    return scores[:top_k]
+    }
+
+    # Stage 1: keyword boost
+    for domain, keywords in DOMAIN_KEYWORD_MAP.items():
+        for kw in keywords:
+            if kw in text_lower:
+                scores[domain] = min(1.0, scores.get(domain, 0.5) + 0.45)
+                break   # one match per domain is enough
+
+    # Stage 2: penalty for domains clearly irrelevant to technical profiles
+    # "global delivery" should not win unless GCC/offshore is explicitly mentioned
+    if "gcc" not in text_lower and "global delivery" not in text_lower and \
+       "offshore" not in text_lower and "micro-gcc" not in text_lower:
+        scores["global delivery"] = scores.get("global delivery", 0) - 0.2
+
+    ranked = sorted(scores.items(), key=lambda x: x[1], reverse=True)
+    return ranked[:top_k]
 
 
 def best_domain(profile_text: str) -> str:
