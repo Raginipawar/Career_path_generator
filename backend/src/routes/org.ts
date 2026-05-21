@@ -267,15 +267,26 @@ router.post('/upload', upload.single('employees'), async (req: Request, res: Res
   // Parse Excel
   const wb = XLSX.read(req.file.buffer, { type: 'buffer' });
   const ws = wb.Sheets[wb.SheetNames[0]];
-  const rows: any[] = XLSX.utils.sheet_to_json(ws);
+  const rawRows: any[] = XLSX.utils.sheet_to_json(ws);
 
-  if (!rows.length) { res.status(400).json({ error: 'Excel file is empty or unreadable' }); return; }
+  if (!rawRows.length) { res.status(400).json({ error: 'Excel file is empty or unreadable' }); return; }
+
+  // Normalise column names: trim whitespace, lowercase, replace spaces/hyphens with underscores
+  const rows: any[] = rawRows.map(row => {
+    const normalised: Record<string, any> = {};
+    for (const [key, val] of Object.entries(row)) {
+      const normKey = key.trim().toLowerCase().replace(/[\s\-]+/g, '_');
+      normalised[normKey] = val;
+    }
+    return normalised;
+  });
 
   const results = { created: 0, skipped: 0, errors: [] as string[] };
 
   for (const row of rows) {
-    const email = String(row.email ?? '').trim().toLowerCase();
-    const name  = String(row.full_name ?? row.name ?? '').trim();
+    // Accept common column name variants
+    const email = String(row.email ?? row.email_address ?? row.work_email ?? '').trim().toLowerCase();
+    const name  = String(row.full_name ?? row.name ?? row.employee_name ?? row.fullname ?? '').trim();
     if (!email || !name) { results.skipped++; continue; }
 
     try {
@@ -295,44 +306,45 @@ router.post('/upload', upload.single('employees'), async (req: Request, res: Res
       const existingProfile = await prisma.profile.findFirst({ where: { userId: user.id } });
       if (existingProfile) { results.skipped++; continue; }
 
-      // Build profile from Excel columns with safe defaults
-      const skillsRaw  = String(row.technical_skills ?? '');
-      const softRaw    = String(row.soft_skills ?? '');
-      const certsRaw   = String(row.certifications ?? '');
-      const domainsRaw = String(row.interest_domains ?? '');
+      // Build profile from Excel columns with safe defaults + common column name variants
+      const r = row; // already normalised
+      const csv = (v: any) => v ? String(v).split(',').map((s: string) => s.trim()).filter(Boolean) : [];
+      const num = (v: any, def: number) => { const n = Number(v); return isNaN(n) ? def : n; };
+      const str = (v: any, def = '') => v != null ? String(v).trim() : def;
+      const bool = (v: any) => ['true', '1', 'yes', 'y'].includes(String(v ?? '').toLowerCase());
 
       await prisma.profile.create({
         data: {
           userId:             user.id,
           fullName:           name,
-          age:                Number(row.age) || 25,
-          gender:             String(row.gender ?? ''),
-          locationCity:       String(row.location_city ?? ''),
-          locationState:      String(row.location_state ?? ''),
-          highestDegree:      String(row.highest_degree ?? ''),
-          fieldOfStudy:       String(row.field_of_study ?? ''),
-          institutionTier:    String(row.institution_tier ?? 'Tier 2'),
-          currentRole:        String(row.current_role ?? ''),
-          currentIndustry:    String(row.current_industry ?? ''),
-          yearsOfExperience:  Number(row.years_experience) || 0,
-          employmentStatus:   String(row.employment_status ?? 'Employed Full-Time'),
-          currentSalaryLpa:   Number(row.current_salary_lpa) || 0,
-          technicalSkills:    skillsRaw  ? skillsRaw.split(',').map((s: string) => s.trim()).filter(Boolean)  : [],
-          softSkills:         softRaw    ? softRaw.split(',').map((s: string) => s.trim()).filter(Boolean)    : [],
-          certifications:     certsRaw   ? certsRaw.split(',').map((s: string) => s.trim()).filter(Boolean)   : [],
-          interestDomains:    domainsRaw ? domainsRaw.split(',').map((s: string) => s.trim()).filter(Boolean) : [],
-          careerGoal:         String(row.career_goal ?? ''),
-          preferredWorkStyle: String(row.preferred_work_style ?? 'Hybrid'),
-          willingToRelocate:  String(row.willing_to_relocate ?? 'false').toLowerCase() === 'true',
-          targetTimelineYears: Number(row.target_timeline_years) || 2,
-          lifeStage:          String(row.life_stage ?? 'Early Career'),
-          burnoutLevel:       Number(row.burnout_level) || 3,
-          stressTolerance:    Number(row.stress_tolerance) || 5,
-          hasDependents:      String(row.has_dependents ?? 'false').toLowerCase() === 'true',
-          recentLifeEvent:    String(row.recent_life_event ?? 'None'),
-          workLifePriority:   String(row.work_life_priority ?? 'Career Growth'),
-          leadershipScore:    Number(row.leadership_score) || 5,
-          alignmentCategory:  String(row.alignment_category ?? 'Moderate'),
+          age:                num(r.age, 25),
+          gender:             str(r.gender),
+          locationCity:       str(r.location_city ?? r.city),
+          locationState:      str(r.location_state ?? r.state),
+          highestDegree:      str(r.highest_degree ?? r.degree, 'B.Tech'),
+          fieldOfStudy:       str(r.field_of_study ?? r.field, 'Engineering'),
+          institutionTier:    str(r.institution_tier ?? r.tier, 'Tier 2'),
+          currentRole:        str(r.current_role ?? r.role ?? r.designation, 'Professional'),
+          currentIndustry:    str(r.current_industry ?? r.industry, 'Technology'),
+          yearsOfExperience:  num(r.years_experience ?? r.years_of_experience ?? r.experience, 0),
+          employmentStatus:   str(r.employment_status ?? r.status, 'Employed Full-Time'),
+          currentSalaryLpa:   num(r.current_salary_lpa ?? r.salary_lpa ?? r.salary, 0),
+          technicalSkills:    csv(r.technical_skills ?? r.skills ?? r.tech_skills),
+          softSkills:         csv(r.soft_skills),
+          certifications:     csv(r.certifications ?? r.certs),
+          interestDomains:    csv(r.interest_domains ?? r.domains ?? r.interests),
+          careerGoal:         str(r.career_goal ?? r.goal, 'Career growth in my field'),
+          preferredWorkStyle: str(r.preferred_work_style ?? r.work_style, 'Hybrid'),
+          willingToRelocate:  bool(r.willing_to_relocate ?? r.relocate),
+          targetTimelineYears: num(r.target_timeline_years ?? r.timeline_years ?? r.timeline, 2),
+          lifeStage:          str(r.life_stage, 'Early Career'),
+          burnoutLevel:       num(r.burnout_level ?? r.burnout, 3),
+          stressTolerance:    num(r.stress_tolerance ?? r.stress, 5),
+          hasDependents:      bool(r.has_dependents ?? r.dependents),
+          recentLifeEvent:    str(r.recent_life_event ?? r.life_event, 'None'),
+          workLifePriority:   str(r.work_life_priority ?? r.priority, 'Career Growth'),
+          leadershipScore:    num(r.leadership_score ?? r.leadership, 5),
+          alignmentCategory:  str(r.alignment_category ?? r.alignment, 'Moderate'),
         },
       });
 
@@ -343,7 +355,12 @@ router.post('/upload', upload.single('employees'), async (req: Request, res: Res
   }
 
   // Respond immediately — don't make admin wait for roadmap generation
-  res.json({ ...results, total: rows.length, roadmapsQueued: 'Generating in background...' });
+  res.json({
+    ...results,
+    total: rows.length,
+    errorDetails: results.errors.slice(0, 5), // first 5 actual error messages for debugging
+    roadmapsQueued: results.created > 0 ? 'Generating in background...' : 'No new employees created',
+  });
 
   // Background: auto-generate roadmap for every employee who has a career_goal
   setImmediate(async () => {

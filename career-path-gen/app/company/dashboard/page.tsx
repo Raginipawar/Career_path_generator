@@ -76,8 +76,19 @@ export default function CompanyDashboard() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
-      toast.success(`Uploaded: ${data.created} employees added, ${data.skipped} skipped`);
-      if (data.errors?.length) toast.error(`${data.errors.length} rows had errors`);
+      if (data.created > 0) {
+        toast.success(`${data.created} employee${data.created !== 1 ? 's' : ''} added. Roadmaps generating in background.`);
+      }
+      if (data.skipped > 0) {
+        toast(`${data.skipped} rows skipped (already exist)`, { icon: 'ℹ️' });
+      }
+      if (data.errors?.length) {
+        const firstErr = data.errorDetails?.[0] ?? data.errors[0];
+        toast.error(`${data.errors.length} rows failed. First error: ${firstErr}`, { duration: 8000 });
+      }
+      if (data.created === 0 && data.errors?.length === 0 && data.skipped > 0) {
+        toast('All employees already exist — nothing new to add.', { icon: 'ℹ️' });
+      }
       fetchAll(token);
     } catch (err: any) {
       toast.error(err.message);
