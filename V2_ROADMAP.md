@@ -139,6 +139,244 @@
 
 ---
 
+---
+
+## Priority 6 — Dual Product Mode (Personal vs Company)
+
+### 12. Personal Mode (B2C)
+All V1 features + all V2 features listed above. The current product is already this.
+No changes needed to the personal flow — it stays exactly as is.
+
+---
+
+### 13. Company Mode (B2B) — Employee Dashboard
+
+**What:** A company admin logs in and sees a dashboard of all their employees' career profiles and generated roadmaps. They can select any employee, set a target role/goal for them, and generate a roadmap — useful for performance reviews, succession planning, and internal mobility decisions.
+
+**How to build:**
+
+**Auth layer:**
+- Add `role` field to `users` table: `'personal' | 'company_admin' | 'company_employee'`
+- Add `organisations` table: `{ id, name, adminUserId, createdAt }`
+- Add `orgId` to `users` table — employees belong to an org
+- Company admin sees all profiles/roadmaps within their org; employees only see their own
+
+**Backend endpoints:**
+```
+POST /api/org/register         → create org + admin account
+POST /api/org/invite           → send invite link to employee email
+GET  /api/org/employees        → list all employees with their latest roadmap status
+POST /api/org/roadmap/generate → { employeeId, careerGoal } → generate roadmap for an employee
+GET  /api/org/dashboard        → aggregate stats: alignment distribution, avg probability, top skill gaps
+```
+
+**Frontend — Company Dashboard:**
+- Separate login flow for company admins
+- Employee list table: name, current role, alignment category, last roadmap date, success probability
+- Click employee → see their full roadmap + audit report
+- "Generate New Roadmap" button: admin picks target role/goal → generates fresh roadmap
+- Top-level stats: total employees analysed, alignment breakdown chart, most common skill gaps across the org
+
+---
+
+### 14. Company Mode — Bulk Employee Upload via Excel
+
+**What:** Company uploads a filled Excel template containing employee data. System processes all rows, generates roadmaps for each, and populates the employee dashboard automatically.
+
+**Template format (strict — company downloads this template):**
+```
+full_name | email | current_role | industry | years_experience | technical_skills (comma-sep) | 
+soft_skills | interest_domains | career_goal | life_stage | burnout_level | leadership_score
+```
+
+**How to build:**
+- Frontend: Upload button on company dashboard → accepts `.xlsx` / `.csv` only
+- Backend: `POST /api/org/bulk-upload` — uses `xlsx` npm package to parse rows
+- Validate each row against ProfileSchema — skip invalid rows, report errors
+- Queue roadmap generation: process employees in batches of 5 (avoid Groq rate limits)
+- Show progress bar: "Processing 3 of 47 employees..."
+- Once complete: all employees appear in the dashboard
+
+**Key rule:** Company must use the exact downloaded template. No free-form Excel accepted. This prevents column mismatch errors.
+
+**Resume column:** Optional. If company includes a `resume_url` column (cloud link), the VLM auto-fills missing fields from the resume. If not present, only Excel data is used.
+
+---
+
+### 15. Company Mode — Quick Analysis (Hiring & Promotion)
+
+**What:** A single-entry point where the company evaluates one person without adding them to the employee roster. Two use cases:
+1. **Hiring:** Candidate's profile → target role → "Are they ready? What's the gap?"
+2. **Promotion:** Existing employee → promoted role → "Should we promote them? What do they still need?"
+
+**How to build:**
+- Separate page: `/company/quick-analysis`
+- Simple form: paste profile info OR upload resume → set target role → generate
+- No employee record created — this is a one-off evaluation
+- Output: roadmap + audit + skill gap + readiness % + recommendation summary ("Ready / 6 months away / Not recommended")
+- Can be exported as PDF for HR files
+
+**Why this matters:** Companies often want a quick objective data point — not a full dashboard entry. This reduces friction for the most common enterprise use case.
+
+---
+
+## Priority 7 — AI-Suggested Career Transitions
+
+### 16. "Suggest My Path" Mode (No Goal Required)
+
+**Current problem:** The profile wizard assumes the user already knows their career goal. Most people don't — they want the AI to tell them what they should aim for.
+
+**What:** After filling the profile, user sees two options:
+- **"I know my goal"** → current flow (user types career goal, generates roadmap)
+- **"Suggest paths for me"** → AI analyses the profile and returns 3 ranked career path options
+
+**How the suggestion works:**
+- Backend calls RAG with a modified prompt: "Based on this profile, suggest the top 3 most realistic and fulfilling career transitions. Return as JSON: `[{ path_name, target_role, reasoning, estimated_probability, timeline_months }]`"
+- Frontend shows 3 path cards, each with: target role, probability, timeline, 2-line reasoning
+- User clicks one → that becomes their career goal → full roadmap generated
+
+**How to build:**
+- New endpoint: `POST /api/roadmap/suggest` → `{ profileId }` → returns 3 path suggestions
+- New RAG prompt: `SUGGEST_SYSTEM_PROMPT` — similar to roadmap prompt but asks for 3 options, not one full roadmap
+- Frontend: fork after Step 6 of profile wizard — show suggestion cards before roadmap generation
+
+**Why it matters:** Removes the biggest assumption in the current product. Opens the tool to people who are lost, not just people who are already decided.
+
+---
+
+## Priority 8 — Roadmap Experience Overhaul
+
+### 17. Full-Page Interactive Roadmap
+
+**Current problem:** The roadmap is rendered inside a card on a page. Nodes are small. It feels like a demo widget, not a centrepiece feature.
+
+**What:** The roadmap becomes a full-viewport experience — the entire screen is the roadmap canvas. Navigation happens via a sidebar or top bar, not by scrolling away from the roadmap.
+
+**How to build:**
+- Change the roadmap page layout: `height: 100vh`, no page padding, React Flow fills the screen
+- Sidebar panel (collapsible) shows: current/target role header, probability, timeline, explanation text, emotional forecast, alternative paths
+- React Flow background: subtle dot grid (already supported)
+- Nodes: wider, taller — show role title + salary + timeline visible without clicking
+- Zoom controls: prominent bottom-right corner
+- Mini-map: bottom-left corner, always visible
+- Animated edges: flowing arrows (React Flow supports animated edge prop)
+
+---
+
+### 18. Node Flashcard — Deep Dive on Click
+
+**What:** When the user clicks any node (career milestone), a slide-in drawer opens from the right showing everything they need to actually execute that transition step.
+
+**Flashcard content per node:**
+```
+Role: Senior ML Engineer
+Timeline: Months 7–18
+Salary: ₹22–28 LPA
+Risk Level: Medium
+
+WHAT TO DO IN THIS PHASE
+• Join a team or project using ML in production
+• Build 2 end-to-end ML projects (not toy datasets)
+• Get comfortable with model deployment (Docker, FastAPI)
+
+SKILLS TO BUILD
+• Missing: MLflow, Kubernetes, system design
+• You already have: Python, SQL, basic ML
+
+RECOMMENDED COURSES
+• "MLOps Specialization" — Coursera (Andrew Ng) — 3 months
+• "Designing ML Systems" — Book by Chip Huyen
+• "Full Stack Deep Learning" — free online — 6 weeks
+
+MONTHLY FOCUS BREAKDOWN
+• Month 7–9: Complete MLOps course, build project 1
+• Month 10–12: Deploy project to production, start system design prep
+• Month 13–15: Apply for ML Engineer roles, negotiate offers
+• Month 16–18: Transition period — notice, onboarding
+
+RISK FACTORS & MITIGATION
+• Risk: No prior deployment experience → Mitigate: side project on HuggingFace
+• Risk: Salary dip during transition → Mitigate: negotiate signing bonus
+```
+
+**How to build:**
+- Expand the LLM roadmap prompt to return richer `description` per node — currently it's a single string, change to structured object: `{ what_to_do[], skills_to_build[], courses[], monthly_plan[], risk_mitigation[] }`
+- Frontend: React Flow `onNodeClick` handler → opens a Drawer component (Tailwind slide-in panel)
+- Course data: LLM generates course names + platforms + durations — no third-party API needed
+- Monthly plan: already partially in the emotional forecast — restructure into per-node format
+
+---
+
+## Priority 9 — GitHub Profile Import (Optional)
+
+### 19. GitHub Username Import
+
+**What:** On the profile wizard (Step 4 — Skills), an optional field where the user can enter their GitHub username. If they do, the system fetches their public profile and auto-fills technical skills and interest domains. If they skip it, nothing changes — fully optional.
+
+**Why GitHub and not LinkedIn:**
+- GitHub REST API is completely free, no API key needed for public profiles
+- No Claude API cost involved — pure data extraction from structured JSON responses
+- LinkedIn import requires either paid API access or Claude vision (costs money) — dropped for now
+
+**How it works (zero cost):**
+- User types GitHub username in an optional input on Step 4
+- Frontend calls backend: `POST /api/profile/import-github` → `{ username }`
+- Backend calls two free GitHub endpoints:
+  - `https://api.github.com/users/{username}` → bio, account age, public repos count, followers
+  - `https://api.github.com/users/{username}/repos?sort=stars&per_page=10` → top 10 repos by stars
+- From repos: extract `language` field from each → deduplicated list of programming languages → maps to `technicalSkills`
+- From repo topics: extract `topics[]` → maps to `interestDomains` where relevant (e.g. "machine-learning" → "AI & ML")
+- Account age (years since `created_at`) → rough experience indicator shown to user as a suggestion, not auto-filled
+- Follower count + star count across repos → rough proxy for `leadershipScore` suggestion
+
+**What gets pre-filled vs suggested:**
+- **Auto pre-filled:** `technicalSkills` (from repo languages) — user can remove any
+- **Suggested (user confirms):** `interestDomains`, rough `yearsOfExperience`, `leadershipScore` nudge
+- **Not touched:** Everything else — personal info, education, life context, career goal
+
+**Why this is better than self-reporting:**
+- Developers consistently under-report skills on forms but their repos don't lie
+- If someone has 20 Python repos but says they don't know Python, GitHub catches it
+- Star count across repos is a real signal of technical credibility
+
+**UX flow:**
+```
+Step 4 (Skills) → Optional field: "GitHub username (optional)"
+→ User types "nikhil191206" → clicks "Import"
+→ Loading spinner (1-2 seconds)
+→ Skills section pre-fills: Python, JavaScript, TypeScript, React...
+→ Toast: "Imported 7 skills from your GitHub. Review and edit below."
+→ User can remove any pre-filled skill or add more manually
+```
+
+**New endpoint:**
+```
+POST /api/profile/import-github
+Input:  { username: string }
+Output: { technicalSkills: string[], suggestedDomains: string[], accountAgeYears: number, error?: string }
+```
+No auth required for this endpoint — it's just a public data fetch proxy.
+
+---
+
+## Updated Stack Additions for V2
+
+| Feature | New Tech |
+|---------|----------|
+| Resume VLM | Claude claude-haiku-4-5 (vision), multer (file upload) |
+| Profile Chat | Claude claude-sonnet-4-6, Redis conversation history |
+| PDF Export | html2canvas + jsPDF |
+| Scheduled scraping | node-cron or Vercel Cron Jobs |
+| Deterministic scoring | Pure TypeScript, no new deps |
+| Company mode auth | org + role fields on users table |
+| Excel bulk upload | `xlsx` npm package |
+| GitHub import (optional) | GitHub REST API (no auth needed, zero cost) |
+| Full-page roadmap | React Flow config changes only, no new deps |
+| Node flashcard | Tailwind drawer component + expanded LLM prompt |
+| Path suggestion | New RAG prompt + `/api/roadmap/suggest` endpoint |
+
+---
+
 ## Technical Debt to Fix
 
 | Issue | Fix |
@@ -150,7 +388,7 @@
 | Audit radar shows wrong data | V2 — replace with skill gap radar |
 | `roadmap.ts` keeps reverting | Permanent fix: add to CLAUDE.md |
 
----
+--- 
 
 ## Stack Additions for V2
 
@@ -167,9 +405,17 @@
 ## What Makes This Non-MVP
 
 The V1 is a working demo. V2 becomes a real product when:
-1. Users don't have to type their entire profile (Resume VLM)
-2. The output is interactive, not just a static page (Chat)
-3. The probability is trustworthy, not inflated (Calibration)
-4. Users can track their progress over time (Progress Tracking)
-5. The audit is actually independent, not circular (External Validation)
-6. Users understand where they stand vs others (Cohort Benchmarking)
+
+**For individual users:**
+1. Users don't have to type their entire profile (Resume VLM + optional GitHub import)
+2. Users who don't know their goal get guided (AI-suggested paths)
+3. The output is interactive, not just a static page (Chat + full-page roadmap)
+4. Each roadmap step tells you exactly what to do, what to study, what to build (Node flashcard)
+5. The probability is trustworthy, not inflated (Calibration + external validation)
+6. Users can track their progress over time (Progress Tracking)
+7. Users understand where they stand vs others (Cohort Benchmarking)
+
+**For companies:**
+8. HR can analyse entire teams in one upload (Excel bulk upload)
+9. Managers get an objective data point for promotion decisions (Quick analysis)
+10. Leadership sees org-wide skill gaps and alignment trends (Company dashboard)

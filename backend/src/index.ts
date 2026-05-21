@@ -10,6 +10,12 @@ import { requestLogger, zodErrorHandler, globalErrorHandler } from './middleware
 import authRouter from './routes/auth';
 import profileRouter from './routes/profile';
 import roadmapRouter from './routes/roadmap';
+import resumeRouter from './routes/resume';
+import chatRouter from './routes/chat';
+import orgRouter from './routes/org';
+import benchmarksRouter from './routes/benchmarks';
+import trendsRouter from './routes/trends';
+import githubRouter from './routes/github';
 import { clustersRouter, analyticsRouter } from './routes/clusters';
 import { checkRagHealth } from './lib/ragClient';
 import { getRedis } from './lib/redis';
@@ -102,7 +108,13 @@ app.get('/health', async (req, res) => {
 // ─── API Routes ───────────────────────────────────────────────────────────────
 app.use('/api/auth', authLimiter, authRouter);
 app.use('/api/profile', profileRouter);
+app.use('/api/profile/parse-resume', resumeRouter);
 app.use('/api/roadmap', roadmapRouter);
+app.use('/api/chat', chatRouter);
+app.use('/api/org', orgRouter);
+app.use('/api/benchmarks', benchmarksRouter);
+app.use('/api/trends', trendsRouter);
+app.use('/api/github', githubRouter);
 app.use('/api/clusters', clustersRouter);
 app.use('/api/analytics', analyticsRouter);
 

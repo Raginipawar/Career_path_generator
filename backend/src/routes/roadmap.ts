@@ -3,8 +3,9 @@ import { Router, Request, Response } from 'express';
 import { prisma } from '../lib/prisma';
 import { requireAuth } from '../middleware/auth';
 import { RoadmapRequestSchema } from '../schemas';
-import { cacheGet, cacheSet, profileCacheKey } from '../lib/redis';
+import { cacheGet, cacheSet, cacheDel, profileCacheKey } from '../lib/redis';
 import { callRagGenerate, prismaToRagProfile, AuditScore } from '../lib/ragClient';
+import { getCollaborativeRecommendations, findSimilarSuccessfulTransitions } from '../lib/collaborativeFilter';
 
 const router = Router();
 router.use(requireAuth);
@@ -123,6 +124,107 @@ router.get('/:id', async (req: Request, res: Response) => {
   }
 
   res.json(roadmap);
+});
+
+// ─── POST /api/roadmap/suggest — Neural career path suggestions ───────────────
+router.post('/suggest', async (req: Request, res: Response) => {
+  const { profileId } = req.body as { profileId: string };
+  const userId = req.user!.userId;
+
+  if (!profileId) { res.status(400).json({ error: 'profileId required' }); return; }
+
+  const profile = await prisma.profile.findFirst({ where: { id: profileId, userId } });
+  if (!profile) { res.status(404).json({ error: 'Profile not found' }); return; }
+
+  const RAG_URL = process.env.RAG_SERVICE_URL ?? 'http://localhost:8000';
+
+  // Run RAG neural suggestions + collaborative filter in parallel
+  const [ragResult, cfResult] = await Promise.allSettled([
+    fetch(`${RAG_URL}/rag/suggest`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ profile: prismaToRagProfile(profile), top_k: 5 }),
+      signal: AbortSignal.timeout(30000),
+    }).then(r => r.ok ? r.json() as Promise<{ suggestions: unknown[] }> : null),
+    getCollaborativeRecommendations(
+      userId,
+      profile.interestDomains[0] ?? '',
+      profile.technicalSkills,
+      3,
+    ),
+  ]);
+
+  const suggestions = ragResult.status === 'fulfilled' && ragResult.value
+    ? (ragResult.value as any).suggestions
+    : [];
+
+  const cfRecommendations = cfResult.status === 'fulfilled' ? cfResult.value : [];
+
+  res.json({ suggestions, collaborativeInsights: cfRecommendations });
+});
+
+// ─── GET /api/roadmap/similar/:profileId — similar successful transitions ─────
+router.get('/similar/:profileId', async (req: Request, res: Response) => {
+  const { profileId } = req.params;
+  const userId = req.user!.userId;
+
+  const profile = await prisma.profile.findFirst({ where: { id: profileId, userId } });
+  if (!profile) { res.status(404).json({ error: 'Profile not found' }); return; }
+
+  const domain = profile.interestDomains[0] ?? '';
+  const similar = await findSimilarSuccessfulTransitions(
+    userId, domain, profile.technicalSkills, 0.6, 5
+  );
+
+  res.json({ similar });
+});
+
+// ─── PATCH /api/roadmap/:id/progress — toggle a completed node ───────────────
+router.patch('/:id/progress', async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { nodeId } = req.body as { nodeId: string };
+  const userId = req.user!.userId;
+
+  if (!nodeId) { res.status(400).json({ error: 'nodeId required' }); return; }
+
+  const roadmap = await prisma.roadmap.findFirst({ where: { id, userId } });
+  if (!roadmap) { res.status(404).json({ error: 'Roadmap not found' }); return; }
+
+  // Validate nodeId is a real node in this roadmap
+  const validNodeIds: string[] = ((roadmap.roadmapData as any)?.nodes ?? []).map((n: any) => n.node_id as string);
+  if (validNodeIds.length > 0 && !validNodeIds.includes(nodeId)) {
+    res.status(400).json({ error: 'Invalid node ID for this roadmap' });
+    return;
+  }
+
+  const current = roadmap.completedNodes ?? [];
+  const updated = current.includes(nodeId)
+    ? current.filter((n: string) => n !== nodeId)   // uncheck
+    : [...current, nodeId];               // check
+
+  await prisma.roadmap.update({ where: { id }, data: { completedNodes: updated } });
+  res.json({ completedNodes: updated });
+});
+
+// ─── DELETE /api/roadmap/:id ─────────────────────────────────────────────────
+router.delete('/:id', async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const userId = req.user!.userId;
+
+  const roadmap = await prisma.roadmap.findFirst({ where: { id, userId } });
+  if (!roadmap) {
+    res.status(404).json({ error: 'Roadmap not found or access denied' });
+    return;
+  }
+
+  await prisma.auditResult.deleteMany({ where: { roadmapId: id } });
+  await prisma.roadmap.delete({ where: { id } });
+
+  if (roadmap.profileId) {
+    await cacheDel(profileCacheKey(roadmap.profileId));
+  }
+
+  res.json({ deleted: true });
 });
 
 // ─── GET /api/roadmap/history/:userId ─────────────────────────────────────────

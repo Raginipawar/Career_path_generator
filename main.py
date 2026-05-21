@@ -1,4 +1,6 @@
 import time
+import os
+import json
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -14,6 +16,9 @@ from models import (
 from rag.embedder import get_model, get_collection, add_documents, get_doc_count
 from rag.retriever import retrieve_career_docs
 from rag.generator import generate_roadmap, generate_audit, is_groq_available, get_fallback_roadmap, get_fallback_audit
+from rag.suggester import suggest_career_paths
+from rag.knowledge_graph import build_career_graph, get_graph_stats
+from rag.neural_scorer import _get_domain_embeddings, _get_mlp
 from rag.cache import get_cached_response, set_cached_response, is_connected as redis_connected
 
 settings = get_settings()
@@ -29,15 +34,56 @@ async def lifespan(app: FastAPI):
     print("Starting RAG Service...")
     print("=" * 50)
 
-    # Preload embedding model (takes a few seconds)
+    # 1. Preload sentence-transformer (6-layer transformer, 384-dim)
     get_model()
 
-    # Initialize ChromaDB collection
+    # 2. Initialize ChromaDB collection
     get_collection()
+
+    # Auto-embed docs if collection is empty
+    if get_doc_count() == 0:
+        print("Collection is empty — auto-embedding career docs...")
+        data_dir = os.path.join(os.path.dirname(__file__), "data", "processed")
+        all_ids, all_texts, all_metas = [], [], []
+        for fname in sorted(os.listdir(data_dir)):
+            if not fname.endswith(".json"):
+                continue
+            try:
+                with open(os.path.join(data_dir, fname), "r", encoding="utf-8") as f:
+                    raw = json.load(f)
+                docs = raw if isinstance(raw, list) else raw.get("documents", [])
+                for doc in docs:
+                    if not all(k in doc for k in ("doc_id", "text", "metadata")):
+                        continue
+                    text = doc["text"]
+                    if isinstance(text, list):
+                        text = " ".join(str(t) for t in text)
+                    all_ids.append(doc["doc_id"])
+                    all_texts.append(str(text))
+                    all_metas.append(doc["metadata"])
+                print(f"  Loaded {len(docs)} docs from {fname}")
+            except Exception as e:
+                print(f"  Skipping {fname}: {e}")
+        if all_ids:
+            added = add_documents(all_ids, all_texts, all_metas)
+            print(f"Auto-embed complete. Added {added} docs. Total: {get_doc_count()}")
+
+    # 3. Build career knowledge graph from ChromaDB
+    graph = build_career_graph()
+    stats = get_graph_stats()
+    print(f"Knowledge graph: {stats['nodes']} roles, {stats['edges']} transitions")
+
+    # 4. Pre-compute domain embeddings (zero-shot classifier ready)
+    _get_domain_embeddings()
+    print("Domain classifier: ready (zero-shot, no training)")
+
+    # 5. Initialize MLP probability head
+    mlp = _get_mlp()
+    print(f"Probability MLP: {'loaded from checkpoint' if mlp else 'analytical init'}")
 
     print(f"Documents in collection: {get_doc_count()}")
     print(f"Redis connected: {redis_connected()}")
-    print("RAG Service ready.")
+    print("RAG Service ready — system is the brain, Groq is the voice.")
     print("=" * 50)
 
     yield
@@ -75,11 +121,12 @@ async def rag_generate(request: RagGenerateRequest):
     """
     Full RAG pipeline:
     1. Check Redis cache
-    2. Embed profile → query ChromaDB → retrieve top-K docs
-    3. Call Groq LLaMA 3 → generate roadmap
-    4. Call Groq LLaMA 3 → generate ethical audit
-    5. Cache result in Redis
-    6. Return structured response
+    2. Retrieve top-K career docs from ChromaDB
+    3. System builds roadmap from knowledge base (nodes, skills, timelines, salaries)
+    4. Groq writes ONE explanation paragraph (only LLM usage)
+    5. System computes all 14 PASSIONIT/PRUTL audit scores deterministically
+    6. Cache result in Redis
+    7. Return structured response
     """
     start_time = time.time()
     profile = request.profile
@@ -93,23 +140,27 @@ async def rag_generate(request: RagGenerateRequest):
         print(f"Returned cached response in {elapsed:.2f}s")
         return RagGenerateResponse(**cached)
 
-    # ── Step 2: Retrieve relevant docs ──
-    retrieved_docs = retrieve_career_docs(profile, top_k=request.top_k)
-
-    if not retrieved_docs:
-        raise HTTPException(
-            status_code=500,
-            detail="No career documents found in knowledge base. Ensure ChromaDB is populated."
-        )
-
+    # ── Step 2: Retrieve relevant docs (used to enrich roadmap skills from KB) ──
+    retrieved_docs    = retrieve_career_docs(profile, top_k=request.top_k)
     retrieved_doc_ids = [d["doc_id"] for d in retrieved_docs]
+    # ChromaDB empty is not fatal — roadmap_builder uses taxonomy as fallback
 
-    # ── Step 3: Generate roadmap ──
-    roadmap_json = generate_roadmap(profile_dict, retrieved_docs)
+    # ── Step 3: System builds roadmap, Groq writes explanation only ──
+    roadmap_json = generate_roadmap(
+        profile_dict, retrieved_docs,
+        prob_min=request.probability_min,
+        prob_max=request.probability_max,
+    )
 
     if not roadmap_json:
-        print("WARNING: Groq failed. Using fallback demo response.")
-        roadmap_json = get_fallback_roadmap()
+        # Even if explanation Groq call fails, system roadmap should have been built
+        # This should only happen on catastrophic failure
+        from rag.roadmap_builder import build_roadmap_from_data
+        roadmap_json = build_roadmap_from_data(
+            profile_dict, retrieved_docs,
+            request.probability_min, request.probability_max
+        )
+        roadmap_json["explanation"] = "System-generated roadmap based on your profile and knowledge base."
         audit_scores_raw = get_fallback_audit()
         # Skip the audit generation call since we have fallback
         response_dict = _build_response(
@@ -122,6 +173,7 @@ async def rag_generate(request: RagGenerateRequest):
         return RagGenerateResponse(**response_dict)
 
     # ── Step 4: Generate ethical audit ──
+    # Audit is now fully deterministic — no Groq call inside generate_audit
     audit_scores_raw = generate_audit(profile_dict, roadmap_json)
 
     # ── Step 5: Build structured response ──
@@ -251,6 +303,25 @@ async def rag_embed(request: EmbedRequest):
 
 
 # ──────────────────────────────────────────────
+# POST /rag/suggest — Suggest 3 career paths
+# ──────────────────────────────────────────────
+
+@app.post("/rag/suggest")
+async def rag_suggest(request: RagGenerateRequest):
+    """
+    Suggest 3 career paths using embedding similarity + skill overlap + market demand.
+    No LLM — fully computed by the system.
+    """
+    profile_dict = request.profile.model_dump()
+    suggestions  = suggest_career_paths(
+        profile_dict,
+        prob_min=request.probability_min,
+        prob_max=request.probability_max,
+    )
+    return {"suggestions": suggestions}
+
+
+# ──────────────────────────────────────────────
 # GET /rag/health — Health check
 # ──────────────────────────────────────────────
 
@@ -268,6 +339,7 @@ async def rag_health():
     groq_status = "ok" if is_groq_available() else "error"
     redis_status = "ok" if redis_connected() else "unavailable"
 
+    graph_stats = get_graph_stats()
     return HealthResponse(
         status="ok" if chroma_status == "ok" else "degraded",
         chromadb=chroma_status,
@@ -275,6 +347,8 @@ async def rag_health():
         redis=redis_status,
         embedding_model=settings.embedding_model,
         doc_count=get_doc_count(),
+        graph_nodes=graph_stats["nodes"],
+        graph_edges=graph_stats["edges"],
     )
 
 

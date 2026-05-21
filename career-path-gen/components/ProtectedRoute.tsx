@@ -10,22 +10,30 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
   const pathname = usePathname();
 
   useEffect(() => {
-    // 1. Check Auth Token
-    if (!token) {
-      router.push("/auth/login");
+    // If there's an active company session but no personal token, redirect to company dashboard
+    const companyToken = typeof window !== 'undefined'
+      ? localStorage.getItem('company-token')
+      : null;
+
+    if (!token && companyToken) {
+      router.push('/company/dashboard');
       return;
     }
 
-    // 2. Check Generation state constraint (cannot access /roadmap or /reports without roadmapResponse)
-    const requiresRoadmap = pathname === "/roadmap" || pathname === "/reports";
+    // No auth at all
+    if (!token) {
+      router.push('/auth/login');
+      return;
+    }
+
+    // Personal routes that require a generated roadmap
+    const requiresRoadmap = pathname === '/roadmap' || pathname === '/reports';
     if (requiresRoadmap && !roadmapResponse) {
-      router.push("/profile");
+      router.push('/profile');
       return;
     }
   }, [token, roadmapResponse, pathname, router]);
 
-  // If rendering but will redirect, we can just return children anyway,
-  // the useEffect redirect will flash quickly, or we can return null if no token.
   if (!token) return null;
 
   return <>{children}</>;

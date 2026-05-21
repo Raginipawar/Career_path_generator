@@ -100,8 +100,44 @@ export interface AuditScore {
   flagged_biases: string[];
 }
 
+// ─── Resume Parsing ───────────────────────────────────────────────────────────
+export interface ResumeExtracted {
+  fullName?: string;
+  locationCity?: string;
+  locationState?: string;
+  highestDegree?: string;
+  fieldOfStudy?: string;
+  institutionTier?: 'Tier 1' | 'Tier 2' | 'Tier 3';
+  currentRole?: string;
+  currentIndustry?: string;
+  yearsOfExperience?: number;
+  employmentStatus?: string;
+  technicalSkills?: string[];
+  softSkills?: string[];
+  certifications?: string[];
+  careerGoal?: string;
+}
+
+export interface ResumeParseResponse {
+  extracted: ResumeExtracted;
+  success: boolean;
+}
+
+// ─── Chat ─────────────────────────────────────────────────────────────────────
+export interface ChatMessage {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
+export interface ChatResponse {
+  reply: string;
+  history: ChatMessage[];
+}
+
+// ─── Roadmap ──────────────────────────────────────────────────────────────────
 export interface RoadmapResponse {
   roadmapId: string;
+  completedNodes?: string[];
   roadmap_nodes: RoadmapNode[];
   roadmap_edges: RoadmapEdge[];
   current_role: string;

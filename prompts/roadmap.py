@@ -77,7 +77,7 @@ PROBABILITY CALIBRATION (be realistic, not encouraging):
 - ONLY output JSON, nothing else"""
 
 
-def build_roadmap_prompt(profile_dict: dict, retrieved_docs: list[dict]) -> str:
+def build_roadmap_prompt(profile_dict: dict, retrieved_docs: list[dict], prob_min: int = 5, prob_max: int = 88) -> str:
     """
     Build the user message that combines profile + retrieved docs
     for roadmap generation.
@@ -124,6 +124,12 @@ LIFE STAGE FACTORS:
 
 RELEVANT CAREER INTELLIGENCE:
 {context_block}
+
+PROBABILITY CONSTRAINT (computed from actual skill/domain analysis — you MUST respect this):
+The success_probability field MUST be between {prob_min} and {prob_max}.
+Do NOT exceed this range. It is based on: skill overlap with target role, domain distance, education alignment, and experience relevance.
+If the user has no technical skills for a technical role, probability MUST be below 30.
+If the user is switching from a completely unrelated field, probability MUST be below 35.
 
 Based on the user profile and career intelligence above, generate a personalized career transition roadmap. Remember to output ONLY valid JSON."""
 

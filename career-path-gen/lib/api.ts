@@ -1,4 +1,4 @@
-import { UserProfile, AuthResponse, RoadmapResponse } from '@/types';
+import { UserProfile, AuthResponse, RoadmapResponse, ResumeParseResponse, ChatResponse } from '@/types';
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
@@ -42,12 +42,74 @@ export const api = {
   generateRoadmap: (profileId: string) =>
     request<RoadmapResponse>('/api/roadmap/generate', { method: 'POST', body: JSON.stringify({ profileId }) }),
 
+  parseResume: (file: File) => {
+    const token = getToken();
+    const form = new FormData();
+    form.append('resume', file);
+    return fetch(`${BASE_URL}/api/profile/parse-resume`, {
+      method: 'POST',
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      body: form,
+    }).then(async res => {
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: 'Upload failed' }));
+        throw new Error(err.error || `HTTP ${res.status}`);
+      }
+      return res.json() as Promise<ResumeParseResponse>;
+    });
+  },
+
+  sendChatMessage: (data: { message: string; profileId: string; roadmapId?: string }) =>
+    request<ChatResponse>('/api/chat', { method: 'POST', body: JSON.stringify(data) }),
+
+  clearChat: (profileId: string) =>
+    request<{ cleared: boolean }>(`/api/chat/clear?profileId=${profileId}`, { method: 'DELETE' }),
+
   getClusters: () =>
     request<any>('/api/clusters'),
+
+  getProfiles: () =>
+    request<{ profiles: any[]; count: number }>('/api/profile'),
+
+  renameProfile: (profileId: string, label: string) =>
+    request<{ id: string; label: string }>(`/api/profile/${profileId}/label`, {
+      method: 'PATCH',
+      body: JSON.stringify({ label }),
+    }),
+
+  generateRoadmapFromProfile: (profileId: string) =>
+    request<any>('/api/roadmap/generate', { method: 'POST', body: JSON.stringify({ profileId }) }),
+
+  importGithub: (username: string) =>
+    request<{ technicalSkills: string[]; suggestedDomains: string[]; accountAgeYears: number | null; leadershipHint: number; bio: string }>('/api/github/import', {
+      method: 'POST',
+      body: JSON.stringify({ username }),
+    }),
+
+  suggestPaths: (profileId: string) =>
+    request<{ suggestions: any[] }>('/api/roadmap/suggest', { method: 'POST', body: JSON.stringify({ profileId }) }),
+
+  toggleProgress: (roadmapId: string, nodeId: string) =>
+    request<{ completedNodes: string[] }>(`/api/roadmap/${roadmapId}/progress`, {
+      method: 'PATCH',
+      body: JSON.stringify({ nodeId }),
+    }),
 
   getHistory: (userId: string) =>
     request<RoadmapResponse[]>(`/api/roadmap/history/${userId}`),
 
   getAnalytics: () =>
     request<any>('/api/analytics/summary'),
+
+  getBenchmarks: (profileId: string) =>
+    request<any>(`/api/benchmarks/${profileId}`),
+
+  getDemandTrends: () =>
+    request<any>('/api/trends'),
+
+  deleteRoadmap: (roadmapId: string) =>
+    request<{ deleted: boolean }>(`/api/roadmap/${roadmapId}`, { method: 'DELETE' }),
+
+  deleteAllData: () =>
+    request<{ deleted: boolean; roadmapsDeleted: number }>('/api/auth/data', { method: 'DELETE' }),
 };

@@ -8,24 +8,45 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Organisation {
+  id        String   @id @default(uuid())
+  name      String
+  industry  String   @default("")
+  createdAt DateTime @default(now())
+
+  admin     User     @relation("OrgAdmin", fields: [adminId], references: [id])
+  adminId   String   @unique
+  employees User[]   @relation("OrgEmployees")
+
+  @@map("organisations")
+}
+
 model User {
   id        String   @id @default(uuid())
   name      String
   email     String   @unique
   password  String
+  role      String   @default("personal") // personal | company_admin | company_employee
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  // Company relations
+  adminOfOrg   Organisation? @relation("OrgAdmin")
+  organisation Organisation? @relation("OrgEmployees", fields: [orgId], references: [id])
+  orgId        String?
 
   profiles Profile[]
   roadmaps Roadmap[]
 
   @@index([email])
+  @@index([orgId])
   @@map("users")
 }
 
 model Profile {
   id     String @id @default(uuid())
   userId String
+  label  String @default("") // user-defined name e.g. "Optimistic path", "Conservative"
 
   // Personal info
   fullName      String
@@ -86,8 +107,9 @@ model Roadmap {
   profileId   String
   roadmapData Json
   auditScores Json
-  probability Float?
-  createdAt   DateTime @default(now())
+  probability    Float?
+  completedNodes String[] @default([])
+  createdAt      DateTime @default(now())
 
   user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
@@ -108,7 +130,20 @@ model CareerCluster {
   topSkills   String[]
   createdAt   DateTime @default(now())
 
+  snapshots DemandSnapshot[]
+
   @@map("career_clusters")
+}
+
+model DemandSnapshot {
+  id          String   @id @default(uuid())
+  clusterId   String
+  demandScore Float
+  snapshotDate DateTime
+  cluster     CareerCluster @relation(fields: [clusterId], references: [id], onDelete: Cascade)
+
+  @@index([clusterId])
+  @@map("demand_snapshots")
 }
 
 model AuditResult {

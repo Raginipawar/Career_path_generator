@@ -6,7 +6,7 @@ import { useAppStore } from "@/store/store";
 import { api } from "@/lib/api";
 import { UserProfile } from "@/types";
 import toast from "react-hot-toast";
-import { ArrowLeft, ArrowRight, CheckCircle2, ChevronDown, Plus, X, BrainCircuit, Activity, HeartHandshake, Briefcase, GraduationCap, MapPin, UserCircle2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, CheckCircle2, ChevronDown, Plus, X, BrainCircuit, Activity, HeartHandshake, Briefcase, GraduationCap, MapPin, UserCircle2, Upload, Loader2, FileText, Sparkles, Clock, TrendingUp } from "lucide-react";
 
 const emptyProfile: UserProfile = {
   fullName: "", age: 25, gender: "", locationCity: "", locationState: "",
@@ -39,6 +39,10 @@ export default function ProfileWizard() {
   const [techInput, setTechInput] = useState("");
   const [softInput, setSoftInput] = useState("");
   const [certInput, setCertInput] = useState("");
+  const [resumeParsing, setResumeParsing] = useState(false);
+  const [resumeFileName, setResumeFileName] = useState<string | null>(null);
+  const [suggestions, setSuggestions] = useState<any[] | null>(null);
+  const [suggesting, setSuggesting] = useState(false);
 
   const [loadingText, setLoadingText] = useState("Analyzing your profile...");
 
@@ -79,6 +83,62 @@ export default function ProfileWizard() {
     } else {
       setData({ ...data, interestDomains: [...data.interestDomains, domain] });
     }
+  };
+
+  const handleResumeUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setResumeParsing(true);
+    setResumeFileName(file.name);
+    try {
+      const res = await api.parseResume(file);
+      const ex = res.extracted;
+      setData(prev => ({
+        ...prev,
+        fullName:          ex.fullName          || prev.fullName,
+        locationCity:      ex.locationCity      || prev.locationCity,
+        locationState:     ex.locationState     || prev.locationState,
+        highestDegree:     ex.highestDegree     || prev.highestDegree,
+        fieldOfStudy:      ex.fieldOfStudy      || prev.fieldOfStudy,
+        institutionTier:   ex.institutionTier   || prev.institutionTier,
+        currentRole:       ex.currentRole       || prev.currentRole,
+        currentIndustry:   ex.currentIndustry   || prev.currentIndustry,
+        yearsOfExperience: ex.yearsOfExperience ?? prev.yearsOfExperience,
+        employmentStatus:  (ex.employmentStatus as any) || prev.employmentStatus,
+        technicalSkills:   ex.technicalSkills?.length ? [...new Set([...prev.technicalSkills, ...ex.technicalSkills])] : prev.technicalSkills,
+        softSkills:        ex.softSkills?.length       ? [...new Set([...prev.softSkills,      ...ex.softSkills])]      : prev.softSkills,
+        certifications:    ex.certifications?.length   ? [...new Set([...prev.certifications,  ...ex.certifications])]  : prev.certifications,
+        careerGoal:        ex.careerGoal        || prev.careerGoal,
+      }));
+      toast.success("Resume imported! Review and edit the pre-filled fields below.");
+    } catch (err: any) {
+      toast.error(err.message || "Could not parse resume. Please fill manually.");
+      setResumeFileName(null);
+    } finally {
+      setResumeParsing(false);
+      e.target.value = "";
+    }
+  };
+
+  const handleSuggest = async () => {
+    setSuggesting(true);
+    try {
+      const saveRes = await api.saveProfile(data);
+      if (!saveRes.profileId) throw new Error("Failed to save profile");
+      setProfile(saveRes.profileId, data);
+      const res = await api.suggestPaths(saveRes.profileId);
+      setSuggestions(res.suggestions);
+    } catch (err: any) {
+      toast.error(err.message || "Could not fetch suggestions");
+    } finally {
+      setSuggesting(false);
+    }
+  };
+
+  const handlePickSuggestion = async (suggestion: any) => {
+    setData(prev => ({ ...prev, careerGoal: `Transition to ${suggestion.target_role}` }));
+    setSuggestions(null);
+    await handleSubmit();
   };
 
   const handleSubmit = async () => {
@@ -127,6 +187,7 @@ export default function ProfileWizard() {
   }
 
   return (
+    <>
     <div className="flex-1 bg-[var(--surface)] py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-3xl mx-auto">
         {/* Header & Progress */}
@@ -145,9 +206,31 @@ export default function ProfileWizard() {
         <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
           <div className="p-8 sm:p-10">
             {step === 1 && <Step1 data={data} setData={setData} />}
+            {/* Resume upload banner — only on Step 1 */}
+            {step === 1 && (
+              <div className="mb-6 p-4 rounded-xl border-2 border-dashed border-[var(--accent)] bg-[var(--primary)]/5">
+                <p className="text-sm font-medium text-[var(--primary)] mb-3 flex items-center gap-2">
+                  <FileText className="w-4 h-4" /> Auto-fill from Resume
+                </p>
+                <label className={`flex items-center gap-3 cursor-pointer w-fit px-4 py-2 rounded-lg text-sm font-medium transition-colors ${resumeParsing ? 'bg-slate-200 text-slate-400 cursor-not-allowed' : 'bg-[var(--primary)] text-white hover:bg-[var(--secondary)]'}`}>
+                  {resumeParsing
+                    ? <><Loader2 className="w-4 h-4 animate-spin" /> Parsing resume...</>
+                    : <><Upload className="w-4 h-4" /> Upload PDF or Image</>
+                  }
+                  <input type="file" accept=".pdf,image/jpeg,image/png,image/webp" className="hidden" onChange={handleResumeUpload} disabled={resumeParsing} />
+                </label>
+                {resumeFileName && !resumeParsing && (
+                  <p className="mt-2 text-xs text-[var(--success)] flex items-center gap-1">
+                    <CheckCircle2 className="w-3 h-3" /> Imported from {resumeFileName} — review fields below
+                  </p>
+                )}
+                <p className="mt-2 text-xs text-[var(--muted)]">Supports PDF, JPG, PNG. Fields are pre-filled and editable.</p>
+              </div>
+            )}
             {step === 2 && <Step2 data={data} setData={setData} />}
             {step === 3 && <Step3 data={data} setData={setData} />}
             {step === 4 && <Step4 data={data} setData={setData} techInput={techInput} setTechInput={setTechInput} softInput={softInput} setSoftInput={setSoftInput} certInput={certInput} setCertInput={setCertInput} addTag={addTag} removeTag={removeTag} />}
+
             {step === 5 && <Step5 data={data} setData={setData} toggleDomain={toggleDomain} />}
             {step === 6 && <Step6 data={data} setData={setData} />}
           </div>
@@ -163,24 +246,79 @@ export default function ProfileWizard() {
             </button>
 
             {step < 6 ? (
-              <button
-                onClick={handleNext}
-                className="flex items-center bg-[var(--primary)] text-white px-6 py-2.5 rounded-lg font-medium hover:bg-[var(--secondary)] transition-colors"
-              >
+              <button onClick={handleNext} className="flex items-center bg-[var(--primary)] text-white px-6 py-2.5 rounded-lg font-medium hover:bg-[var(--secondary)] transition-colors">
                 Next <ArrowRight className="w-4 h-4 ml-2" />
               </button>
             ) : (
-              <button
-                onClick={handleSubmit}
-                className="flex items-center bg-[var(--primary)] text-white px-8 py-2.5 rounded-lg font-medium hover:bg-[var(--secondary)] transition-colors shadow-lg shadow-teal-900/20"
-              >
-                Generate Roadmap <BrainCircuit className="w-4 h-4 ml-2" />
-              </button>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={handleSuggest}
+                  disabled={suggesting || isGenerating}
+                  className="flex items-center gap-2 border-2 border-[var(--primary)] text-[var(--primary)] px-5 py-2.5 rounded-lg font-medium hover:bg-[var(--primary)]/5 disabled:opacity-50 transition-colors text-sm"
+                >
+                  {suggesting ? <Loader2 className="w-4 h-4 animate-spin" /> : "✨ Suggest Paths"}
+                </button>
+                <button
+                  onClick={handleSubmit}
+                  disabled={isGenerating || suggesting}
+                  className="flex items-center bg-[var(--primary)] text-white px-6 py-2.5 rounded-lg font-medium hover:bg-[var(--secondary)] disabled:opacity-50 transition-colors shadow-lg shadow-teal-900/20"
+                >
+                  <BrainCircuit className="w-4 h-4 mr-2" /> Generate Roadmap
+                </button>
+              </div>
             )}
           </div>
         </div>
       </div>
     </div>
+
+    {/* Suggestions modal — inside return fragment */}
+    <>
+    {suggestions && (
+      <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+          <div className="p-6 border-b border-slate-100 flex items-center justify-between">
+            <div>
+              <h2 className="text-xl font-serif text-[var(--dark)] flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-[var(--accent)]" /> AI-Suggested Career Paths
+              </h2>
+              <p className="text-sm text-[var(--muted)] mt-1">Based on your profile, here are 3 recommended transitions. Pick one to generate your full roadmap.</p>
+            </div>
+            <button onClick={() => setSuggestions(null)} className="text-[var(--muted)] hover:text-[var(--dark)] p-1"><X className="w-5 h-5" /></button>
+          </div>
+          <div className="p-6 space-y-4">
+            {suggestions.map((s: any, i: number) => (
+              <div key={i} className="border-2 border-slate-200 hover:border-[var(--accent)] rounded-xl p-5 cursor-pointer transition-colors group" onClick={() => handlePickSuggestion(s)}>
+                <div className="flex items-start justify-between mb-3">
+                  <div>
+                    <span className="text-xs font-bold text-[var(--muted)] uppercase tracking-wide">Option {i + 1}</span>
+                    <h3 className="text-lg font-serif text-[var(--dark)] mt-0.5">{s.target_role}</h3>
+                  </div>
+                  <div className="flex gap-3 text-sm flex-shrink-0 ml-3">
+                    <span className={`font-bold ${s.estimated_probability >= 70 ? "text-green-600" : s.estimated_probability >= 50 ? "text-yellow-600" : "text-red-500"}`}>
+                      {s.estimated_probability}%
+                    </span>
+                    <span className="text-[var(--muted)] flex items-center gap-1"><Clock className="w-3.5 h-3.5" />{s.timeline_months}mo</span>
+                    <span className="text-[var(--primary)] font-medium">{s.salary_range_lpa}</span>
+                  </div>
+                </div>
+                <p className="text-sm text-[var(--text)] mb-3">{s.reasoning}</p>
+                <div className="flex flex-wrap gap-2">
+                  {s.top_skills_needed?.map((skill: string) => (
+                    <span key={skill} className="px-2 py-0.5 rounded-full text-xs bg-[var(--primary)]/10 text-[var(--primary)]">{skill}</span>
+                  ))}
+                </div>
+                <p className="text-xs text-[var(--primary)] font-medium mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                  Click to select this path and generate full roadmap →
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    )}
+    </>
+    </>
   );
 }
 
@@ -263,54 +401,192 @@ function Step2({ data, setData }: any) {
 }
 
 function Step3({ data, setData }: any) {
+  const isStudent    = data.employmentStatus === "Student";
+  const isUnemployed = data.employmentStatus === "Unemployed" || data.employmentStatus === "Career Break";
+
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-right-4">
       <div className="flex items-center gap-3 text-[var(--primary)] mb-6">
         <Briefcase className="w-6 h-6" />
-        <h2 className="text-xl font-serif text-[var(--dark)]">Current Career</h2>
+        <h2 className="text-xl font-serif text-[var(--dark)]">
+          {isStudent ? "Your Academic Background" : "Current Career"}
+        </h2>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <label className="block text-sm font-medium text-[var(--text)] mb-2">Current Role</label>
-          <input type="text" value={data.currentRole} onChange={e => setData({...data, currentRole: e.target.value})} className="input-field" placeholder="e.g. Frontend Engineer" />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-[var(--text)] mb-2">Current Industry</label>
-          <input type="text" value={data.currentIndustry} onChange={e => setData({...data, currentIndustry: e.target.value})} className="input-field" placeholder="e.g. Fintech" />
-        </div>
-        <div className="md:col-span-2">
-          <label className="flex justify-between text-sm font-medium text-[var(--text)] mb-2">
-            <span>Years of Experience</span>
-            <span className="text-[var(--primary)] font-bold">{data.yearsOfExperience} years</span>
-          </label>
-          <input type="range" min="0" max="40" value={data.yearsOfExperience} onChange={e => setData({...data, yearsOfExperience: Number(e.target.value)})} className="w-full accent-[var(--accent)]" />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-[var(--text)] mb-2">Employment Status</label>
-          <select value={data.employmentStatus} onChange={e => setData({...data, employmentStatus: e.target.value})} className="input-field">
-            <option>Employed Full-Time</option><option>Employed Part-Time</option><option>Self-Employed</option>
-            <option>Unemployed</option><option>Student</option><option>Career Break</option>
-          </select>
-        </div>
-        <div>
-          <label className="flex justify-between text-sm font-medium text-[var(--text)] mb-2">
-            <span>Current Salary (LPA)</span>
-            <span className="text-[var(--primary)] font-bold">₹{data.currentSalaryLpa}</span>
-          </label>
-          <input type="range" min="0" max="100" value={data.currentSalaryLpa} onChange={e => setData({...data, currentSalaryLpa: Number(e.target.value)})} className="w-full accent-[var(--accent)]" />
+      {/* Employment status — first, drives everything below */}
+      <div>
+        <label className="block text-sm font-medium text-[var(--text)] mb-2">I am currently a…</label>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          {[
+            { value: "Student",           label: "Student" },
+            { value: "Employed Full-Time", label: "Working Full-Time" },
+            { value: "Employed Part-Time", label: "Working Part-Time" },
+            { value: "Self-Employed",      label: "Freelancer / Self-Employed" },
+            { value: "Unemployed",         label: "Looking for Work" },
+            { value: "Career Break",       label: "Career Break" },
+          ].map(opt => (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => setData({ ...data, employmentStatus: opt.value,
+                currentSalaryLpa: opt.value === "Student" || opt.value === "Unemployed" ? 0 : data.currentSalaryLpa,
+                yearsOfExperience: opt.value === "Student" ? 0 : data.yearsOfExperience,
+              })}
+              className={`py-3 px-4 rounded-xl border-2 text-sm font-medium text-left transition-all ${
+                data.employmentStatus === opt.value
+                  ? "border-[var(--primary)] bg-[var(--primary)]/5 text-[var(--primary)]"
+                  : "border-slate-200 text-slate-600 hover:border-[var(--accent)]"
+              }`}
+            >
+              {opt.label}
+            </button>
+          ))}
         </div>
       </div>
+
+      {/* Student-specific fields */}
+      {isStudent ? (
+        <div className="space-y-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <label className="block text-sm font-medium text-[var(--text)] mb-2">Degree & Program</label>
+              <input
+                type="text"
+                value={data.currentRole}
+                onChange={e => setData({ ...data, currentRole: e.target.value })}
+                className="input-field"
+                placeholder="e.g. B.Tech Computer Science"
+              />
+              <p className="text-xs text-[var(--muted)] mt-1">This tells us your starting point</p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-[var(--text)] mb-2">College / University</label>
+              <input
+                type="text"
+                value={data.currentIndustry}
+                onChange={e => setData({ ...data, currentIndustry: e.target.value })}
+                className="input-field"
+                placeholder="e.g. VIT Vellore, BITS Pilani"
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <label className="block text-sm font-medium text-[var(--text)] mb-2">Current Year of Study</label>
+              <select
+                value={data.yearsOfExperience}
+                onChange={e => setData({ ...data, yearsOfExperience: Number(e.target.value) })}
+                className="input-field"
+              >
+                <option value={0}>1st Year / Fresher</option>
+                <option value={1}>2nd Year</option>
+                <option value={2}>3rd Year</option>
+                <option value={3}>Final Year</option>
+                <option value={4}>Postgraduate / MBA</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-[var(--text)] mb-2">Target First Job Type</label>
+              <select
+                value={data.lifeStage}
+                onChange={e => setData({ ...data, lifeStage: e.target.value })}
+                className="input-field"
+              >
+                <option value="Early Career">Full-Time Job after graduation</option>
+                <option value="Intern">Internship first</option>
+                <option value="Fresher">Campus placement</option>
+              </select>
+            </div>
+          </div>
+          <div className="bg-[var(--primary)]/5 border border-[var(--primary)]/20 rounded-xl p-4 text-sm text-[var(--primary)]">
+            <strong>Student path:</strong> Your roadmap will show you the exact skills, projects, and milestones to land your first job in your target domain — with realistic timelines from your current year of study.
+          </div>
+        </div>
+      ) : (
+        /* Professional / other fields */
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div>
+            <label className="block text-sm font-medium text-[var(--text)] mb-2">Current Role</label>
+            <input type="text" value={data.currentRole} onChange={e => setData({...data, currentRole: e.target.value})} className="input-field" placeholder="e.g. Frontend Engineer" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-[var(--text)] mb-2">Current Industry</label>
+            <input type="text" value={data.currentIndustry} onChange={e => setData({...data, currentIndustry: e.target.value})} className="input-field" placeholder="e.g. Fintech" />
+          </div>
+          <div className="md:col-span-2">
+            <label className="flex justify-between text-sm font-medium text-[var(--text)] mb-2">
+              <span>Years of Experience</span>
+              <span className="text-[var(--primary)] font-bold">{data.yearsOfExperience} years</span>
+            </label>
+            <input type="range" min="0" max="40" value={data.yearsOfExperience} onChange={e => setData({...data, yearsOfExperience: Number(e.target.value)})} className="w-full accent-[var(--accent)]" />
+          </div>
+          {!isUnemployed && (
+            <div>
+              <label className="flex justify-between text-sm font-medium text-[var(--text)] mb-2">
+                <span>Current Salary (LPA)</span>
+                <span className="text-[var(--primary)] font-bold">₹{data.currentSalaryLpa}</span>
+              </label>
+              <input type="range" min="0" max="100" value={data.currentSalaryLpa} onChange={e => setData({...data, currentSalaryLpa: Number(e.target.value)})} className="w-full accent-[var(--accent)]" />
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
 
-function Step4({ data, techInput, setTechInput, softInput, setSoftInput, certInput, setCertInput, addTag, removeTag }: any) {
+function Step4({ data, setData, techInput, setTechInput, softInput, setSoftInput, certInput, setCertInput, addTag, removeTag }: any) {
+  const [ghUsername, setGhUsername] = useState("");
+  const [ghLoading, setGhLoading] = useState(false);
+
+  const importGithub = async () => {
+    if (!ghUsername.trim()) return;
+    setGhLoading(true);
+    try {
+      const res = await api.importGithub(ghUsername.trim());
+      // Merge imported skills (deduplicate)
+      const merged = [...new Set([...data.technicalSkills, ...res.technicalSkills])];
+      const mergedDomains = [...new Set([...data.interestDomains, ...res.suggestedDomains])];
+      setData((prev: any) => ({ ...prev, technicalSkills: merged, interestDomains: mergedDomains }));
+      toast.success(`Imported ${res.technicalSkills.length} skills from @${ghUsername}`);
+    } catch (err: any) {
+      toast.error(err.message || "GitHub import failed");
+    } finally {
+      setGhLoading(false);
+    }
+  };
+
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-right-4">
       <div className="flex items-center gap-3 text-[var(--primary)] mb-6">
         <BrainCircuit className="w-6 h-6" />
         <h2 className="text-xl font-serif text-[var(--dark)]">Skills & Certifications</h2>
+      </div>
+
+      {/* GitHub optional import */}
+      <div className="bg-slate-50 border border-slate-200 rounded-xl p-4">
+        <p className="text-sm font-medium text-[var(--text)] mb-2">
+          Import from GitHub <span className="text-[var(--muted)] font-normal">(optional)</span>
+        </p>
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={ghUsername}
+            onChange={e => setGhUsername(e.target.value)}
+            onKeyDown={e => e.key === "Enter" && importGithub()}
+            placeholder="Your GitHub username"
+            className="input-field flex-1 text-sm"
+          />
+          <button
+            type="button"
+            onClick={importGithub}
+            disabled={ghLoading || !ghUsername.trim()}
+            className="flex items-center gap-2 px-4 py-2 bg-[var(--dark)] text-white rounded-lg text-sm font-medium hover:opacity-90 disabled:opacity-50 transition-opacity"
+          >
+            {ghLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Import"}
+          </button>
+        </div>
+        <p className="text-xs text-[var(--muted)] mt-1.5">Pulls languages from your public repos into Technical Skills. No auth needed.</p>
       </div>
 
       <TagInput 
@@ -406,14 +682,20 @@ function Step5({ data, setData, toggleDomain }: any) {
         </div>
       </div>
 
-      <div>
-        <label className="block text-sm font-medium text-[var(--text)] mb-2">Career Goal (1-2 sentences)</label>
-        <textarea 
-          value={data.careerGoal} 
-          onChange={e => setData({...data, careerGoal: e.target.value})} 
-          className="input-field min-h-[80px]" 
-          placeholder="E.g., I want to transition into a leadership role within a highly innovative tech company."
+      <div className="md:col-span-2">
+        <label className="block text-sm font-medium text-[var(--text)] mb-2">
+          Career Goal <span className="text-[var(--muted)] font-normal">(be as specific as possible)</span>
+        </label>
+        <textarea
+          value={data.careerGoal}
+          onChange={e => setData({...data, careerGoal: e.target.value})}
+          rows={4}
+          className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-transparent transition-all resize-none text-[var(--text)] text-sm leading-relaxed"
+          placeholder="E.g., I want to become a Senior Full Stack Engineer or Engineering Manager at a product-driven tech company within 2 years, focusing on React and Node.js."
         />
+        <p className="text-xs text-[var(--muted)] mt-1.5">
+          Tip: Include your target role title, company type, and timeline for the most accurate roadmap.
+        </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

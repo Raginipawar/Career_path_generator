@@ -70,6 +70,19 @@ router.get('/:id', async (req: Request, res: Response) => {
   res.json(profile);
 });
 
+// ─── PATCH /api/profile/:id/label — rename a profile ─────────────────────────
+router.patch('/:id/label', async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { label } = req.body as { label: string };
+  const userId = req.user!.userId;
+
+  const profile = await prisma.profile.findFirst({ where: { id, userId } });
+  if (!profile) { res.status(404).json({ error: 'Profile not found' }); return; }
+
+  const updated = await prisma.profile.update({ where: { id }, data: { label: label ?? '' } });
+  res.json({ id: updated.id, label: updated.label });
+});
+
 // ─── GET /api/profile ─────────────────────────────────────────────────────────
 router.get('/', async (req: Request, res: Response) => {
   const userId = req.user!.userId;

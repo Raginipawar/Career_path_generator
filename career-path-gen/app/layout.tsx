@@ -16,8 +16,8 @@ const dmSerif = DM_Serif_Display({
 });
 
 export const metadata: Metadata = {
-  title: "CareerPath AI",
-  description: "Your AI-Powered Career Compass",
+  title: "SANATAN LABS — PASSIONIT-PRUTL KALKI AI DHARMA Framework",
+  description: "AI-powered ethical career intelligence by Sanatan Labs",
 };
 
 export default function RootLayout({
