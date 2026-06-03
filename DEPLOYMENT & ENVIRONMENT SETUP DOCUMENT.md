@@ -1,7 +1,15 @@
 # DEPLOYMENT & ENVIRONMENT SETUP DOCUMENT
 
-**Project Title:** Career Path Generator — AI-Powered Career Transition Platform
-**Team Members:** Nikhil Shah, Ragini Pawar, Shakti Singh, Sanat Jain, Sachi Dhoka
+<div align="center">
+
+**Career Path Generator — AI-Powered Career Transition Platform**
+
+**Project Guide:** Varsh Dange
+
+**Team Members:** Nikhil Shah, Ragini Pawar, Shaktisingh Suryawanshi, Sanat Sanjeev, Sachi Dhoka
+
+</div>
+
 **Technology Stack:** Next.js 16 (Vercel), Node.js / Express / TypeScript (Render), FastAPI / Python (HuggingFace Spaces), PostgreSQL (34.71.87.187), Upstash Redis, ChromaDB
 
 ---

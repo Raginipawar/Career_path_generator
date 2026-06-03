@@ -1,7 +1,15 @@
 # DESIGN & ARCHITECTURE DOCUMENT
 
-**Project Title:** Career Path Generator — AI-Powered Career Transition Platform
-**Team Members:** Nikhil Shah, Ragini Pawar, Shakti Singh, Sanat Jain, Sachi Dhoka
+<div align="center">
+
+**Career Path Generator — AI-Powered Career Transition Platform**
+
+**Project Guide:** Varsh Dange
+
+**Team Members:** Nikhil Shah, Ragini Pawar, Shaktisingh Suryawanshi, Sanat Sanjeev, Sachi Dhoka
+
+</div>
+
 **Technology Stack:** Next.js 16 / React 19, Node.js / Express / TypeScript, FastAPI / Python, PostgreSQL, Redis, ChromaDB, Groq LLaMA 3.3-70b, PyTorch MLP
 
 ---
