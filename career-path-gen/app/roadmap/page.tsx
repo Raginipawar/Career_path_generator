@@ -13,7 +13,7 @@ import Link from "next/link";
 import {
   Zap, Clock, Target, Navigation, ShieldCheck, TrendingUp,
   ChevronLeft, ChevronRight, X, BookOpen, Wrench, AlertTriangle,
-  CheckCircle2, ArrowRight, Calendar, DollarSign, BarChart2, GraduationCap, ExternalLink,
+  CheckCircle2, ArrowRight, Calendar, DollarSign, BarChart2, GraduationCap,
 } from "lucide-react";
 import { RoadmapNode } from "@/types";
 import { api } from "@/lib/api";
@@ -259,19 +259,19 @@ function NodeFlashcard({ node, onClose, roadmapId, completed, onToggle }: {
   );
 }
 
-// ─── Sanatan Labs Course Widget ───────────────────────────────────────────────
+// ─── Sanatan Labs Floating Widget ─────────────────────────────────────────────
 const SANATAN_COURSES = [
-  { id: "C01", track: "Shared Services", title: "Engagement Management & Client Success",          role: "GCC Shared Services & Onboarding" },
-  { id: "C02", track: "Automation",      title: "Predictive Prompt Engineering & Semantic Logic",  role: "Intelligent Automation Engineering" },
-  { id: "C03", track: "PMO & BPM",       title: "Process Management & Agile Sprint Choreography",  role: "Operational PMO & SOP Architecture" },
+  { id: "C01", track: "Shared Services", title: "Engagement Management & Client Success",              role: "GCC Shared Services & Onboarding" },
+  { id: "C02", track: "Automation",      title: "Predictive Prompt Engineering & Semantic Logic",      role: "Intelligent Automation Engineering" },
+  { id: "C03", track: "PMO & BPM",       title: "Process Management & Agile Sprint Choreography",      role: "Operational PMO & SOP Architecture" },
   { id: "C04", track: "Governance",      title: "Cyber Hygiene, Data Isolation & Forensic Compliance", role: "Information Security & Data Isolation" },
-  { id: "C05", track: "Automation",      title: "Website Lifecycle Operations & Maintenance",       role: "Enterprise Portal Management" },
-  { id: "C06", track: "Automation",      title: "Digital Media Scheduling & Growth Marketing Grids", role: "Global Shared Marketing Operations" },
-  { id: "C07", track: "PMO & BPM",       title: "Technical Product Documentation & Manual Writing", role: "Technical Content Asset Management" },
+  { id: "C05", track: "Automation",      title: "Website Lifecycle Operations & Maintenance",           role: "Enterprise Portal Management" },
+  { id: "C06", track: "Automation",      title: "Digital Media Scheduling & Growth Marketing Grids",   role: "Global Shared Marketing Operations" },
+  { id: "C07", track: "PMO & BPM",       title: "Technical Product Documentation & Manual Writing",    role: "Technical Content Asset Management" },
   { id: "C08", track: "PMO & BPM",       title: "AI-Driven Competitive Intelligence & Market Research", role: "Global Market Intelligence Unit" },
-  { id: "C09", track: "Governance",      title: "OSINT & Data Auditing",                            role: "Forensic Operational Audit Unit" },
-  { id: "C10", track: "Shared Services", title: "Corporate Communications & Precision Reporting",  role: "C-Suite Executive Reporting" },
-  { id: "C11", track: "Governance",      title: "Administrative Command & Sovereign Leadership",    role: "Strategic Crisis PMO" },
+  { id: "C09", track: "Governance",      title: "OSINT & Data Auditing",                               role: "Forensic Operational Audit Unit" },
+  { id: "C10", track: "Shared Services", title: "Corporate Communications & Precision Reporting",      role: "C-Suite Executive Reporting" },
+  { id: "C11", track: "Governance",      title: "Administrative Command & Sovereign Leadership",        role: "Strategic Crisis PMO" },
 ];
 
 const TRACK_COLORS: Record<string, string> = {
@@ -282,61 +282,54 @@ const TRACK_COLORS: Record<string, string> = {
 };
 
 function SanatanLabsWidget() {
-  const [open, setOpen] = useState(false);
+  const [visible, setVisible] = useState(true);
+  const [expanded, setExpanded] = useState(false);
+
+  if (!visible) return null;
+
+  const displayed = expanded ? SANATAN_COURSES : SANATAN_COURSES.slice(0, 3);
+
   return (
-    <div className="p-5 border-b border-slate-100">
-      <button
-        onClick={() => setOpen(o => !o)}
-        className="w-full flex items-center justify-between group"
-      >
-        <h3 className="flex items-center gap-2 text-sm font-semibold text-[var(--dark)]">
-          <GraduationCap className="w-4 h-4 text-[var(--primary)]" />
-          Sanatan Labs — GCC Courses
-        </h3>
-        <span className="text-xs text-[var(--primary)] font-medium group-hover:underline">
-          {open ? "Hide" : "View 11 courses"}
-        </span>
-      </button>
-
-      {!open && (
-        <p className="text-xs text-[var(--muted)] mt-1.5">
-          Punarvasu GCC Capability Architecture — 4 professional tracks for global delivery roles.
-        </p>
-      )}
-
-      {open && (
-        <div className="mt-3 space-y-2">
-          {SANATAN_COURSES.map(c => (
-            <a
-              key={c.id}
-              href="https://passionit.in"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-start gap-3 p-3 rounded-lg border border-slate-100 hover:border-[var(--accent)] hover:bg-slate-50 transition-all group/card"
-            >
-              <span className="flex-shrink-0 w-8 h-8 rounded-full bg-[var(--primary)]/10 text-[var(--primary)] text-xs font-bold flex items-center justify-center">
-                {c.id}
-              </span>
-              <div className="min-w-0 flex-1">
-                <p className="text-xs font-semibold text-[var(--dark)] leading-snug">{c.title}</p>
-                <p className="text-xs text-[var(--muted)] mt-0.5 leading-snug">→ {c.role}</p>
-                <span className={`inline-block mt-1 text-[10px] font-semibold px-1.5 py-0.5 rounded ${TRACK_COLORS[c.track]}`}>
-                  {c.track}
-                </span>
-              </div>
-              <ExternalLink className="w-3 h-3 text-[var(--muted)] group-hover/card:text-[var(--primary)] flex-shrink-0 mt-1 transition-colors" />
-            </a>
-          ))}
-          <a
-            href="https://passionit.in"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center justify-center gap-1.5 w-full py-2 mt-1 rounded-lg border-2 border-dashed border-[var(--primary)]/30 text-xs font-semibold text-[var(--primary)] hover:bg-[var(--primary)]/5 transition-colors"
-          >
-            Explore all at passionit.in <ExternalLink className="w-3 h-3" />
-          </a>
+    <div className="absolute top-4 right-4 z-20 w-72 bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 py-3 bg-[var(--primary)] text-white">
+        <div className="flex items-center gap-2">
+          <GraduationCap className="w-4 h-4" />
+          <span className="text-sm font-semibold">Sanatan Labs — GCC Courses</span>
         </div>
-      )}
+        <button onClick={() => setVisible(false)} className="text-white/70 hover:text-white transition-colors">
+          <X className="w-4 h-4" />
+        </button>
+      </div>
+
+      {/* Courses list */}
+      <div className="p-3 space-y-2 max-h-96 overflow-y-auto">
+        <p className="text-[10px] text-[var(--muted)] px-1 mb-1">Punarvasu GCC Capability Architecture</p>
+        {displayed.map(c => (
+          <div key={c.id} className="flex items-start gap-2.5 p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+            <span className="flex-shrink-0 w-7 h-7 rounded-full bg-[var(--primary)]/10 text-[var(--primary)] text-[10px] font-bold flex items-center justify-center">
+              {c.id}
+            </span>
+            <div className="min-w-0">
+              <p className="text-xs font-semibold text-[var(--dark)] leading-snug">{c.title}</p>
+              <p className="text-[10px] text-[var(--muted)] mt-0.5 leading-snug">→ {c.role}</p>
+              <span className={`inline-block mt-1 text-[9px] font-semibold px-1.5 py-0.5 rounded ${TRACK_COLORS[c.track]}`}>
+                {c.track}
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Footer */}
+      <div className="px-3 pb-3">
+        <button
+          onClick={() => setExpanded(e => !e)}
+          className="w-full py-1.5 rounded-lg border border-[var(--primary)]/30 text-xs font-semibold text-[var(--primary)] hover:bg-[var(--primary)]/5 transition-colors"
+        >
+          {expanded ? "Show less ↑" : `View all ${SANATAN_COURSES.length} courses ↓`}
+        </button>
+      </div>
     </div>
   );
 }
@@ -499,7 +492,7 @@ export default function RoadmapPage() {
               </div>
 
               {/* Alternative paths */}
-              <div className="p-5 border-b border-slate-100">
+              <div className="p-5">
                 <h3 className="flex items-center gap-2 text-sm font-semibold text-[var(--dark)] mb-3">
                   <Navigation className="w-4 h-4 text-[var(--primary)]" /> Alternative Paths
                 </h3>
@@ -521,13 +514,12 @@ export default function RoadmapPage() {
                 </div>
               </div>
 
-              {/* Sanatan Labs GCC Courses */}
-              <SanatanLabsWidget />
             </div>
           )}
 
           {/* React Flow — full remaining space */}
           <div className="flex-1 relative">
+            <SanatanLabsWidget />
             <ReactFlow
               nodes={nodes}
               edges={edges}
