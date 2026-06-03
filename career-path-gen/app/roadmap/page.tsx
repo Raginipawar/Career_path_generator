@@ -261,17 +261,105 @@ function NodeFlashcard({ node, onClose, roadmapId, completed, onToggle }: {
 
 // ─── Sanatan Labs Floating Widget ─────────────────────────────────────────────
 const SANATAN_COURSES = [
-  { id: "C01", track: "Shared Services", title: "Engagement Management & Client Success",              role: "GCC Shared Services & Onboarding" },
-  { id: "C02", track: "Automation",      title: "Predictive Prompt Engineering & Semantic Logic",      role: "Intelligent Automation Engineering" },
-  { id: "C03", track: "PMO & BPM",       title: "Process Management & Agile Sprint Choreography",      role: "Operational PMO & SOP Architecture" },
-  { id: "C04", track: "Governance",      title: "Cyber Hygiene, Data Isolation & Forensic Compliance", role: "Information Security & Data Isolation" },
-  { id: "C05", track: "Automation",      title: "Website Lifecycle Operations & Maintenance",           role: "Enterprise Portal Management" },
-  { id: "C06", track: "Automation",      title: "Digital Media Scheduling & Growth Marketing Grids",   role: "Global Shared Marketing Operations" },
-  { id: "C07", track: "PMO & BPM",       title: "Technical Product Documentation & Manual Writing",    role: "Technical Content Asset Management" },
-  { id: "C08", track: "PMO & BPM",       title: "AI-Driven Competitive Intelligence & Market Research", role: "Global Market Intelligence Unit" },
-  { id: "C09", track: "Governance",      title: "OSINT & Data Auditing",                               role: "Forensic Operational Audit Unit" },
-  { id: "C10", track: "Shared Services", title: "Corporate Communications & Precision Reporting",      role: "C-Suite Executive Reporting" },
-  { id: "C11", track: "Governance",      title: "Administrative Command & Sovereign Leadership",        role: "Strategic Crisis PMO" },
+  {
+    id: "C01", track: "Shared Services",
+    title: "Engagement Management & Client Success",
+    role: "GCC Shared Services & Onboarding",
+    description: "Learn to standardise internal HR service delivery across global teams. Master managing cross-border stakeholder tickets, onboarding remote workforces, and resolving friction in GCC shared service environments.",
+    skills: ["Stakeholder Management", "SLA Operations", "JIRA/Ticketing", "Cross-cultural Communication", "HR Service Delivery"],
+    bestFor: "HR, operations, or admin professionals pivoting to GCC roles.",
+    keywords: ["hr", "operations", "admin", "client", "stakeholder", "onboarding", "communication", "shared services"],
+  },
+  {
+    id: "C02", track: "Automation",
+    title: "Predictive Prompt Engineering & Semantic Logic",
+    role: "Intelligent Automation Engineering",
+    description: "Build custom LLM pipelines and prompt-chains for automated corporate workflows. Reduce manual processing time by 70% through intelligent automation — no deep ML expertise required.",
+    skills: ["Prompt Engineering", "LLM APIs", "Workflow Automation", "Semantic Logic", "AI Tool Integration"],
+    bestFor: "Developers, technical writers, or analysts moving into AI automation.",
+    keywords: ["ai", "llm", "prompt", "automation", "nlp", "machine learning", "python", "developer", "engineer"],
+  },
+  {
+    id: "C03", track: "PMO & BPM",
+    title: "Process Management & Agile Sprint Choreography",
+    role: "Operational PMO & SOP Architecture",
+    description: "Migrate complex tasks from US/Europe to India by mapping them into airtight Standard Operating Procedures and tracking them through agile sprint backlogs.",
+    skills: ["Agile/Scrum", "SOP Writing", "Sprint Planning", "Jira", "Process Documentation", "Change Management"],
+    bestFor: "Project coordinators, business analysts, and operations leads.",
+    keywords: ["project", "agile", "scrum", "process", "management", "sop", "pmo", "operations", "coordinator"],
+  },
+  {
+    id: "C04", track: "Governance",
+    title: "Cyber Hygiene, Data Isolation & Forensic Compliance",
+    role: "Information Security & Data Isolation",
+    description: "Enforce strict data isolation between parallel teams, audit credential safety, and ensure GDPR/ISO 27001 compliance in distributed GCC environments.",
+    skills: ["Data Security", "GDPR/ISO 27001", "Endpoint Hygiene", "Credential Management", "Access Control"],
+    bestFor: "IT admins, compliance officers, or security-focused professionals.",
+    keywords: ["security", "cybersecurity", "compliance", "data", "gdpr", "iso", "audit", "governance", "forensic"],
+  },
+  {
+    id: "C05", track: "Automation",
+    title: "Website Lifecycle Operations & Maintenance",
+    role: "Enterprise Portal Management",
+    description: "Stage global digital infrastructure, maintain intranet systems, and handle multi-region content sync. Learn to manage enterprise CMS backends with minimal downtime.",
+    skills: ["CMS Management", "Web Maintenance", "HTML/CSS Basics", "Content Sync", "Digital Auditing"],
+    bestFor: "Web coordinators, content managers, and digital operations professionals.",
+    keywords: ["web", "website", "cms", "digital", "content", "portal", "html", "frontend", "operations"],
+  },
+  {
+    id: "C06", track: "Automation",
+    title: "Digital Media Scheduling & Growth Marketing Grids",
+    role: "Global Shared Marketing Operations",
+    description: "Manage multi-channel campaign grids and performance analytics for international business units. Learn systematic content scheduling and data-driven marketing decision-making.",
+    skills: ["Campaign Management", "Social Media Analytics", "Content Calendars", "Growth Metrics", "Performance Reporting"],
+    bestFor: "Marketing executives, social media managers, and content strategists.",
+    keywords: ["marketing", "digital marketing", "social media", "content", "campaign", "growth", "analytics", "branding"],
+  },
+  {
+    id: "C07", track: "PMO & BPM",
+    title: "Technical Product Documentation & Manual Writing",
+    role: "Technical Content Asset Management",
+    description: "Author change logs, user guides, internal knowledge bases, and complex operational compliance manuals for enterprise-grade systems and global delivery teams.",
+    skills: ["Technical Writing", "Knowledge Base Management", "Compliance Documentation", "Information Architecture", "Style Guides"],
+    bestFor: "Writers, QA engineers, and product managers building documentation expertise.",
+    keywords: ["documentation", "technical writing", "product", "knowledge", "manual", "content", "qa", "writer"],
+  },
+  {
+    id: "C08", track: "PMO & BPM",
+    title: "AI-Driven Competitive Intelligence & Market Research",
+    role: "Global Market Intelligence Unit",
+    description: "Run automated market research, track global competitor pricing matrices, and scrape geopolitical data trends to produce high-impact intelligence briefings for C-suite leadership.",
+    skills: ["Market Research", "Competitor Analysis", "Data Scraping", "Business Intelligence", "AI Research Tools", "Strategic Reporting"],
+    bestFor: "Business analysts, strategy consultants, and research professionals.",
+    keywords: ["research", "analytics", "data", "business intelligence", "strategy", "market", "consulting", "analyst"],
+  },
+  {
+    id: "C09", track: "Governance",
+    title: "OSINT & Data Auditing",
+    role: "Forensic Operational Audit Unit",
+    description: "Map regional supply chain vectors, analyse deep-web data for fraud detection, and audit enterprise transactions to catch administrative errors and compliance anomalies.",
+    skills: ["OSINT Tools", "Data Forensics", "Fraud Detection", "Supply Chain Auditing", "Transaction Analysis"],
+    bestFor: "Analysts, compliance officers, and risk management professionals.",
+    keywords: ["audit", "compliance", "fraud", "risk", "data", "security", "investigation", "supply chain", "governance"],
+  },
+  {
+    id: "C10", track: "Shared Services",
+    title: "Corporate Communications & Precision Reporting",
+    role: "C-Suite Executive Reporting",
+    description: "Manage cross-border corporate governance, craft cross-cultural executive correspondence, and deliver precise weekly GCC delivery metrics to C-suite leadership.",
+    skills: ["Executive Communication", "Business Writing", "Reporting Dashboards", "Corporate Governance", "Cross-cultural Management"],
+    bestFor: "Communications professionals, executive assistants, and operations managers.",
+    keywords: ["communication", "reporting", "executive", "corporate", "writing", "presentation", "governance", "manager"],
+  },
+  {
+    id: "C11", track: "Governance",
+    title: "Administrative Command & Sovereign Leadership",
+    role: "Strategic Crisis PMO",
+    description: "Command high-pressure situations during system failures and pipeline disruptions. Learn failover orchestration, crisis decision-making, and sovereign leadership architecture for regional GCC teams.",
+    skills: ["Crisis Management", "Leadership Under Pressure", "Failover Planning", "Strategic Decision-making", "Team Command"],
+    bestFor: "Senior managers, team leads, and operations heads ready for leadership roles.",
+    keywords: ["leadership", "management", "senior", "crisis", "strategy", "director", "head", "lead", "pmo", "commander"],
+  },
 ];
 
 const TRACK_COLORS: Record<string, string> = {
@@ -281,53 +369,96 @@ const TRACK_COLORS: Record<string, string> = {
   "Governance":      "bg-red-100 text-red-700",
 };
 
-function SanatanLabsWidget() {
+function scoreCourse(course: typeof SANATAN_COURSES[0], roadmap: any): number {
+  if (!roadmap) return 0;
+  const haystack = [
+    roadmap.target_role ?? "",
+    roadmap.current_role ?? "",
+    ...(roadmap.roadmap_nodes ?? []).flatMap((n: any) => [...(n.skill_gap ?? []), ...(n.required_skills ?? [])]),
+  ].join(" ").toLowerCase();
+
+  return course.keywords.reduce((score, kw) => score + (haystack.includes(kw) ? 1 : 0), 0);
+}
+
+function CourseCard({ course }: { course: typeof SANATAN_COURSES[0] }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div
+      className="rounded-xl border border-slate-100 bg-slate-50 overflow-hidden cursor-pointer hover:border-[var(--accent)] transition-colors"
+      onClick={() => setOpen(o => !o)}
+    >
+      <div className="flex items-start gap-2.5 p-2.5">
+        <span className="flex-shrink-0 w-7 h-7 rounded-full bg-[var(--primary)]/10 text-[var(--primary)] text-[10px] font-bold flex items-center justify-center mt-0.5">
+          {course.id}
+        </span>
+        <div className="min-w-0 flex-1">
+          <p className="text-xs font-semibold text-[var(--dark)] leading-snug">{course.title}</p>
+          <p className="text-[10px] text-[var(--muted)] mt-0.5 leading-snug">→ {course.role}</p>
+          <span className={`inline-block mt-1 text-[9px] font-semibold px-1.5 py-0.5 rounded ${TRACK_COLORS[course.track]}`}>
+            {course.track}
+          </span>
+        </div>
+        <span className="text-[10px] text-[var(--muted)] flex-shrink-0 mt-1">{open ? "▲" : "▼"}</span>
+      </div>
+
+      {open && (
+        <div className="px-3 pb-3 border-t border-slate-200 mt-0 pt-3 space-y-2">
+          <p className="text-[11px] text-[var(--text)] leading-relaxed">{course.description}</p>
+          <div>
+            <p className="text-[10px] font-semibold text-[var(--dark)] mb-1">Skills you'll gain</p>
+            <div className="flex flex-wrap gap-1">
+              {course.skills.map(s => (
+                <span key={s} className="text-[9px] px-1.5 py-0.5 rounded bg-[var(--primary)]/10 text-[var(--primary)] font-medium">{s}</span>
+              ))}
+            </div>
+          </div>
+          <p className="text-[10px] text-[var(--muted)] italic">Best for: {course.bestFor}</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function SanatanLabsWidget({ roadmap }: { roadmap: any }) {
   const [visible, setVisible] = useState(true);
   const [expanded, setExpanded] = useState(false);
 
   if (!visible) return null;
 
-  const displayed = expanded ? SANATAN_COURSES : SANATAN_COURSES.slice(0, 3);
+  const sorted = [...SANATAN_COURSES].sort((a, b) => scoreCourse(b, roadmap) - scoreCourse(a, roadmap));
+  const displayed = expanded ? sorted : sorted.slice(0, 3);
 
   return (
     <div className="absolute top-4 right-4 z-20 w-72 bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
-      {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 bg-[var(--primary)] text-white">
         <div className="flex items-center gap-2">
           <GraduationCap className="w-4 h-4" />
-          <span className="text-sm font-semibold">Sanatan Labs — GCC Courses</span>
+          <div>
+            <p className="text-sm font-semibold leading-none">Sanatan Labs</p>
+            <p className="text-[10px] text-white/70 mt-0.5">GCC Capability Courses</p>
+          </div>
         </div>
         <button onClick={() => setVisible(false)} className="text-white/70 hover:text-white transition-colors">
           <X className="w-4 h-4" />
         </button>
       </div>
 
-      {/* Courses list */}
-      <div className="p-3 space-y-2 max-h-96 overflow-y-auto">
-        <p className="text-[10px] text-[var(--muted)] px-1 mb-1">Punarvasu GCC Capability Architecture</p>
-        {displayed.map(c => (
-          <div key={c.id} className="flex items-start gap-2.5 p-2.5 rounded-xl bg-slate-50 border border-slate-100">
-            <span className="flex-shrink-0 w-7 h-7 rounded-full bg-[var(--primary)]/10 text-[var(--primary)] text-[10px] font-bold flex items-center justify-center">
-              {c.id}
-            </span>
-            <div className="min-w-0">
-              <p className="text-xs font-semibold text-[var(--dark)] leading-snug">{c.title}</p>
-              <p className="text-[10px] text-[var(--muted)] mt-0.5 leading-snug">→ {c.role}</p>
-              <span className={`inline-block mt-1 text-[9px] font-semibold px-1.5 py-0.5 rounded ${TRACK_COLORS[c.track]}`}>
-                {c.track}
-              </span>
-            </div>
-          </div>
-        ))}
+      <div className="px-3 pt-2 pb-1">
+        <p className="text-[10px] text-[var(--muted)]">
+          {expanded ? "All 11 courses — sorted by match" : "Top 3 recommended for your roadmap"}
+        </p>
       </div>
 
-      {/* Footer */}
+      <div className="px-3 pb-2 space-y-2 max-h-[420px] overflow-y-auto">
+        {displayed.map(c => <CourseCard key={c.id} course={c} />)}
+      </div>
+
       <div className="px-3 pb-3">
         <button
           onClick={() => setExpanded(e => !e)}
           className="w-full py-1.5 rounded-lg border border-[var(--primary)]/30 text-xs font-semibold text-[var(--primary)] hover:bg-[var(--primary)]/5 transition-colors"
         >
-          {expanded ? "Show less ↑" : `View all ${SANATAN_COURSES.length} courses ↓`}
+          {expanded ? "Show top 3 ↑" : `View all ${SANATAN_COURSES.length} courses ↓`}
         </button>
       </div>
     </div>
@@ -519,7 +650,7 @@ export default function RoadmapPage() {
 
           {/* React Flow — full remaining space */}
           <div className="flex-1 relative">
-            <SanatanLabsWidget />
+            <SanatanLabsWidget roadmap={roadmapResponse} />
             <ReactFlow
               nodes={nodes}
               edges={edges}
