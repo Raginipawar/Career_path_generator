@@ -129,29 +129,33 @@ app.use(globalErrorHandler);
 
 // ─── Start Server ─────────────────────────────────────────────────────────────
 async function bootstrap() {
+  // Listen first so Render's port scan always succeeds
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`\n🚀 Career Path Backend running at http://0.0.0.0:${PORT}`);
+    console.log(`   Environment: ${process.env.NODE_ENV ?? 'development'}`);
+    console.log(`   Health check: http://0.0.0.0:${PORT}/health\n`);
+  });
+
+  // Connect to services after binding (failures won't kill the process)
   try {
-    // Verify DB connection
     await prisma.$connect();
-    console.log('✅ PostgreSQL (Supabase) connected');
-
-    // Warm up Redis
-    getRedis();
-
-    // Keep HF Spaces RAG service awake — ping every 4 minutes
-    setInterval(async () => {
-      const ok = await checkRagHealth();
-      if (!ok) console.warn('⚠️  RAG keep-alive ping failed — HF Space may be sleeping');
-    }, 4 * 60 * 1000);
-
-    app.listen(PORT, () => {
-      console.log(`\n🚀 Career Path Backend running at http://localhost:${PORT}`);
-      console.log(`   Environment: ${process.env.NODE_ENV ?? 'development'}`);
-      console.log(`   Health check: http://localhost:${PORT}/health\n`);
-    });
+    console.log('✅ PostgreSQL connected');
   } catch (err) {
-    console.error('❌ Failed to start server:', err);
-    process.exit(1);
+    console.error('⚠️  PostgreSQL connection failed (routes will return 503):', err);
   }
+
+  try {
+    getRedis();
+    console.log('✅ Redis ready');
+  } catch (err) {
+    console.error('⚠️  Redis init failed:', err);
+  }
+
+  // Keep HF Spaces RAG service awake — ping every 4 minutes
+  setInterval(async () => {
+    const ok = await checkRagHealth();
+    if (!ok) console.warn('⚠️  RAG keep-alive ping failed — HF Space may be sleeping');
+  }, 4 * 60 * 1000);
 }
 
 bootstrap();
