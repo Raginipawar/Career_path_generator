@@ -1,0 +1,162 @@
+// prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Organisation {
+  id        String   @id @default(uuid())
+  name      String
+  industry  String   @default("")
+  createdAt DateTime @default(now())
+
+  admin     User     @relation("OrgAdmin", fields: [adminId], references: [id])
+  adminId   String   @unique
+  employees User[]   @relation("OrgEmployees")
+
+  @@map("organisations")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      String   @default("personal") // personal | company_admin | company_employee
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Company relations
+  adminOfOrg   Organisation? @relation("OrgAdmin")
+  organisation Organisation? @relation("OrgEmployees", fields: [orgId], references: [id])
+  orgId        String?
+
+  profiles Profile[]
+  roadmaps Roadmap[]
+
+  @@index([email])
+  @@index([orgId])
+  @@map("users")
+}
+
+model Profile {
+  id     String @id @default(uuid())
+  userId String
+  label  String @default("") // user-defined name e.g. "Optimistic path", "Conservative"
+
+  // Personal info
+  fullName      String
+  age           Int
+  gender        String
+  locationCity  String
+  locationState String
+
+  // Education
+  highestDegree   String
+  fieldOfStudy    String
+  institutionTier String
+
+  // Career current state
+  currentRole       String
+  currentIndustry   String
+  yearsOfExperience Float
+  employmentStatus  String
+  currentSalaryLpa  Float
+
+  // Skills
+  technicalSkills String[]
+  softSkills      String[]
+  certifications  String[]
+
+  // Goals & preferences
+  interestDomains     String[]
+  careerGoal          String
+  preferredWorkStyle  String
+  willingToRelocate   Boolean
+  targetTimelineYears Int
+
+  // Life context
+  lifeStage        String
+  burnoutLevel     Int
+  stressTolerance  Int
+  hasDependents    Boolean
+  recentLifeEvent  String
+  workLifePriority String
+
+  // Assessment
+  leadershipScore   Float
+  alignmentCategory String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  roadmaps Roadmap[]
+
+  @@index([userId])
+  @@map("profiles")
+}
+
+model Roadmap {
+  id          String   @id @default(uuid())
+  userId      String
+  profileId   String
+  roadmapData Json
+  auditScores Json
+  probability    Float?
+  completedNodes String[] @default([])
+  createdAt      DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([profileId])
+  @@map("roadmaps")
+}
+
+model CareerCluster {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String
+  domains     String[]
+  demandScore Float
+  growthTrend String
+  avgSalary   Int?
+  topSkills   String[]
+  createdAt   DateTime @default(now())
+
+  snapshots DemandSnapshot[]
+
+  @@map("career_clusters")
+}
+
+model DemandSnapshot {
+  id          String   @id @default(uuid())
+  clusterId   String
+  demandScore Float
+  snapshotDate DateTime
+  cluster     CareerCluster @relation(fields: [clusterId], references: [id], onDelete: Cascade)
+
+  @@index([clusterId])
+  @@map("demand_snapshots")
+}
+
+model AuditResult {
+  id             String   @id @default(uuid())
+  roadmapId      String
+  dimension      String
+  framework      String
+  score          Float
+  risk           String
+  explanation    String
+  recommendation String
+  createdAt      DateTime @default(now())
+
+  @@index([roadmapId])
+  @@map("audit_results")
+}
