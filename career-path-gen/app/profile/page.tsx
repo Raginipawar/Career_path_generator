@@ -364,6 +364,9 @@ function Step1({ data, setData }: any) {
 }
 
 function Step2({ data, setData }: any) {
+  const isDropout       = data.highestDegree === "School Dropout" || data.highestDegree === "College Dropout";
+  const isSchoolDropout = data.highestDegree === "School Dropout";
+
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-right-4">
       <div className="flex items-center gap-3 text-[var(--primary)] mb-6">
@@ -374,27 +377,57 @@ function Step2({ data, setData }: any) {
       <div className="space-y-6">
         <div>
           <label className="block text-sm font-medium text-[var(--text)] mb-2">Highest Degree</label>
-          <select value={data.highestDegree} onChange={e => setData({...data, highestDegree: e.target.value})} className="input-field">
+          <select value={data.highestDegree} onChange={e => setData({...data, highestDegree: e.target.value, institutionTier: e.target.value === "School Dropout" ? "Tier 3" : data.institutionTier})} className="input-field">
             <option value="">Select degree...</option>
+            <option>School Dropout</option>
+            <option>College Dropout</option>
             <option>High School</option><option>Diploma</option><option>B.Tech</option>
             <option>B.Sc</option><option>M.Tech</option><option>MBA</option><option>PhD</option><option>Other</option>
           </select>
         </div>
-        <div>
-          <label className="block text-sm font-medium text-[var(--text)] mb-2">Field of Study</label>
-          <input type="text" value={data.fieldOfStudy} onChange={e => setData({...data, fieldOfStudy: e.target.value})} className="input-field" placeholder="e.g. Computer Science" />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-[var(--text)] mb-3">Institution Tier</label>
-          <div className="flex gap-4">
-            {["Tier 1", "Tier 2", "Tier 3"].map(tier => (
-              <label key={tier} className={`flex-1 border rounded-lg p-4 cursor-pointer text-center transition-all ${data.institutionTier === tier ? 'border-[var(--primary)] bg-[var(--primary)]/5 text-[var(--primary)] font-semibold' : 'border-slate-200 text-slate-600 hover:border-[var(--accent)]'}`}>
-                <input type="radio" name="tier" value={tier} checked={data.institutionTier === tier} onChange={e => setData({...data, institutionTier: e.target.value})} className="hidden" />
-                {tier}
-              </label>
-            ))}
+
+        {isDropout && (
+          <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm">
+            <p className="font-semibold text-amber-800 mb-1">
+              {isSchoolDropout ? "School Dropout Path" : "College Dropout Path"}
+            </p>
+            <p className="text-amber-700 leading-relaxed">
+              {isSchoolDropout
+                ? "Your roadmap will focus on skills-first vocational tracks, GCC apprenticeships, and self-learning pathways — no degree required. Many successful careers start exactly here."
+                : "You have foundational knowledge — your roadmap will prioritise certification-based upskilling, GCC programs, and portfolio-led career entry over formal qualifications."}
+            </p>
           </div>
+        )}
+
+        <div>
+          <label className="block text-sm font-medium text-[var(--text)] mb-2">
+            {isDropout ? "Area of Interest" : "Field of Study"}
+          </label>
+          <input
+            type="text"
+            value={data.fieldOfStudy}
+            onChange={e => setData({...data, fieldOfStudy: e.target.value})}
+            className="input-field"
+            placeholder={isDropout ? "e.g. Technology, Business, Design, Media" : "e.g. Computer Science"}
+          />
+          {isDropout && <p className="text-xs text-[var(--muted)] mt-1">Tell us what you're passionate about — we'll map a realistic career to it.</p>}
         </div>
+
+        {!isSchoolDropout && (
+          <div>
+            <label className="block text-sm font-medium text-[var(--text)] mb-3">
+              {data.highestDegree === "College Dropout" ? "College Attended (Tier)" : "Institution Tier"}
+            </label>
+            <div className="flex gap-4">
+              {["Tier 1", "Tier 2", "Tier 3"].map(tier => (
+                <label key={tier} className={`flex-1 border rounded-lg p-4 cursor-pointer text-center transition-all ${data.institutionTier === tier ? 'border-[var(--primary)] bg-[var(--primary)]/5 text-[var(--primary)] font-semibold' : 'border-slate-200 text-slate-600 hover:border-[var(--accent)]'}`}>
+                  <input type="radio" name="tier" value={tier} checked={data.institutionTier === tier} onChange={e => setData({...data, institutionTier: e.target.value})} className="hidden" />
+                  {tier}
+                </label>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

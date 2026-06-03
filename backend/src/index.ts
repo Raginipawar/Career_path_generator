@@ -22,7 +22,7 @@ import { getRedis } from './lib/redis';
 import { prisma } from './lib/prisma';
 
 const app = express();
-const PORT = parseInt(process.env.PORT ?? '4000', 10);
+const PORT = parseInt(process.env.PORT ?? '6017', 10);
 
 // ─── Security & Parsing ───────────────────────────────────────────────────────
 app.use(helmet());
