@@ -5,6 +5,7 @@ import toast from "react-hot-toast";
 import Link from "next/link";
 import ReactFlow, { Background, Controls, Handle, Position, NodeMouseHandler } from "reactflow";
 import "reactflow/dist/style.css";
+import ExportPDF from "@/components/ui/ExportPDF";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 function getToken() { try { return localStorage.getItem("company-token"); } catch { return null; } }
@@ -333,8 +334,28 @@ export default function QuickAnalysisPage() {
               </div>
             )}
 
-            <div className="flex gap-3">
+            <div className="flex gap-3 flex-wrap">
               <button onClick={() => { setStep("form"); setResult(null); setSelectedNode(null); }} className="flex-1 py-3 border border-slate-200 rounded-xl text-sm font-medium text-[var(--text)] hover:bg-slate-50">Run Another Analysis</button>
+              {result && (() => {
+                const pdfRoadmap = {
+                  ...result,
+                  roadmapId: "quick-analysis",
+                  completedNodes: [],
+                  fromCache: false,
+                  current_role: profile.currentRole,
+                  target_role: targetRole,
+                  audit_scores: result.audit_scores ?? [],
+                  emotional_forecast: result.emotional_forecast ?? [],
+                  alternative_paths: result.alternative_paths ?? [],
+                  roadmap_nodes: result.roadmap_nodes ?? [],
+                  roadmap_edges: result.roadmap_edges ?? [],
+                };
+                return (
+                  <div className="flex-1">
+                    <ExportPDF roadmap={pdfRoadmap} profileName={profile.fullName || "Candidate"} variant="light" />
+                  </div>
+                );
+              })()}
               <Link href="/company/dashboard" className="flex-1 py-3 bg-[var(--primary)] text-white rounded-xl text-sm font-medium text-center hover:bg-[var(--secondary)] transition-colors">Back to Dashboard</Link>
             </div>
           </div>

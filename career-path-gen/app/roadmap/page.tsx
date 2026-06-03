@@ -515,7 +515,7 @@ function CareerNode({ data, selected }: any) {
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function RoadmapPage() {
-  const { roadmapResponse, profileId, user, setCompletedNodes } = useAppStore();
+  const { roadmapResponse, profileId, user, profileData, setCompletedNodes } = useAppStore();
   const [sidebarOpen, setSidebarOpen]   = useState(true);
   const [selectedNode, setSelectedNode] = useState<RoadmapNode | null>(null);
 
@@ -584,7 +584,7 @@ export default function RoadmapPage() {
             <Link href="/reports" className="flex items-center gap-1.5 text-xs text-white/70 hover:text-white bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg transition-colors">
               <ShieldCheck className="w-3.5 h-3.5" /> Audit Report
             </Link>
-            <ExportPDF roadmap={roadmapResponse} />
+            <ExportPDF roadmap={roadmapResponse} profileName={profileData?.fullName || user?.name} />
             <button onClick={() => setSidebarOpen(o => !o)} className="flex items-center gap-1.5 text-xs text-white/70 hover:text-white bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg transition-colors">
               {sidebarOpen ? <ChevronRight className="w-3.5 h-3.5" /> : <ChevronLeft className="w-3.5 h-3.5" />}
               {sidebarOpen ? "Hide" : "Show"} Details

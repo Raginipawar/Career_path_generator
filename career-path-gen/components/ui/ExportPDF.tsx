@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Download, Loader2 } from "lucide-react";
 import { RoadmapResponse } from "@/types";
 
-interface Props { roadmap: RoadmapResponse; profileName?: string; }
+interface Props { roadmap: RoadmapResponse; profileName?: string; variant?: "dark" | "light"; }
 
 // jsPDF standard fonts don't support Unicode (rupee sign, etc.)
 // Replace all problem characters before passing to PDF
@@ -15,7 +15,7 @@ function clean(text: string): string {
     .trim();
 }
 
-export default function ExportPDF({ roadmap, profileName }: Props) {
+export default function ExportPDF({ roadmap, profileName, variant = "dark" }: Props) {
   const [exporting, setExporting] = useState(false);
 
   const handleExport = async () => {
@@ -304,10 +304,12 @@ export default function ExportPDF({ roadmap, profileName }: Props) {
     }
   };
 
+  const cls = variant === "light"
+    ? "flex items-center justify-center gap-1.5 w-full py-3 rounded-xl text-sm font-medium border border-slate-200 text-[var(--primary)] hover:bg-slate-50 transition-colors disabled:opacity-50"
+    : "flex items-center gap-1.5 text-xs text-white/70 hover:text-white bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-50";
+
   return (
-    <button onClick={handleExport} disabled={exporting}
-      className="flex items-center gap-1.5 text-xs text-white/70 hover:text-white bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-50"
-    >
+    <button onClick={handleExport} disabled={exporting} className={cls}>
       {exporting
         ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Exporting...</>
         : <><Download className="w-3.5 h-3.5" /> Export PDF</>}
