@@ -65,6 +65,16 @@ RULES:
 - Emotional forecast should have 2-4 phases matching the transition timeline
 - All timeline estimates should respect the user's target_timeline_years
 
+DROPOUT-SPECIFIC RULES (apply when highest_degree is "School Dropout" or "College Dropout"):
+- NEVER recommend roles that require formal degrees (e.g. chartered accountant, MBBS doctor, civil services)
+- Focus on: GCC apprenticeships, vocational tracks, certification-based roles, freelance, content, digital marketing, coding bootcamp graduates, sales, operations
+- For "School Dropout": start from foundational skill-building (3-6 months) before any professional role node
+- For "College Dropout": treat as having partial domain knowledge — skip foundation if they have relevant skills
+- Emphasize self-learning milestones: free courses, certifications (Google, AWS, Meta), portfolio projects
+- Keep probability realistic: 30-55% for technical roles, 45-70% for skills/operations/GCC roles
+- Description of Node 1 MUST acknowledge their non-traditional background as a strength (resilience, self-direction)
+- Alternative paths MUST include at least one GCC or operations track
+
 PROBABILITY CALIBRATION (be realistic, not encouraging):
 - Same domain, adjacent role (e.g. Dev → Senior Dev): 75-90%
 - Cross-functional but related (e.g. Dev → Product): 55-70%

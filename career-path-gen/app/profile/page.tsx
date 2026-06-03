@@ -434,30 +434,41 @@ function Step2({ data, setData }: any) {
 }
 
 function Step3({ data, setData }: any) {
-  const isStudent    = data.employmentStatus === "Student";
+  const isDropout    = data.highestDegree === "School Dropout" || data.highestDegree === "College Dropout";
+  const isStudent    = !isDropout && data.employmentStatus === "Student";
   const isUnemployed = data.employmentStatus === "Unemployed" || data.employmentStatus === "Career Break";
+
+  const employmentOptions = [
+    { value: "Employed Full-Time", label: "Working Full-Time" },
+    { value: "Employed Part-Time", label: "Working Part-Time" },
+    { value: "Self-Employed",      label: "Freelancer / Self-Employed" },
+    { value: "Unemployed",         label: "Looking for Work" },
+    { value: "Career Break",       label: "Career Break" },
+    ...(!isDropout ? [{ value: "Student", label: "Student" }] : []),
+  ];
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-right-4">
       <div className="flex items-center gap-3 text-[var(--primary)] mb-6">
         <Briefcase className="w-6 h-6" />
         <h2 className="text-xl font-serif text-[var(--dark)]">
-          {isStudent ? "Your Academic Background" : "Current Career"}
+          {isStudent ? "Your Academic Background" : isDropout ? "Your Current Situation" : "Current Career"}
         </h2>
       </div>
 
-      {/* Employment status — first, drives everything below */}
+      {isDropout && (
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-sm text-amber-700">
+          Tell us your current work situation — we'll build a roadmap around your real-world experience, not your degree.
+        </div>
+      )}
+
+      {/* Employment status */}
       <div>
-        <label className="block text-sm font-medium text-[var(--text)] mb-2">I am currently a…</label>
+        <label className="block text-sm font-medium text-[var(--text)] mb-2">
+          {isDropout ? "What are you doing right now?" : "I am currently a…"}
+        </label>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-          {[
-            { value: "Student",           label: "Student" },
-            { value: "Employed Full-Time", label: "Working Full-Time" },
-            { value: "Employed Part-Time", label: "Working Part-Time" },
-            { value: "Self-Employed",      label: "Freelancer / Self-Employed" },
-            { value: "Unemployed",         label: "Looking for Work" },
-            { value: "Career Break",       label: "Career Break" },
-          ].map(opt => (
+          {employmentOptions.map(opt => (
             <button
               key={opt.value}
               type="button"
@@ -768,6 +779,8 @@ function Step5({ data, setData, toggleDomain }: any) {
 }
 
 function Step6({ data, setData }: any) {
+  const isDropout = data.highestDegree === "School Dropout" || data.highestDegree === "College Dropout";
+
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-right-4">
       <div className="flex items-center gap-3 text-[var(--primary)] mb-6">
@@ -775,17 +788,19 @@ function Step6({ data, setData }: any) {
         <h2 className="text-xl font-serif text-[var(--dark)]">Life Context & Assessment</h2>
       </div>
 
-      <div>
-        <label className="block text-sm font-medium text-[var(--text)] mb-3">Life Stage</label>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-          {["Early Career", "Mid Career", "Late Career", "Career Break", "Re-entering Workforce"].map(stage => (
-            <label key={stage} className={`border rounded-lg p-3 cursor-pointer text-center text-sm transition-all ${data.lifeStage === stage ? 'border-[var(--primary)] bg-[var(--primary)]/5 text-[var(--primary)] font-semibold' : 'border-slate-200 text-slate-600 hover:border-[var(--accent)]'}`}>
-              <input type="radio" value={stage} checked={data.lifeStage === stage} onChange={e => setData({...data, lifeStage: e.target.value})} className="hidden" />
-              {stage}
-            </label>
-          ))}
+      {!isDropout && (
+        <div>
+          <label className="block text-sm font-medium text-[var(--text)] mb-3">Life Stage</label>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            {["Early Career", "Mid Career", "Late Career", "Career Break", "Re-entering Workforce"].map(stage => (
+              <label key={stage} className={`border rounded-lg p-3 cursor-pointer text-center text-sm transition-all ${data.lifeStage === stage ? 'border-[var(--primary)] bg-[var(--primary)]/5 text-[var(--primary)] font-semibold' : 'border-slate-200 text-slate-600 hover:border-[var(--accent)]'}`}>
+                <input type="radio" value={stage} checked={data.lifeStage === stage} onChange={e => setData({...data, lifeStage: e.target.value})} className="hidden" />
+                {stage}
+              </label>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div>
