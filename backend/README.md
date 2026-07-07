@@ -362,7 +362,7 @@ Cache hit → returns immediately (sub-10ms).
 | `JWT_SECRET` | ✅ | Min 32 char secret for JWT signing |
 | `JWT_EXPIRES_IN` | No | Token expiry (default: 7d) |
 | `REDIS_URL` | ✅ | Upstash Redis connection URL |
-| `RAG_SERVICE_URL` | ✅ | Person 3's FastAPI service URL |
+| `RAG_SERVICE_URL` | ✅ | FastAPI RAG microservice URL (HF Spaces in prod) |
 | `FRONTEND_URL` | ✅ | Allowed CORS origin |
 
 ---

@@ -1,105 +1,158 @@
----
-title: Career Path Generator RAG
-emoji: 🚀
-colorFrom: green
-colorTo: teal
-sdk: docker
-app_port: 7860
-pinned: false
+# Career Path Generator — for KALKI AI
+
+> AI-powered career roadmap system with semantic retrieval, a 14-dimension ethical audit engine, and a knowledge graph — built as a full-stack research project.
+
 ---
 
-# Career Path Generator — RAG Microservice
+## What it does
 
-HEAD
-FastAPI microservice powering the career roadmap generation pipeline using RAG (Retrieval-Augmented Generation) with ChromaDB, sentence-transformers, and Groq LLaMA 3.
+Users input their current skills, domain, and experience level. The system:
+
+1. **Classifies** the career goal into one of 25 domains using a two-stage semantic classifier (keyword override → embedding cosine similarity)
+2. **Retrieves** the top-K most relevant documents from a 360-doc ChromaDB corpus via all-MiniLM-L6-v2 embeddings
+3. **Scores** career transition probability using a 3-layer PyTorch MLP (7→32→16→1)
+4. **Audits** the roadmap across 14 ethical dimensions (PASSIONIT + PRUTL framework) — zero LLM calls, fully deterministic
+5. **Narrates** the final roadmap using Groq LLaMA-3.3-70B (called exactly twice per non-cached request)
+6. **Caches** results in Redis by SHA-256 content hash (24h TTL, ~45× speedup on cache hits: 2.24s → 0.05s)
+
+---
 
 ## Architecture
 
 ```
-Profile Input → Redis Cache Check → sentence-transformers (embed)
-  → ChromaDB (retrieve top-K docs) → Groq LLaMA 3 (generate roadmap)
-  → Groq LLaMA 3 (ethical audit) → Cache in Redis → Return JSON
+┌────────────────────────────────────────────────────────────┐
+│  Next.js 16 Frontend (React 19, Zustand, ReactFlow)        │
+│  Landing page · Profile form · Roadmap visualizer          │
+└──────────────────────────┬─────────────────────────────────┘
+                           │ REST
+┌──────────────────────────▼─────────────────────────────────┐
+│  Express Backend (Node.js / TypeScript)                    │
+│  Auth (JWT + bcrypt) · Prisma ORM · Redis cache layer      │
+│  Supabase PostgreSQL · Render.com deployment               │
+└──────────────────────────┬─────────────────────────────────┘
+                           │ HTTP
+┌──────────────────────────▼─────────────────────────────────┐
+│  RAG Microservice (Python / FastAPI)                       │
+│  ChromaDB · all-MiniLM-L6-v2 · NetworkX knowledge graph    │
+│  PyTorch MLP · PASSIONIT/PRUTL audit · Groq LLaMA-3.3-70B │
+│  Deployed on Hugging Face Spaces                           │
+└────────────────────────────────────────────────────────────┘
 ```
 
-## Setup
+---
+
+## Technical Highlights
+
+| Feature | Detail |
+|---|---|
+| Embedding model | `all-MiniLM-L6-v2` (384-dim, 6-layer transformer) |
+| Vector store | ChromaDB, 360 documents, 25 career domains |
+| Domain classifier | Two-stage: keyword override (+0.45 boost) → cosine similarity |
+| Knowledge graph | NetworkX DiGraph, 95 nodes, 70 edges, density 0.0078 |
+| Probability head | PyTorch MLP (7→32→16→1, Xavier-uniform init) |
+| Ethical audit | 14-dim PASSIONIT+PRUTL, fully deterministic, 0 LLM calls |
+| LLM | Groq LLaMA-3.3-70B, called max 2× per uncached request |
+| Cache | Redis SHA-256 content hash, 24h TTL, ~45× hit speedup |
+| Domain classification accuracy | 28/28, avg confidence 0.87 |
+| Avg latency | ~2.24s uncached, ~0.05s cached |
+
+---
+
+## Stack
+
+**RAG Service** — Python 3.11, FastAPI, ChromaDB, sentence-transformers, PyTorch, NetworkX, Groq SDK, Redis
+
+**Backend API** — Node.js 20, TypeScript, Express 4, Prisma, Supabase PostgreSQL, Redis (Upstash), JWT, Zod
+
+**Frontend** — Next.js 16, React 19, Tailwind CSS v4, Zustand, ReactFlow, Recharts, jsPDF
+
+**Infrastructure** — Docker, Hugging Face Spaces (RAG), Render.com (backend), Vercel (frontend)
+
+---
+
+## Repo Structure
+
+```
+Career_path_generator/
+├── main.py               # FastAPI app entry point
+├── config.py             # Settings (pydantic-settings)
+├── models.py             # Pydantic request/response schemas
+├── requirements.txt
+├── Dockerfile            # HF Spaces container
+├── render.yaml           # Render.com deployment config
+│
+├── rag/
+│   ├── embedder.py       # ChromaDB init, sentence-transformer loader
+│   ├── retriever.py      # Semantic retrieval + two-stage domain classifier
+│   ├── generator.py      # Groq roadmap generation + PASSIONIT/PRUTL audit
+│   ├── knowledge_graph.py # NetworkX DiGraph from ChromaDB metadata
+│   ├── neural_scorer.py  # PyTorch MLP probability head
+│   ├── suggester.py      # Career path suggestion engine
+│   └── cache.py          # Redis SHA-256 content-hash cache
+│
+├── data/                 # 360-doc ChromaDB corpus (JSON)
+│
+├── backend/              # Express API (Node.js / TypeScript)
+│   ├── src/
+│   │   ├── routes/       # auth, profile, roadmap, clusters, analytics
+│   │   ├── middleware/   # JWT auth, rate limiter, error handler
+│   │   └── services/     # RAG proxy, Redis cache, Prisma client
+│   └── prisma/
+│       └── schema.prisma
+│
+└── career-path-gen/      # Next.js frontend
+    └── app/              # App Router pages
+```
+
+---
+
+## Running Locally
+
+### RAG Service (Python)
 
 ```bash
-# 1. Create virtual environment
-python -m venv venv
-source venv/bin/activate  # Linux/Mac
-# venv\Scripts\activate   # Windows
-
-# 2. Install dependencies
 pip install -r requirements.txt
-
-# 3. Create .env from template
-cp .env.example .env
-# Edit .env → add your GROQ_API_KEY and REDIS_URL
-
-# 4. Embed career documents into ChromaDB
-python scripts/embed_docs.py --files ../data/career_docs_starter.json ../data/career_docs_expanded.json
-
-# 5. Run the server
-python main.py
-# or: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+uvicorn main:app --host 0.0.0.0 --port 7860 --reload
+# → http://localhost:7860
 ```
 
-## Endpoints
+Requires: `GROQ_API_KEY`, `REDIS_URL` (optional — degrades gracefully without Redis)
 
-| Method | Path | Description |
-|--------|------|-------------|
-| POST | `/rag/generate` | Full RAG pipeline: profile → roadmap + audit |
-| POST | `/rag/embed` | Bulk embed career documents into ChromaDB |
-| GET | `/rag/health` | Health check (ChromaDB, Groq, Redis status) |
-
-API docs auto-generated at: `http://localhost:8000/docs`
-
-## Testing
+### Backend API (Node.js)
 
 ```bash
-# End-to-end test with demo scenario (Engineer → EdTech)
-python scripts/test_pipeline.py
+cd backend
+npm install
+cp .env.example .env   # fill in DATABASE_URL, JWT_SECRET, REDIS_URL, RAG_SERVICE_URL
 
-# Test with custom profile
-python scripts/test_pipeline.py --profile ../data/sample_profile.json
+npx prisma db push
+npx prisma generate
+npm run prisma:seed    # seeds 22 career clusters
+
+npm run dev
+# → http://localhost:4000
 ```
 
-## For Nikhil (Backend)
-
-Your `POST /api/roadmap/generate` should call my `/rag/generate` like this:
-
-```typescript
-const response = await fetch(`${RAG_SERVICE_URL}/rag/generate`, {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ profile: profileData, top_k: 5 }),
-});
-const data = await response.json();
-// data.roadmap_nodes, data.roadmap_edges, data.audit_scores, etc.
-```
-
-## For Ragini (Data)
-
-When you have new docs, either:
-1. Push JSON files and I'll run `embed_docs.py` on them
-2. Call the embed endpoint directly:
+### Frontend (Next.js)
 
 ```bash
-curl -X POST http://localhost:8000/rag/embed \
-  -H "Content-Type: application/json" \
-  -d '{"documents": [{"doc_id": "new_001", "text": "...", "metadata": {"source": "Naukri", "domain": "AI & ML", "doc_type": "role_description"}}]}'
+cd career-path-gen
+npm install
+npm run dev
+# → http://localhost:3017
 ```
 
-## Docker (for Shakti)
+---
 
-```bash
-docker build -t rag-service .
-docker run -p 8000:8000 --env-file .env rag-service
-```
+## Live Deployment
 
-## python scripts/create_quality_report.py
-## 
-python scripts/embedder.py
-=======
-FastAPI + ChromaDB + Groq LLaMA 3 RAG pipeline for career roadmap generation.
-031eb30e9840be0260113c1237c771422c2aa0dc
+| Service | URL |
+|---|---|
+| RAG Microservice | https://nikhil-shah-career-path.hf.space |
+| Backend API | Render.com |
+
+---
+
+## License
+
+MIT
