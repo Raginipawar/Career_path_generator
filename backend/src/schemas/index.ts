@@ -48,9 +48,9 @@ export const ProfileSchema = z.object({
   currentSalaryLpa: z.number().min(0),
 
   // Skills
-  technicalSkills: z.array(z.string()).max(30).default([]),
-  softSkills:      z.array(z.string()).max(20).default([]),
-  certifications:  z.array(z.string()).max(20).default([]),
+  technicalSkills: z.array(z.string()).max(50).default([]),
+  softSkills:      z.array(z.string()).max(30).default([]),
+  certifications:  z.array(z.string()).max(30).default([]),
 
   // Goals & preferences
   interestDomains:     z.array(z.string()).max(10).default([]),
