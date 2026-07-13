@@ -36,7 +36,7 @@ export default function DashboardPage() {
           {/* Welcome header */}
           <div className="bg-[var(--dark)] text-white rounded-2xl p-8 flex items-center justify-between flex-wrap gap-4">
             <div>
-              <h1 className="text-3xl font-serif font-bold">Welcome back, {user?.name?.split(' ')[0]} 👋</h1>
+              <h1 className="text-3xl font-serif font-bold text-[var(--accent)]">Welcome back, {user?.name?.split(' ')[0]} 👋</h1>
               <p className="text-white/70 mt-1">Your career intelligence command centre.</p>
             </div>
             <div className="flex gap-3">
