@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { DM_Sans, DM_Serif_Display } from "next/font/google";
 import Navbar from "@/components/ui/Navbar";
+import PageTransition from "@/components/ui/PageTransition";
+import ScrollReveal from "@/components/ui/ScrollReveal";
 import { Toaster } from "react-hot-toast";
 import "./globals.css";
 
@@ -29,7 +31,10 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${dmSans.variable} ${dmSerif.variable} antialiased min-h-screen flex flex-col`}>
         <Navbar />
-        {children}
+        <ScrollReveal />
+        <PageTransition>
+          {children}
+        </PageTransition>
         <Toaster position="bottom-right" />
       </body>
     </html>
