@@ -10,35 +10,26 @@ export default function ScrollReveal() {
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            (entry.target as HTMLElement).style.opacity = "1";
-            (entry.target as HTMLElement).style.transform = "translateY(0)";
-            observer.unobserve(entry.target);
+            const el = entry.target as HTMLElement;
+            el.style.opacity = "1";
+            el.style.transform = "translateY(0)";
+            observer.unobserve(el);
           }
         });
       },
-      { threshold: 0.08, rootMargin: "0px 0px -30px 0px" }
+      { threshold: 0.08, rootMargin: "0px 0px -20px 0px" }
     );
 
-    // Wait for page content to render, then observe cards and sections
     const timer = setTimeout(() => {
       document.querySelectorAll<HTMLElement>(
-        "main > *, .reveal-on-scroll"
+        ".bg-white.rounded-xl, .bg-white.rounded-2xl, .border.rounded-xl, .border.rounded-2xl"
       ).forEach((el) => {
-        observer.observe(el);
-      });
-
-      // Also observe grid children and standalone cards
-      document.querySelectorAll<HTMLElement>(
-        "[class*='grid'] > *, section > *"
-      ).forEach((el) => {
-        // Skip navbar, toasters, and already-visible fixed elements
-        if (el.closest("nav") || el.closest("[data-no-reveal]")) return;
         el.style.opacity = "0";
-        el.style.transform = "translateY(18px)";
-        el.style.transition = "opacity 0.5s ease, transform 0.5s ease";
+        el.style.transform = "translateY(16px)";
+        el.style.transition = "opacity 0.45s ease, transform 0.45s ease";
         observer.observe(el);
       });
-    }, 80);
+    }, 120);
 
     return () => {
       clearTimeout(timer);
